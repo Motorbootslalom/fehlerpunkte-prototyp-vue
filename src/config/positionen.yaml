@@ -1,0 +1,533 @@
+# =====================================================================
+# Beobachtungs-Positionen  (ORTS- und PERSONENABHÄNGIG)
+# =====================================================================
+# Bei einem Wettkampf wird ein bestimmter AUFBAU (Setup) genutzt - Standard ist
+# "Alcatraz" (WKR sitzt hinten). Jeder Aufbau bündelt die genutzten Positionen
+# (auch gemeinsame wie Zeit/Knoten). Nur die Tor-Positionen unterscheiden sich
+# je Aufbau (Blickrichtung/Spaltenreihenfolge); die übrigen werden geteilt.
+#
+# ---- POSITIONS-Parameter (je Eintrag unter `positionen:`) -----------
+#   id           Eindeutige Kennung (von den Aufbauten referenziert). Pflicht.
+#   titel        Kurzname im Kopf (links). Pflicht.
+#   menue        Ausführlicher Name in den Auswahl-Menüs (Default: titel).
+#   ausrichtung  hoch (A4 Hochformat, Default) | quer (Querformat, z. B. Knoten).
+#   lauf         false = Lauf NICHT im Kopf zeigen (z. B. Knoten). Default true.
+#   bild         Bild-Ordner unter public/parcours (z. B. alcatraz_Parcours).
+#   bildGenerator true = `bild` wird beim Build aus `bildQuelle` erzeugt: die per
+#                Spalten-`hebt` markierten Tore bleiben voll, der Rest wird
+#                abgeblendet (scripts/generate-parcours.ts → SVG + PNG). Ohne den
+#                Schalter zeigt `bild` auf ein festes fertiges Bild.
+#   bildQuelle   Quell-Ordner für den Generator (Default: alcatraz_Parcours).
+#   abblenden    [Tor2, Tor4, …] Element-IDs, die abgeblendet werden. Fallback zu
+#                `hebt` bzw. Ergänzung (z. B. zusätzlich SpeedbojeKlasse7).
+#   bildDrehung  0 | 90 | -90 | 180  (Bild um so viel Grad drehen).
+#   pfeileSpiegeln  true = Position von hinten betrachtet (Pfeil-Schema spiegeln).
+#   hinweis      Verweis auf hinweise.<id> (unten) - oder direkter Freitext.
+#   katalog      Verweis auf fehlerpunkte.kataloge.<id> (positionsweite Fehler).
+#   disq         alle | keine | [A, B, G, …]  (nicht relevante ausblenden).
+#   klassen      [4,5,6,7] = Blatt nur für diese Klassen (fehlt = alle).
+#   summeSpalte  key der Spalte (typ: summe), die die Zeilen-Σ zeigt.
+#   subTrenner   Standard-Design der Linien ZWISCHEN den sub-Spalten aller
+#                Spalten dieser Position (je Spalte via `subTrenner` überschreibbar).
+#
+# ---- SPALTEN-Parameter (je Eintrag unter `spalten:`) ----------------
+#   key          Zell-Schlüssel, in der Position eindeutig. Pflicht (außer trenner).
+#   label        Spaltenkopf-Text.
+#   typ          Spalten-Typ (siehe unten). Pflicht.
+#   sub          Unter-Spalten, z. B. ["hin seiteA", "rueck seiteA"] → je eine Zelle.
+#   innen        seiteA | seiteB: welche Bojen-Seite am Tor die INNERE ist
+#                (nur relevant im Schema "Innen/Außen").
+#   punkteSpalte key einer summe-Spalte, in die die aus `code` berechneten Punkte
+#                geschrieben werden.
+#   katalog      eigener Fehler-Katalog NUR dieser Spalte (statt positionsweit).
+#   hebt         Element-ID im Parcoursbild (z. B. Tor1), die diese Spalte
+#                hervorhebt. Nur mit `bildGenerator`: markierte Tore bleiben voll,
+#                der Rest wird gedimmt. Beim Kopieren einer Spalte wandert die
+#                Hervorhebung mit.
+#   breite       Relativer Breiten-Anteil (grob). OHNE Angabe teilen sich die
+#                Spalten den Restplatz gleichmäßig; MIT `breite: N` bekommt die
+#                Spalte mehr Raum (Bildschirm/Druck ≈ N × 12 % der Tabellenbreite,
+#                Vektor-PDF: N-facher Flex-Anteil). Darum ist `breite: 1` meist
+#                breiter als ohne - eine Spalte ohne Angabe erhält bei vielen
+#                Spalten nur einen kleinen Rest-Anteil. Sinnvoll v. a. für
+#                Freitext-/Fehler-Spalten (breite: 1-4).
+#   klassen      Spalte nur für diese Klassen (z. B. Speed [5,6,7]); fehlt = alle.
+#   trenner      Kurzform: hervorgehobene Linie am LINKEN Rand dieser Spalte.
+#   subTrenner   Design der Linien zwischen den sub-Spalten DIESER Spalte
+#                (überschreibt den Positions-Standard, z. B. Tor 5 "doppelt").
+#
+# ---- Spalten-Typen (typ) --------------------------------------------
+#   boje  - Punkte direkt eintragen (5, 10, 15 …); ein Disq-Buchstabe markiert
+#           die Disqualifikation an dieser Stelle. sub = Unter-Spalten.
+#   code  - Fehlercodes (Zahlen) aus dem verwiesenen Katalog; punkteSpalte
+#   summe - berechnete Punkte-/Σ-Spalte     zeit - Zeiteingabe
+#   disq  - Disqualifikations-Spalte          text - Freitext (breite)
+#   trenner - KEINE Datenspalte, sondern eine Trennlinie zwischen zwei Spalten
+#             (linke Kante der Folgespalte). design: fett | doppelt | gepunktet |
+#             gestrichelt. Beispiel (Hin/Rück trennen):
+#               - { key: t5, ... }
+#               - { typ: trenner, design: doppelt }
+#               - { key: t3b, ... }
+#             Kurzform alternativ direkt an der Spalte: `trenner: doppelt`.
+# =====================================================================
+# ---- Globale Bojen-Kürzel (an EINER Stelle umstellbar) -------------
+# In "sub" und Hinweisen werden diese Tokens (als ganze Wörter) ersetzt.
+# So wird aus "hin seiteA" -> "H R". Alternativen:
+#   Hafen/Kai:    seiteA: H,  seiteB: K
+#   Land/See:     seiteA: L,  seiteB: S
+#   Rechts/Links: seiteA: R,  seiteB: L   (Standard)
+bezeichnungen:
+  hin: "H"           # 1. Zeichen: Hinfahrt
+  rueck: "R"         # 1. Zeichen: Rückfahrt (R = Rückfahrt; "R R" = Rück + Rechts ist ok)
+  seiteA: "R"        # 2. Zeichen: eine Bojen-Seite (Standard: Rechts)
+  seiteB: "L"        # 2. Zeichen: andere Bojen-Seite (Standard: Links)
+  seiteAlang: "Rechts"  # Langname (für den Hinweis-Text)
+  seiteBlang: "Links"
+  iahinweis: ""         # nur im Schema "Innen/Außen" mit Text gefüllt
+
+# ---- Auf der Seite umschaltbare Beschriftung (Bojen-Seiten) ---------
+# Wird eines gewählt, überschreiben seine tokens die bezeichnungen oben und
+# alle Listen werden neu beschriftet. Das erste ist der Standard.
+beschriftungen:
+  - id: rl
+    name: "Rechts / Links (R/L)"
+    tokens: { seiteA: "R", seiteB: "L", seiteAlang: "Rechts", seiteBlang: "Links" }
+  - id: ls
+    name: "Land / See (L/S)"
+    tokens: { seiteA: "L", seiteB: "S", seiteAlang: "Land", seiteBlang: "See" }
+  - id: sl
+    name: "See / Land (S/L)"
+    tokens: { seiteA: "S", seiteB: "L", seiteAlang: "See", seiteBlang: "Land" }
+  - id: kh
+    name: "Kai / Hafen (K/H)"
+    tokens: { seiteA: "K", seiteB: "H", seiteAlang: "Kai", seiteBlang: "Hafen" }
+  - id: pfeile
+    name: "Pfeile (→ / ←)"
+    raeumlich: true   # Pfeile zeigen eine Bildrichtung → an "von hinten"-Positionen spiegeln
+    tokens: { seiteA: "→", seiteB: "←", seiteAlang: "Rechts", seiteBlang: "Links" }
+  # Innen/Außen ist TOR-relativ: die Tore 1-4 tragen ihre innen/aussen-Kürzel
+  # (aus der `innen`-Markierung der Spalten), Tor 5/Start/Ziel bleiben bei R/L.
+  - id: ia
+    name: "Innen / Außen (I/A)"
+    tokens:
+      seiteA: "R"
+      seiteB: "L"
+      seiteAlang: "Rechts"
+      seiteBlang: "Links"
+      innen: "I"
+      aussen: "A"
+      iahinweis: "Tore 1-4: I = Innen, A = Außen (statt R/L; Tor 5/Start/Ziel bleiben R/L)"
+
+# ---- Wiederverwendbare Hinweise (Bojen-Bezeichnungen) --------------
+hinweise:
+  blickrichtung: |-
+    Bojen-Bezeichnung (eindeutig):
+    1. Zeichen = Fahrtrichtung: hin = Hinfahrt, rueck = Rückfahrt
+    2. Zeichen = Seite: seiteA = seiteAlang, seiteB = seiteBlang
+    iahinweis
+    Start = Berührung Einfahrt-Bojentor · Ziel = Berührung Ausfahrt-Bojentor
+    Fehler: pro berührter Boje (auch außerhalb des Manövers) = 5
+  knoten: "Fehler: 5 pro fehlerhafter Knoten"
+  parcours: "Es ist nur der eigentliche Fahrweg zu beobachten - keine Bojenberührungen!"
+
+# ---- Aufbauten (Setups) - der erste ist der Standard ---------------
+aufbauten:
+  - id: alcatraz
+    name: Alcatraz
+    positionen: [zeit, steg, gate135, gate245, tor5, mueb, parcours, knoten]
+  - id: frontal
+    name: Frontal
+    positionen: [zeit, steg, frontal135, frontal245, tor5, mueb, parcours, knoten]
+  - id: berlin
+    name: Berlin
+    positionen: [steg, bstartziel, brechts, blinks]
+  - id: bawue
+    name: Baden-Württemberg
+    positionen: [zeit, steg, bawueland1, bawueland2, bawuewasser1, bawuewasser2, knoten]
+  - id: parallel
+    name: Parallelslalom
+    positionen: [zeit, steg, parallelparcours]
+# ---- Positionen (von den Aufbauten per ID referenziert) ------------
+positionen:
+  # === Gemeinsame Positionen (in jedem Aufbau gleich) ===
+  - id: zeit
+    titel: "Zeit"
+    menue: "Zeitnahme"
+    ausrichtung: hoch
+    spalten:
+      - { key: zeit1, label: "Zeit 1", typ: zeit }
+      - { key: zeit2, label: "Zeit 2", typ: zeit }
+      - { key: zeit3, label: "Zeit 3", typ: zeit }
+
+  - id: steg
+    titel: "Steg"
+    menue: "Steg (Ablegen / Anlegen)"
+    ausrichtung: hoch
+    disq: alle
+    # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
+    # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
+    spalten:
+      - { key: fehlerAB, label: "Fehler AB", typ: code, punkteSpalte: fpab, katalog: stegAblegen, breite: 1 }
+      - { key: fpab, label: "F-Pkt. AB", typ: summe }
+      - { typ: trenner, design: "doppelt" }
+      - { key: fehlerAN, label: "Fehler AN", typ: code, punkteSpalte: fpan, katalog: stegAnlegen, breite: 1 }
+      - { key: fpan, label: "F-Pkt. AN", typ: summe }
+      - { typ: trenner, design: "doppelt" }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
+
+  - id: tor5
+    titel: "Tor 5"
+    menue: "Tor 5 (Einfahrt + Parcoursüberwachung)"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    summeSpalte: sum
+    disq: alle
+    katalog: tor5
+    spalten:
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
+      - { key: sum, label: "Σ", typ: summe }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+
+  - id: mueb
+    titel: "Mann-über-Bord"
+    menue: "Mann-über-Bord / Schikane"
+    ausrichtung: hoch
+    klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
+    summeSpalte: sum
+    disq: alle
+    katalog: mueb
+    spalten:
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
+      - { key: fp, label: "Fehlerpunkte", typ: summe }
+      - { key: sum, label: "Σ", typ: summe }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+
+  - id: parcours
+    titel: "Parcours"
+    menue: "Parcours einfach (nur Fahrweg)"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    disq: alle
+    hinweis: parcours
+    spalten:
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
+      - { key: disq, label: "Disq.", typ: disq }
+
+  - id: knoten
+    titel: "Knoten"
+    menue: "Knoten"
+    ausrichtung: quer
+    lauf: false          # Knoten werden nur einmal abgenommen (kein Lauf)
+    summeSpalte: sum
+    hinweis: knoten
+    spalten:
+      - { key: webleinstek, label: "Webleinstek", typ: boje, breite: 1 }
+      - { key: schotstek, label: "Schotstek", typ: boje, breite: 1 }
+      - { key: palstek, label: "Palstek", typ: boje, breite: 1 }
+      - { key: kreuzknoten, label: "Kreuzknoten", typ: boje, breite: 1 }
+      - { key: klampe, label: "Klampe", typ: boje, breite: 1 }
+      # - { key: stern, label: "*", typ: boje, breite: 1 }
+      - { key: sum, label: "Σ", typ: summe }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+
+  # === Aufbau ALCATRAZ: Tor-Positionen (Bild um 90° gedreht) ===
+  - id: gate135
+    titel: "Tor 1 / 3 / 5"
+    menue: "Tore 1 / 3 / 5"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_I
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Beobachtet wird nur die seiteA-Hälfte (untere Boje). Neben Tor 2/4 (aus
+    # `hebt` abgeleitet) werden daher die OBEREN Bojen von Tor 5 / Start-Ziel, die
+    # Schikane (MüB) und die obere Speedboje (7) abgeblendet.
+    abblenden: [Tor5_oben, Tor1_innen-7, Schikane, g3068]
+    bildDrehung: 90
+    pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA"] }
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor1 }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor3 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: gate245
+    titel: "Tor 2 / 4 / 5"
+    menue: "Tore 2 / 4 / 5"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_II
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Beobachtet wird nur die seiteB-Hälfte (obere Boje). Neben Tor 1/3 (aus
+    # `hebt`) werden die UNTEREN Bojen von Tor 5 / Start-Ziel, die Schikane (MüB)
+    # und die untere Speedboje (8) abgeblendet.
+    abblenden: [Tor5_unten, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    bildDrehung: 90
+    pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor2 }
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor4 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteB", "rueck seiteB"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  # === Aufbau FRONTAL: Tor-Positionen (Blick von vorne, ungedreht) ===
+  # Gleiche Bojen, aber andere Spaltenreihenfolge; reduzierte Disqualifikationen.
+  - id: frontal135
+    titel: "Tor 1 / 3 / 5"
+    menue: "Tore 1 / 3 / 5 (frontal)"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_I
+    bildGenerator: true    # teilt sich das Bild mit gate135 (gleiche Abblendung)
+    abblenden: [Tor5_oben, Tor1_innen-7, Schikane, g3068]
+    bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteB", "hin seiteA"], innen: seiteB, hebt: Tor1 }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteB", "hin seiteA"], innen: seiteB, hebt: Tor3 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["rueck seiteA", "hin seiteA"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor3 }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1 }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: frontal245
+    titel: "Tor 2 / 4 / 5"
+    menue: "Tore 2 / 4 / 5 (frontal)"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_II
+    bildGenerator: true    # teilt sich das Bild mit gate245 (gleiche Abblendung)
+    abblenden: [Tor5_unten, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteB", "hin seiteA"], innen: seiteA, hebt: Tor2 }
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteB", "hin seiteA"], innen: seiteA, hebt: Tor4 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["rueck seiteB", "hin seiteB"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteA, hebt: Tor4 }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteA, hebt: Tor2 }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: parallelparcours
+    titel: "Parallelslalom"
+    menue: "Parallelslalom (nur Fahrweg)"
+    disq: alle
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["seiteB seiteA"] }
+      - { key: b1a, label: "Boje 1", typ: boje }
+      - { key: b2a, label: "Boje 2", typ: boje }
+      - { key: b3a, label: "Boje 3", typ: boje }
+      - { key: b4a, label: "Boje 4", typ: boje }
+      - { key: b5, label: "Boje 5", typ: boje }
+      - { key: b4b, label: "Boje 4", typ: boje }
+      - { key: b3b, label: "Boje 3", typ: boje }
+      - { key: b2b, label: "Boje 2", typ: boje }
+      - { key: b1b, label: "Boje 1", typ: boje }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["seiteB seiteA"] }
+      - { key: disq, label: "Disq.", typ: disq }
+
+  # === Aufbau BERLIN: vier feste WKR-Positionen rund um den Kurs ===
+  # Andere Zusammenstellung (z. B. Berlin): jede Position zeigt das GANZE
+  # Parcoursbild mit allen Toren. Entwurf - Spalten/Bojen bitte prüfen.
+  - id: bstartziel
+    titel: "Start/Ziel"
+    menue: "Start/Ziel (Zeitnahme + Start-/Zieltor-Bojen)"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: zeit1, label: "Zeit 1", typ: zeit }
+      - { key: zeit2, label: "Zeit 2", typ: zeit }
+      - { key: zeit3, label: "Zeit 3", typ: zeit }
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: brechts
+    titel: "Rechts"
+    menue: "Rechts (Tor 1 / 3 + Mann-über-Bord)"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    summeSpalte: sum
+    disq: alle
+    katalog: mueb
+    hinweis: blickrichtung
+    spalten:
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      # Mann-über-Bord erst ab Klasse 4.
+      - { key: mueb, label: "MüB", typ: code, punkteSpalte: mp, breite: 1, klassen: [4, 5, 6, 7] }
+      - { key: mp, label: "MüB-Pkt.", typ: summe, klassen: [4, 5, 6, 7] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: blinks
+    titel: "Links"
+    menue: "Links (Tor 2 / 4 / 5 + Speedbojen)"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    summeSpalte: sum
+    disq: alle
+    hinweis: blickrichtung
+    spalten:
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"] }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      # Speed nur je Klasse: Klasse 5/6 eine Boje, Klasse 7 zwei, darunter keine.
+      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
+      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+
+  # === Aufbau BADEN-WÜRTTEMBERG: Tor-Positionen (Blick von den Seiten) ===
+  - id: bawueland1
+    titel: "Land 1"
+    menue: "Land 1"
+    ausrichtung: hoch
+    bild: bawue_Land_1
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
+    # Land-Seite beobachtet seiteB. Tor 1-3: je die seiteB-Boje (aus `innen`
+    # abgeleitet). Start/Ziel seiteB = untere Boje. Tor 4/5, Schikane und
+    # Speedbojen gehören nicht zu dieser Position → abgeblendet.
+    abblenden: [Tor1_innen, Tor2_aussen, Tor3_innen, Tor4, Tor5, Tor1_innen-7, Schikane, g3068, SpeedbojeKlasse7]
+    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    # hinweis: blickrichtung
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteB"], innen: seiteA }
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteB"], innen: seiteB }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteB"], innen: seiteA }
+      - { typ: trenner, design: "doppelt" }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteB"], innen: seiteB }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteA, klassen: [7] }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: bawueland2
+    titel: "Land 2"
+    menue: "Land 2"
+    ausrichtung: hoch
+    bild: bawue_Land_2
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
+    # Land-Seite, hinterer Kursteil: Tor 4 (seiteB = innen) + Tor 5 = untere Boje
+    # + untere Speedboje (SpeedbojeKlasse7). Tore 1-3, Start/Ziel, Schikane und die
+    # obere Speedboje (g3068) abgeblendet.
+    abblenden: [Tor1, Tor2, Tor3, Tor4_aussen, Tor5_oben, Tor1_innen-7, Tor1_aussen-3, Schikane, g3068]
+    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    # hinweis: blickrichtung
+    katalog: tor5
+    spalten:
+      - { key: t4a, label: "Tor 2", typ: boje, sub: ["hin seiteB"], innen: seiteB }
+      - { key: t5a, label: "Tor 2", typ: boje, sub: ["hin seiteB"]}
+      - { typ: trenner, design: "doppelt" }
+      - { key: dffehler, label: "Tor 5 tief", typ: code, punkteSpalte: dfsum, breite: 1 }
+      - { key: dfsum, label: "Σ", typ: summe }
+      - { typ: trenner, design: "doppelt" }
+      - { key: t5b, label: "Tor 2", typ: boje, sub: ["hin seiteB"]}
+      - { key: t4b, label: "Tor 2", typ: boje, sub: ["hin seiteB"], innen: seiteB }
+      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: bawuewasser1
+    titel: "Wasser 1"
+    menue: "Wasser 1"
+    ausrichtung: hoch
+    bild: bawue_wasser_1
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
+    # Wasser-Seite beobachtet seiteA (Gegenseite zu Land 1). Tor 1-3: je die
+    # seiteA-Boje. Start/Ziel seiteA = obere Boje. Schikane (MüB) wird hier
+    # beobachtet → bleibt hell. Tor 4/5 + Speedbojen abgeblendet.
+    abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, Tor1_aussen-3, g3068, SpeedbojeKlasse7]
+    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    # hinweis: blickrichtung
+    katalog: mueb
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA"] }
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA"], innen: seiteA }
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA"], innen: seiteB }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA"], innen: seiteA }
+      - { typ: trenner, design: "doppelt" }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA"], innen: seiteA }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA"], innen: seiteB }
+      - { key: fehler4, label: "MüB Fehler", typ: code, punkteSpalte: fp4, breite: 1, klassen: [4] }
+      - { key: fp4, label: "MüB Punkte", typ: summe , klassen: [4] }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteA, klassen: ["E", 1, 2, 3, 5, 6, 7] }
+      - { key: fehler, label: "MüB Fehler", typ: code, punkteSpalte: fp, breite: 1, klassen: [5, 6, 7] }
+      - { key: fp, label: "MüB Punkte", typ: summe, klassen: [5, 6, 7]  }
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteA, klassen: [7] }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: bawuewasser2
+    titel: "Wasser 2"
+    menue: "Wasser 2"
+    ausrichtung: hoch
+    bild: bawue_wasser_2
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
+    # Wasser-Seite, hinterer Kursteil: Tor 4 (seiteA = außen) + Tor 5 = obere Boje
+    # + nur die obere Speedboje (g3068). Tore 1-3, Start/Ziel, Schikane und die
+    # untere Speedboje (SpeedbojeKlasse7) abgeblendet.
+    abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, Tor1_innen-7, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    summeSpalte: sum
+    disq: alle
+    # hinweis: blickrichtung
+    katalog: tor5
+    spalten:
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA"], innen: seiteB }
+      # - { typ: trenner, design: "gepunktet" }
+      - { key: t5a, label: "Tor 5", typ: boje, sub: ["hin seiteA"], innen: seiteB }
+      - { typ: trenner, design: "doppelt" }
+      - { key: t5b, label: "Tor 5", typ: boje, sub: ["hin seiteA"], innen: seiteB }
+      # - { typ: trenner, design: "gepunktet" }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["hin seiteA"], innen: seiteB }
+      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }

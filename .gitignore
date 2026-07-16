@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+
+# Generiert aus src/config via `npm run config:sync` (dev/build) - nicht editieren.
+public/config/
+*.tsbuildinfo
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

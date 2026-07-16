@@ -1,0 +1,846 @@
+/* ============================================================
+   Fehlerpunkte-Prototyp - Stile
+   Zwei Welten:
+   (1) Bildschirm: Steuerleiste links + Bögen als "Papierseiten" auf grauem
+       Grund.
+   (2) Druck (@media print): nur die Bögen, exakt auf A4, jede Seite ein
+       Bogen. Eingabe- und Druckansicht sind identisch aufgebaut.
+   ============================================================ */
+
+:root {
+  --ink: #111;
+  --line: #000;
+  --shade: #dcdcdc;
+  --panel-bg: #1f2530;
+  --panel-fg: #e9edf3;
+  --accent: #2f6df6;
+  font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #6b7280;
+  color: var(--ink);
+}
+
+/* ---------- Bildschirm-Layout ------------------------------ */
+
+.app {
+  display: flex;
+  align-items: flex-start;
+}
+
+.sheets {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.empty {
+  color: #fff;
+  margin-top: 40px;
+}
+
+/* ---------- Steuerleiste ----------------------------------- */
+
+.control-panel {
+  position: sticky;
+  top: 0;
+  width: 340px;
+  min-width: 340px;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  padding: 18px 18px 40px;
+}
+
+.control-panel h1 {
+  font-size: 19px;
+  margin: 0 0 6px;
+}
+
+.control-panel .cp-version {
+  font-size: 0.7em;
+  color: #8b95a4;
+  margin: -2px 0 8px;
+}
+
+.control-panel .cp-version code {
+  font-size: inherit;
+  color: #aeb8c7;
+}
+
+.control-panel h2 {
+  font-size: 14px;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #aeb8c7;
+}
+
+.control-panel section {
+  border-top: 1px solid #333c4a;
+  padding: 14px 0;
+}
+
+.control-panel .intro {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #b9c2d0;
+  margin: 0 0 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.field > span {
+  color: #aeb8c7;
+}
+
+.field-nums {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.field-nums > span {
+  width: 62px;
+  flex: none;
+}
+
+.field-nums > input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+.nums-btns {
+  display: flex;
+  gap: 4px;
+  width: auto !important;
+}
+
+.nums-btns button {
+  padding: 4px 7px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.control-panel input,
+.control-panel select {
+  background: #10151d;
+  border: 1px solid #3a4557;
+  color: #e9edf3;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-panel button {
+  background: #2b3543;
+  border: 1px solid #3a4557;
+  color: #e9edf3;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.control-panel button:hover:not(:disabled) {
+  background: #37435566;
+  border-color: var(--accent);
+}
+
+.control-panel button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-row button {
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: #8b95a6;
+  margin: 8px 0 0;
+  line-height: 1.45;
+}
+
+.bogen-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bogen-list li {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 4px;
+  align-items: center;
+  background: #171d26;
+  padding: 5px;
+  border-radius: 6px;
+}
+
+.bogen-list select {
+  font-size: 12px;
+  padding: 4px 5px;
+}
+
+.bogen-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.bogen-actions button {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.quickpick {
+  background: #171d26;
+  border: 1px solid #2a3340;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.quickpick-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8b95a6;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.quickpick-title::before {
+  content: '▸ ';
+}
+
+.quickpick[open] .quickpick-title::before {
+  content: '▾ ';
+}
+
+.qp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.qp-lauf button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.qp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.qp-label {
+  font-size: 12px;
+  color: #aeb8c7;
+}
+
+.qp-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.qp-btns button {
+  flex: 1 1 auto;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.qp-clear {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.add-bogen {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 4px;
+}
+
+.add-bogen select {
+  font-size: 12px;
+  padding: 4px 5px;
+}
+
+.control-panel details summary {
+  cursor: pointer;
+  color: #aeb8c7;
+}
+
+.control-panel .danger {
+  background: #4a2330;
+  border-color: #6d3242;
+  width: 100%;
+}
+
+.cp-footer {
+  margin-top: 18px;
+  font-size: 11px;
+  color: #6f7a8b;
+}
+
+/* ============================================================
+   DER BOGEN (A4)
+   ============================================================ */
+
+.sheet {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+  /* A4 hochkant */
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm 9mm;
+  display: flex;
+  flex-direction: column;
+  font-size: 10.5pt;
+}
+
+.sheet--landscape {
+  width: 297mm;
+  min-height: 210mm;
+}
+
+/* ---------- Kopf ------------------------------------------- */
+
+.sheet-header {
+  border: 1.6px solid var(--line);
+}
+
+.event-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-bottom: 1.6px solid var(--line);
+  padding: 4px 8px;
+  min-height: 40px;
+}
+
+.event-title {
+  font-size: 19pt;
+  font-weight: 600;
+}
+
+.event-bar .qr {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #bbb;
+}
+
+.header-body {
+  display: flex;
+}
+
+.header-left {
+  width: 42mm;
+  flex: none;
+  border-right: 1.6px solid var(--line);
+}
+
+.hl-cell {
+  padding: 5px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+  font-size: 12pt;
+}
+
+.hl-cell:last-child {
+  border-bottom: none;
+}
+
+.hl-title {
+  font-weight: 600;
+}
+
+.wkr-box {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 8px;
+  gap: 6px;
+}
+
+.wkr-label {
+  font-size: 12pt;
+}
+
+.wkr-input {
+  flex: 1;
+  border: none;
+  border-bottom: 1px dotted #999;
+  font-size: 12pt;
+  background: transparent;
+  outline: none;
+  padding: 2px 2px;
+}
+
+/* ---------- Tabelle ---------------------------------------- */
+
+.sheet-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Kopf- und Fußzelle gehen über die volle Breite und tragen keine Tabellen-
+   Rahmen/Polsterung - der Inhalt (Kopfbox bzw. Legende) bringt seine eigene
+   Gestaltung mit. In <thead>/<tfoot> wiederholen sie sich beim Druck je Seite. */
+.sheet-head-cell,
+.sheet-foot-cell {
+  border: none !important;
+  padding: 0 !important;
+  background: #fff;
+  text-align: left !important;
+  vertical-align: top;
+  font-weight: normal;
+  font-size: 10.5pt;
+}
+
+.sheet-head-cell {
+  padding-bottom: 6px !important;
+}
+
+.sheet-foot-cell {
+  padding-top: 8px !important;
+}
+
+.cg-nr {
+  width: 13mm;
+}
+
+/* Nur die direkten Zellen der Zeilengruppen bekommen Rahmen/Zentrierung -
+   NICHT die verschachtelten Legenden-Tabellen im Fuß. */
+.sheet-table > thead > tr > th,
+.sheet-table > thead > tr > td,
+.sheet-table > tbody > tr > th,
+.sheet-table > tbody > tr > td,
+.sheet-table > tfoot > tr > th,
+.sheet-table > tfoot > tr > td {
+  border: 1px solid var(--line);
+  text-align: center;
+  padding: 0;
+  font-size: 9.5pt;
+}
+
+.sheet-table > thead > tr > th {
+  padding: 3px 2px;
+  font-size: 9pt;
+  background: #fff;
+}
+
+.col-nr {
+  width: 13mm;
+  font-weight: 600;
+}
+
+.col-group {
+  border-bottom: 1px solid var(--line);
+}
+
+.col-sub {
+  font-size: 8pt;
+  font-weight: 600;
+}
+
+.col-sum,
+.col-sum-cell {
+  width: 12mm;
+  font-weight: 600;
+  /* Kein eigener Hintergrund: sonst überdeckt er die Grau-Schattierung der
+     5. Zeile. Die fette Schrift kennzeichnet die berechnete Spalte. */
+}
+
+.col-disq,
+.col-disq-cell {
+  width: 14mm;
+}
+
+.row-shaded td {
+  background: var(--shade);
+}
+
+/* Optische Spalten-Trenner (am linken Rand einer Spalte, über Kopf + Zellen).
+   Trennt z. B. Hin- von Rückfahrt-Spalten. Designs: fett, doppelt, gepunktet,
+   gestrichelt (per `{ typ: trenner, design: … }` in positionen.yaml). */
+.sheet-table > thead > tr > th.sep-fett,
+.sheet-table > tbody > tr > td.sep-fett {
+  border-left: 2.5px solid var(--line);
+}
+
+.sheet-table > thead > tr > th.sep-doppelt,
+.sheet-table > tbody > tr > td.sep-doppelt {
+  border-left: 4px double var(--line);
+}
+
+.sheet-table > thead > tr > th.sep-gepunktet,
+.sheet-table > tbody > tr > td.sep-gepunktet {
+  border-left: 2px dotted var(--line);
+}
+
+.sheet-table > thead > tr > th.sep-gestrichelt,
+.sheet-table > tbody > tr > td.sep-gestrichelt {
+  border-left: 2px dashed var(--line);
+}
+
+/* Rechte Kante (bei inneren Sub-Trennungen zusätzlich gesetzt, damit die Linie
+   unter border-collapse beidseitig getragen und nicht überdeckt wird). */
+.sheet-table > thead > tr > th.sepr-fett,
+.sheet-table > tbody > tr > td.sepr-fett {
+  border-right: 2.5px solid var(--line);
+}
+
+.sheet-table > thead > tr > th.sepr-doppelt,
+.sheet-table > tbody > tr > td.sepr-doppelt {
+  border-right: 4px double var(--line);
+}
+
+.sheet-table > thead > tr > th.sepr-gepunktet,
+.sheet-table > tbody > tr > td.sepr-gepunktet {
+  border-right: 2px dotted var(--line);
+}
+
+.sheet-table > thead > tr > th.sepr-gestrichelt,
+.sheet-table > tbody > tr > td.sepr-gestrichelt {
+  border-right: 2px dashed var(--line);
+}
+
+/* Zelleingaben sehen aus wie handgeschriebene Felder (randlos in der Zelle) */
+.cell-input {
+  width: 100%;
+  height: 100%;
+  min-height: 22px;
+  border: none;
+  outline: none;
+  text-align: center;
+  font: inherit;
+  font-size: 10pt;
+  background: transparent;
+  padding: 2px 3px;
+}
+
+.cell-input:focus {
+  background: #ffe9a8; /* aktives Feld: kräftigeres Gelb */
+}
+
+/* Fadenkreuz zur Orientierung: ganze Zeile + Spalte des aktiven Feldes in
+   hellerem Gelb. !important, damit es Schattierung und Σ-Hintergrund übertönt. */
+.sheet-table td.hl-row,
+.sheet-table td.hl-col {
+  background: #fff8d8 !important;
+}
+
+/* Automatisch aus den Tor-Zellen übernommener Disq-Wert: am Bildschirm dezent. */
+.disq-input.disq-auto {
+  color: #888;
+}
+
+.text-input {
+  text-align: left;
+}
+
+/* Fehlercodes zentriert (kurze Einträge wie "3, 4" oder "9, K"). */
+.code-input {
+  text-align: center;
+}
+
+.buoy-input {
+  font-weight: 600;
+}
+
+.col-sum-cell {
+  vertical-align: middle;
+}
+
+.time-input {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Fuß: Legende + Parcoursbild + Unterschrift ----- */
+
+.sheet-footer {
+  display: flex;
+  flex-direction: column;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.8em; /* etwas kleiner als der Bogen-Grundtext */
+}
+
+.legend-title {
+  font-weight: 700;
+  text-decoration: underline;
+  margin-bottom: 2px;
+}
+
+.legend-errors,
+.legend-disq {
+  border-collapse: collapse;
+}
+
+.legend-errors td,
+.legend-disq td {
+  padding: 1px 6px 1px 0;
+  vertical-align: top;
+}
+
+.lc-code {
+  font-weight: 700;
+  width: 22px;
+  text-align: center; /* Code-Spalte mittig */
+}
+
+.lc-text {
+  text-align: left; /* Erklärung linksbündig */
+}
+
+.lc-pts {
+  font-weight: 700;
+  text-align: right;
+  width: 30px;
+}
+
+/* Getrennte Fehlerblöcke (Steg Ablegen | Anlegen) nebeneinander */
+.legend-grouped {
+  width: 100%;
+  table-layout: auto;
+}
+
+.legend-grouped .lc-grouptitle {
+  font-weight: 700;
+  text-decoration: underline;
+  text-align: left;
+  padding: 0 6px 2px 0;
+}
+
+/* Schmale Puffer-Spalte zwischen den Blöcken (optische Trennung) */
+.legend-grouped .lc-buffer {
+  width: 18px;
+  border: none;
+}
+
+.legend-note {
+  font-style: italic;
+  line-height: 1.4;
+  white-space: pre-line; /* \n aus der Definition = echte Zeilenumbrüche */
+  text-align: left; /* Blickrichtungsblock linksbündig */
+}
+
+.course {
+  margin: 8px 0;
+  border: 1.5px dashed #7a86c9;
+  padding: 4px;
+  text-align: center;
+}
+
+.course img {
+  max-width: 100%;
+  max-height: 78mm;
+}
+
+/* Zeile am Fuß: mittige Seitenzahl (mehrseitiger Druck) + rechte Unterschrift.
+   position: relative, damit die Seitenzahl mittig „auf Höhe der Unterschrift"
+   liegt, während die Unterschrift rechtsbündig bleibt. */
+.sheet-signature-row {
+  margin-top: auto;
+  padding-top: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.page-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  font-size: 9pt;
+  font-weight: 600;
+}
+
+.signature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.sig-line {
+  width: 62mm;
+  border-top: 1px solid var(--line);
+}
+
+.sig-label {
+  font-size: 9pt;
+}
+
+/* Positionen mit gedrehtem Bild: Legende links, Parcoursbild rechts daneben */
+.sheet--rotated .sheet-footer {
+  display: grid;
+  grid-template-columns: 1fr 50mm;
+  grid-template-areas:
+    'legend course'
+    'sig sig';
+  column-gap: 8px;
+}
+
+.sheet--rotated .legend {
+  grid-area: legend;
+}
+
+/* Das Alcatraz-Parcoursbild liegt horizontal vor und wird - wie in den
+   Original-Listen - um 90° gedreht (Hochformat). Das Inline-SVG (siehe
+   SheetView) füllt die Box formatfüllend, ohne höher als die Legende zu werden
+   (die Zelle ist per Grid genauso hoch wie der Beschreibungsblock). */
+.sheet--rotated .course {
+  grid-area: course;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-svg {
+  position: absolute;
+  top: 4px; /* innerhalb des gestrichelten Rahmens */
+  left: 4px;
+  /* Feste Maße (nicht auto): sonst nimmt das SVG die Höhe aus seinem
+     Seitenverhältnis und läuft unten aus der Box (overflow: hidden schneidet
+     es dann ab). Mit fixen Maßen + preserveAspectRatio="meet" passt es
+     vollständig hinein (bei Bedarf seitlich mit Rand). */
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+}
+
+.sheet--rotated .sheet-signature-row {
+  grid-area: sig;
+}
+
+/* ============================================================
+   DRUCK
+   ============================================================ */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .control-panel {
+    display: none !important;
+  }
+
+  .sheets {
+    padding: 0;
+    gap: 0;
+  }
+
+  .sheet {
+    box-shadow: none;
+    width: auto;
+    min-height: auto;
+    padding: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Kopf-/Spaltenüberschriften und Fuß-Legende auf jeder Druckseite wiederholen
+     (Standardverhalten von thead/tfoot) und Zeilen nicht mittendrin umbrechen. */
+  .sheet-table thead {
+    display: table-header-group;
+  }
+
+  .sheet-table tfoot {
+    display: table-footer-group;
+  }
+
+  .sheet-table tbody tr {
+    break-inside: avoid;
+  }
+
+  /* Querformat-Bögen einzeln drehen */
+  .sheet--landscape {
+    page: landscape;
+  }
+
+  .cell-input:focus {
+    background: transparent;
+  }
+
+  /* Orientierungs-Hervorhebung nicht mitdrucken; Auto-Disq schwarz drucken. */
+  .sheet-table td.hl-row,
+  .sheet-table td.hl-col {
+    background: transparent !important;
+  }
+
+  .disq-input.disq-auto {
+    color: #000;
+  }
+
+  /* Graue Schattierung der 5. Zeile im Druck erzwingen */
+  .row-shaded td {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@page landscape {
+  size: A4 landscape;
+}

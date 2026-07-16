@@ -1,0 +1,60 @@
+# =====================================================================
+# Fehlerpunkte & Disqualifikationen  (aus der AUSSCHREIBUNG)
+# =====================================================================
+# Diese Werte sind in der Regel für alle Positionen/Plätze gleich und ändern
+# sich nur mit der Ausschreibung. Die Positionen (positionen.yaml) binden die
+# Kataloge und Disqualifikationen per Verweis ein.
+
+# ---- Globale Disqualifikationen (Buchstaben-Codes) -----------------
+disqualifikationen:
+  - { code: A, text: "Fahren ohne Quickstop / Falsches Tragen der Sicherheitsausrüstung (Helm / Weste)" }
+  - { code: B, text: "Berührung Start - Ziel - Zeitmessanlage (nicht die Bojen)" }
+  - { code: C, text: "Rückwärtsfahren ab & bis Start/Ziel-Tor (außer Tor 5)" }
+  - { code: D, text: "Wiederholtes Anfahren ab 4. Versuch" }
+  - { code: E, text: "Sitzen auf dem Schlauch (auch in gebückter Haltung)" }
+  - { code: F, text: "Stehen im Boot (außer zum Ein- und Aussteigen und Anreißen des Motors)" }
+  - { code: G, text: "Überfahren einer Boje oder des Mann-über-Bord" }
+  - { code: H, text: "Anfahren zur Umrundung Tor 1 mit Backbordseite (Klasse 5 - 7)" }
+  - { code: I, text: "Anfahren zur Umrundung Tor 1 mit Steuerbordseite (Klasse 3 und 4)" }
+  - { code: J, text: "Auslassen eines Tores/falscher Parcours/Anlegen auf der falschen Seite" }
+  - { code: K, text: "Ablegen des Quickstop (außer Motorstart bzw. Belegen der Klampe mit Leerlauf)" }
+  - { code: L, text: "Anfahren MüB oder ablegen des Ringes an Steuerbord" }
+  - { code: X, text: "Nicht gestartet" }
+
+# ---- Fehler-Kataloge (Zahlen → Punkte), benannt & wiederverwendbar --
+kataloge:
+  tor5:
+    titel: "Einfahrt Tor 5 (gleichzeitig Parcoursüberwachung):"
+    fehler:
+      - { code: 1, text: "nicht mit gesamter Länge eingefahren", punkte: 20 }
+      - { code: 2, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+
+  mueb:
+    titel: "Fehler (MüB):"
+    fehler:
+      - { code: 13, text: "kein Leerlauf", punkte: 5 }
+      - { code: 14, text: "Rettungsring nicht mit beiden Händen über die Stange gehoben", punkte: 5 }
+      - { code: 15, text: "Rettungsring nicht mit beiden Händen aufgelegt", punkte: 5 }
+      - { code: 16, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 17, text: "Nicht vollständig aufgestoppt", punkte: 5 }
+      - { code: 18, text: "Rettungsring geworfen oder fallengelassen", punkte: 5 }
+      - { code: 19, text: "2. und 3. Versuch des Elementes", punkte: 5 }
+
+  # Steg getrennt nach Ablegen (AB) und Anlegen (AN) - jede Spalte lässt nur
+  # ihre eigenen Codes (und Disqualifikationen) zu.
+  stegAblegen:
+    titel: "Ablegen (AB)"
+    fehler:
+      - { code: 3, text: "erneute Stegberührung", punkte: 5 }
+      - { code: 4, text: "Treten auf den Schlauch / ab Klasse 3", punkte: 5 }
+      - { code: 5, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+
+  stegAnlegen:
+    titel: "Anlegen (AN)"
+    fehler:
+      - { code: 7, text: "2. und 3. Versuch des Elementes", punkte: 5 }
+      - { code: 8, text: "Festmacherleine nicht im Anlegebereich", punkte: 5 }
+      - { code: 9, text: "Massive Stegberührung", punkte: 10 }
+      - { code: 10, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 11, text: "Rückwärtsfahren auf dem Weg zum Steg", punkte: 5 }
+      - { code: 12, text: "Boot nicht im Stillstand/kein Leerlauf, obwohl Hand am Steg", punkte: 10 }
