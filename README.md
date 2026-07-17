@@ -35,10 +35,10 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
 - **Parcoursbilder** (SVG) je Klasse auf den Tor-/Parcours-Bögen.
 - **QR-Code** je Bogen für die spätere automatische Scanner-Zuordnung
   (Listentyp/Klasse/Lauf).
-- **Zwei Export-Wege** (siehe unten): Browser-Druck (Vektor) und Raster-PDF
-  (html2canvas + jsPDF). Der frühere dritte Weg - ein echtes Vektor-PDF via
-  `@react-pdf/renderer` (`pdf.html`) - ist in der Vue-Portierung **noch nicht
-  enthalten** (offene Entscheidung, siehe unten).
+- **Vier Export-Wege zum Vergleich** (siehe unten): Browser-Druck (Vektor),
+  Raster-PDF (html2canvas + jsPDF) sowie zwei Vektor-PDF-Generatoren (pdfmake und
+  jsPDF + autotable). Dazu die **react-pdf-Insel** (`pdf.html`) mit Live-Vorschau
+  und eingebettetem Parcoursbild.
 - **Bögen zusammenstellen:** Listentyp, Klasse und Lauf je Bogen wählen,
   sortieren, hinzufügen/entfernen; Startnummern editierbar.
 
@@ -51,57 +51,50 @@ Links die Steuerleiste (nur am Bildschirm, im Druck ausgeblendet):
 3. In den Bögen rechts die Werte eintragen - Σ und Zeiten aktualisieren sich live.
 4. **Drucken / Als PDF (Browser)** oder **PDF herunterladen (JS)**.
 
-## PDF-Export
+## PDF-Export - vier Wege zum Vergleich
 
-In der Vue-Portierung gibt es **einen Einstiegspunkt** (`index.html`) mit **zwei**
-Export-Wegen:
+Es gibt **zwei Einstiegspunkte** (Multi-Page-Build): die Vue-Eingabemaske
+(`index.html`) und die react-pdf-Insel (`pdf.html`).
 
-- **Browser-Druck → „Als PDF speichern"** (empfohlen): scharfer, markierbarer
-  Text inkl. QR-Codes, echtes Vektor-PDF. Dateiname wird über `document.title`
-  vorgeschlagen (mit Zeitstempel und - falls eindeutig - Position/Klasse/Lauf).
-- **Raster-Download** (html2canvas + jsPDF): Ein-Klick-Download, aber gerastert
-  (unschärfer). QR-Codes werden dafür als Canvas neu gezeichnet.
+| Weg | Seite | Vektor | Parcoursbild | Anmerkung |
+| --- | ----- | :----: | :----------: | --------- |
+| **Browser-Druck → „Als PDF"** (empfohlen) | `index.html` | ✅ | ✅ | Scharfer, markierbarer Text inkl. QR; Dateiname über `document.title`. WYSIWYG. |
+| **Raster-Download** (html2canvas + jsPDF) | `index.html` | ✖ (Bild) | ✅ | Ein-Klick, aber gerastert; QR als Canvas neu gezeichnet. |
+| **Vektor-PDF pdfmake** | `index.html` | ✅ | ✖ | Ein-Klick-Download, deklaratives Layout, eingebauter Vektor-QR. Vereinfachtes Layout. |
+| **Vektor-PDF jsPDF + autotable** | `index.html` | ✅ | ✖ | Ein-Klick-Download, Tabelle via autotable, Vektor-QR (gezeichnete Rechtecke). Vereinfachtes Layout. |
+| **react-pdf-Insel** | `pdf.html` | ✅ | ✅ (PNG) | Live-Vorschau + Ein-Klick-Download, wiederholter Kopf/Spaltenkopf (`fixed`), eingebettete Schrift (korrektes „Σ"). |
 
-### Offene Entscheidung: Vektor-PDF mit Ein-Klick-Download
+**Vereinfachtes Layout** bei pdfmake/jsPDF heißt: ein Kopf je Blatt-Spalte
+(Bojen-Unterspalten als „Tor 1 H R" ausgeschrieben) statt der zweizeiligen
+Gruppenköpfe, Querformat, ohne Parcoursbild. Für die pixelgenaue WYSIWYG-Ausgabe
+sind **Browser-Druck** oder die **react-pdf-Insel** gedacht.
 
-Der React-Prototyp hatte einen **dritten** Weg: eine eigene Seite `pdf.html` mit
-einem echten Vektor-PDF via `@react-pdf/renderer` - Live-Vorschau, Ein-Klick-
-Download, auf jeder Seite wiederholter Kopf/Spaltenkopf (react-pdf `fixed`),
-Vektor-QR, eingebettete Schrift (korrektes „Σ") und das Parcoursbild als PNG.
-Dieser Weg ist **noch nicht portiert**, weil `@react-pdf/renderer` React-spezifisch
-ist. Die Optionen (bewusst als offene Entscheidung dokumentiert):
+Alle Wege speisen sich aus derselben aktuellen Zusammenstellung. pdfmake und
+jsPDF teilen sich ein framework-agnostisches, „headless" **Sheet-Modell**
+(`src/lib/sheetModel.ts` - dieselbe Spalten-/Zeilen-/Σ-Logik wie die Vue-Ansicht).
 
-| Option | Vektor/scharf | Aufwand | Anmerkung |
-| ------ | :-----------: | ------- | --------- |
-| **Browser-Druck „Als PDF"** | ✅ | 0 (läuft schon) | Empfohlener Primärweg. Kein Ein-Klick, keine Live-Vorschau, Layout hängt an der Browser-Druck-Engine. |
-| **react-pdf als Insel behalten** | ✅ | **gering** (nur Build-Config) | Kein Layout-Neubau: `pdf.html` bleibt als kleine React-Insel, die 495 Zeilen `SheetsDocument.tsx` unverändert. |
-| **pdfmake** | ✅ | mittel-hoch | Deklarativ, framework-frei - dem react-pdf am nächsten. Sheet-Layout muss im pdfmake-Modell **neu** gebaut werden. |
-| **jsPDF + jspdf-autotable** | ✅ | mittel-hoch | jsPDF ist schon Dependency; echtes Vektor-PDF durch Zeichnen statt Rastern. Imperativer, Layout-Neubau nötig. |
-| **Server-Puppeteer** | ✅ | (braucht Backend) | Rendert die **exakte Druck-HTML/CSS** zu Vektor-PDF. Das Zielsystem **dmj-ms11 nutzt Puppeteer bereits** - kein Client-PDF-Lib, keine Layout-Duplizierung. |
+### Die react-pdf-Insel (`pdf.html`)
 
-Eine ausgereifte **Vue-native** Entsprechung zu `@react-pdf/renderer` existiert
-nicht; der „Vue-Weg" wäre praktisch pdfmake (echter Neubau).
+`@react-pdf/renderer` ist React-spezifisch; deshalb läuft dieser Weg als
+**Insel**: ein eigener Einstiegspunkt mit eigenem React-Root, gekoppelt an die
+Vue-App **nur über den gemeinsamen localStorage** (die Vue-App schreibt den Stand
+inkl. eingetragener Werte, die Insel liest ihn beim Laden über denselben
+`buildInitialState()`; Änderungen also im Haupt-Prototyp machen, dann `pdf.html`
+neu laden). Umgesetzt über Vite-Multi-Page mit **beiden** Plugins
+(`@vitejs/plugin-vue` + `@vitejs/plugin-react`, letzteres nur auf `pdf-main.tsx` +
+`src/pdf/*` beschränkt) und einen winzigen Read-only-React-Store
+(`src/pdf/reactStore.tsx`); `SheetsDocument`/`courseImages`/`Qr` sind unverändert
+aus dem React-Prototyp übernommen.
 
-**Wichtiger Befund für die Insel-Option:** Das react-pdf-Modul ist schon heute
-eine **Insel** - eigener Einstiegspunkt mit eigenem Root, gekoppelt nur über den
-**gemeinsamen localStorage** (die Vue-App schreibt den Stand inkl. eingetragener
-Werte, die Insel liest ihn beim Laden). Es teilt keinen UI-Code, nur die
-framework-agnostischen libs (`config`, `storage`, `print`). Eine Übernahme hieße
-daher: Vite als Multi-Page mit **beiden** Plugins (`@vitejs/plugin-vue` +
-`@vitejs/plugin-react`; jedes verarbeitet nur seine Dateien), ein winziger
-Read-only-Store für `pdf.html` (nur `loadState()` + `readShareConfig()`, kein
-Reducer), `SheetsDocument`/`courseImages`/`Qr` unverändert.
+### Ausblick Integration (dmj-ms11)
 
-**Empfehlung nach Zeithorizont:**
-
-- **Eigenständiger Vue-Prototyp jetzt:** die **react-pdf-Insel übernehmen** -
-  gering im Aufwand, spart den kompletten Neubau der Vektor-Layout-Logik.
-- **Spätere Integration in dmj-ms11:** die Insel **nicht** mitnehmen, sondern
-  **Puppeteer im Backend** (schon vorhanden) nutzen - dieselbe WYSIWYG-CSS
-  serverseitig zu Vektor-PDF rendern, kein zweites Framework.
+Bei einer späteren Übernahme in die Vue-Software **dmj-ms11** wäre die Insel nicht
+mitzunehmen; dort ist **Puppeteer im Backend** (bereits vorhanden) der saubere
+Weg: dieselbe WYSIWYG-Druck-CSS serverseitig zu Vektor-PDF rendern, ohne zweites
+Framework und ohne Layout-Duplizierung.
 
 Die Parcoursbilder liegen als **SVG** (Bildschirm/Browser-Druck) und **PNG**
-(für ein etwaiges Vektor-PDF, das kein SVG einbetten kann) vor.
+(für die react-pdf-Insel, die kein SVG einbetten kann) vor.
 
 ## Konfiguration (Positionen & Fehlerpunkte)
 
@@ -176,10 +169,11 @@ Die Parcoursbilder unter `public/parcours/` stammen aus `../Parcours/dist/`
 
 ## Tech-Stack
 
-Vue 3 (Composition API, `<script setup>`) · TypeScript · Vite · qrcode-generator
-(QR) · html2canvas + jsPDF (Raster-Variante). Persistenz via localStorage.
+Vue 3 (Composition API, `<script setup>`) · TypeScript · Vite (Multi-Page) ·
+qrcode-generator (QR) · html2canvas + jsPDF (Raster) · pdfmake + jsPDF/autotable
+(Vektor-PDF) · @react-pdf/renderer (Insel `pdf.html`). Persistenz via localStorage.
 
 Portiert aus dem React-19-Prototyp: die framework-agnostische Logik (`lib/*`,
 `config/*` inkl. YAML, Parcours-Skripte, `styles.css`, Tests) wurde unverändert
-übernommen, nur Komponenten/Store/Entry sind neu in Vue. Der react-pdf-Vektor-PDF-
-Vergleich ist noch nicht mitportiert (siehe „PDF-Export").
+übernommen, nur Komponenten/Store/Entry sind neu in Vue. Die react-pdf-Vektor-PDF-
+Ausgabe läuft als React-Insel (`pdf.html`) weiter (siehe „PDF-Export").

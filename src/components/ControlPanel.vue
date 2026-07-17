@@ -9,6 +9,8 @@ import {
 } from '../config/active'
 import { extendNumbers, formatNumbers, parseNumbers, shrinkNumbers } from '../lib/demo'
 import { exportSheetsToPdf } from '../lib/exportPdf'
+import { exportPdfmake } from '../lib/exportPdfmake'
+import { exportJsPdfVector } from '../lib/exportJsPdfVector'
 import { describeBoegen, exportBaseName, printWithFilename } from '../lib/print'
 import { buildShareUrl } from '../lib/sharelink'
 import { useStore } from '../state/store'
@@ -22,7 +24,12 @@ const addClass = ref<ClassId>('3')
 const addLauf = ref<Lauf>(1)
 const qpLauf = ref<Lauf>(1)
 const busy = ref(false)
+const busyPm = ref(false)
+const busyJs = ref(false)
 const copied = ref(false)
+
+// Basis-URL der react-pdf-Insel (eigene Seite pdf.html, Vektor-PDF via react-pdf).
+const pdfIslandUrl = `${import.meta.env.BASE_URL}pdf.html`
 const addTypeRaw = ref<SheetTypeId>('')
 
 // Positionen des gewählten Aufbaus (Setup).
@@ -75,6 +82,24 @@ async function downloadPdf() {
     await exportSheetsToPdf(`${currentName()}.pdf`)
   } finally {
     busy.value = false
+  }
+}
+
+async function downloadPdfmake() {
+  busyPm.value = true
+  try {
+    await exportPdfmake(`${currentName()}.pdf`, state)
+  } finally {
+    busyPm.value = false
+  }
+}
+
+async function downloadJsPdf() {
+  busyJs.value = true
+  try {
+    await exportJsPdfVector(`${currentName()}.pdf`, state)
+  } finally {
+    busyJs.value = false
   }
 }
 
@@ -197,9 +222,24 @@ const commitDate = __GIT_COMMIT_DATE__
         <br />
         Dateiname: <code>{{ namePreview }} - …Uhr</code>
       </p>
+
+      <h3 class="cp-subhead">Vektor-PDF-Wege zum Vergleich</h3>
+      <div class="btn-row">
+        <button :disabled="busyPm" title="Echtes Vektor-PDF via pdfmake (deklaratives Layout)" @click="downloadPdfmake">
+          {{ busyPm ? '… erzeuge PDF' : '⬇ Vektor-PDF (pdfmake)' }}
+        </button>
+        <button :disabled="busyJs" title="Echtes Vektor-PDF via jsPDF + autotable" @click="downloadJsPdf">
+          {{ busyJs ? '… erzeuge PDF' : '⬇ Vektor-PDF (jsPDF)' }}
+        </button>
+      </div>
+      <a class="alt-link" :href="pdfIslandUrl">
+        🧪 react-pdf-Insel öffnen (eigene Seite, Live-Vorschau + Ein-Klick-Download) →
+      </a>
       <p class="hint">
-        <em>Hinweis:</em> Der react-pdf-Vektor-PDF-Vergleich (früher <code>pdf.html</code>) ist in
-        der Vue-Portierung noch nicht enthalten.
+        Drei Vektor-Wege zum Vergleich: <strong>pdfmake</strong> und <strong>jsPDF</strong> laden
+        direkt herunter (vereinfachtes Layout, ohne Parcoursbild); die <strong>react-pdf-Insel</strong>
+        (<code>pdf.html</code>) hat Live-Vorschau und das eingebettete Parcoursbild. Alle nutzen die
+        aktuelle Zusammenstellung aus diesem Prototyp.
       </p>
     </section>
 

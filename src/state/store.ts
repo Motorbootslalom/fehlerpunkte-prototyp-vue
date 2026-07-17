@@ -1,50 +1,10 @@
 import { inject, reactive, watch, type App, type InjectionKey } from 'vue'
-import { CLASS_IDS, type AppState, type Bogen, type ClassId, type Lauf, type SheetTypeId } from '../types'
-import {
-  applyBeschriftung,
-  defaultAufbauId,
-  defaultBeschriftungId,
-  getAufbau,
-  positionAllowsClass,
-} from '../config/active'
-import { allDemoNumbers } from '../lib/demo'
+import type { AppState, Bogen, ClassId, Lauf, SheetTypeId } from '../types'
+import { applyBeschriftung } from '../config/active'
 import { cellKey } from '../lib/scoring'
-import { readShareConfig, syncUrlToState, type ShareConfig } from '../lib/sharelink'
-import { clearState, loadState, saveState } from '../lib/storage'
-
-function uid(prefix: string): string {
-  return prefix + '_' + Math.random().toString(36).slice(2, 9)
-}
-
-/** Standard-Zusammenstellung: je ein Bogen pro Position des Aufbaus (Lauf 1). */
-function defaultBoegen(aufbau: string): Bogen[] {
-  return getAufbau(aufbau).order.map((t) => {
-    // Klasse 3, außer die Position gilt nicht dafür (z. B. MüB ab Kl. 4) →
-    // dann die erste gültige Klasse.
-    const klasse: ClassId = positionAllowsClass(t, '3')
-      ? '3'
-      : (CLASS_IDS.find((c) => positionAllowsClass(t, c)) ?? '3')
-    return { id: uid('bg'), typeId: t, klasse, lauf: 1 }
-  })
-}
-
-// Lazy erzeugt (nicht als Modul-Konstante), damit die geladene Konfiguration
-// berücksichtigt wird.
-function defaultState(): AppState {
-  const aufbau = defaultAufbauId()
-  return {
-    eventName: '30. Möwepokal 2026',
-    aufbau,
-    beschriftung: defaultBeschriftungId(),
-    emptyRows: 3,
-    rowsPerPage: 0,
-    numbers: allDemoNumbers(),
-    wkr: {},
-    boegen: defaultBoegen(aufbau),
-    values: {},
-    initialized: false,
-  }
-}
+import { syncUrlToState } from '../lib/sharelink'
+import { clearState, saveState } from '../lib/storage'
+import { buildInitialState, defaultBoegen, defaultState, uid } from './initState'
 
 export type Action =
   | { type: 'SET_EVENT'; eventName: string }
@@ -164,47 +124,6 @@ export function reducer(state: AppState, action: Action): AppState {
   }
 }
 
-/** Gleiche Bogen-Folge (Typ/Klasse/Lauf) - dann bleiben die lokalen IDs erhalten. */
-function sameBoegenShape(a: Bogen[], b: ShareConfig['boegen']): boolean {
-  if (a.length !== b.length) return false
-  return a.every(
-    (x, i) => x.typeId === b[i].typeId && x.klasse === b[i].klasse && x.lauf === b[i].lauf,
-  )
-}
-
-function init(): AppState {
-  const loaded = loadState()
-  let state = loaded ? { ...defaultState(), ...loaded } : defaultState()
-
-  // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand: Aufbau,
-  // Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.
-  const shared = readShareConfig()
-  if (shared) {
-    state = {
-      ...state,
-      eventName: shared.eventName || state.eventName,
-      aufbau: shared.aufbau || state.aufbau,
-      beschriftung: shared.beschriftung || state.beschriftung,
-      emptyRows: shared.emptyRows,
-      rowsPerPage: shared.rowsPerPage,
-      // Startnummern aus dem Link je Klasse übernehmen (fehlende Klassen bleiben
-      // lokal/Demo).
-      numbers: { ...state.numbers, ...shared.numbers },
-    }
-    // Bögen nur ersetzen, wenn die Auswahl wirklich abweicht - so bleiben beim
-    // normalen Neuladen (Auto-Sync-URL = eigener Stand) die lokalen IDs samt
-    // eingetragener Werte erhalten.
-    if (shared.boegen.length > 0 && !sameBoegenShape(state.boegen, shared.boegen)) {
-      state = { ...state, boegen: shared.boegen.map((b) => ({ id: uid('bg'), ...b })) }
-    }
-  }
-
-  // Persistiertes/geteiltes Bezeichnungs-Schema auf die geladene Konfiguration
-  // anwenden, damit die Bojen-Kürzel zum Zustand passen.
-  if (state.beschriftung) applyBeschriftung(state.beschriftung)
-  return state
-}
-
 export interface Store {
   state: AppState
   dispatch: (action: Action) => void
@@ -218,7 +137,7 @@ const StoreKey: InjectionKey<Store> = Symbol('fehlerpunkte-store')
  * die Standard-Zusammenstellung die aktive Konfiguration berücksichtigt.
  */
 export function createStore(): { install(app: App): void; store: Store } {
-  const state = reactive(init()) as AppState
+  const state = reactive(buildInitialState()) as AppState
   const dispatch = (action: Action): void => {
     // Reiner Reducer liefert neuen Zustand; per Object.assign zurück auf den
     // reaktiven Zustand → Vue-Reaktivität greift.

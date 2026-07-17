@@ -1,0 +1,106 @@
+/* Chrome des Vektor-PDF-Prototyps (nur diese Seite). */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.pdf-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #6b7280;
+}
+
+.pdf-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #1f2530;
+  color: #e9edf3;
+  flex-wrap: wrap;
+}
+
+.pdf-bar-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-sub {
+  font-size: 12px;
+  color: #9aa4b3;
+}
+
+.pdf-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pdf-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #c9d3e2;
+  cursor: pointer;
+}
+
+.pdf-back {
+  color: #c9d3e2;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid #3a4557;
+  border-radius: 6px;
+}
+
+.pdf-back:hover {
+  border-color: #2f6df6;
+}
+
+.pdf-dl {
+  background: #2f6df6;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 6px;
+}
+
+.pdf-dl:hover {
+  background: #2258d0;
+}
+
+.pdf-viewer {
+  flex: 1;
+  width: 100%;
+  border: 0;
+}
+
+.pdf-empty {
+  color: #fff;
+  padding: 40px;
+  font-size: 15px;
+}
+
+.pdf-empty a {
+  color: #a9c2ff;
+}
+
+/* Querlink im Haupt-Prototyp zur Vergleichsseite. */
+.alt-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: #a9c2ff;
+  text-decoration: none;
+}
+
+.alt-link:hover {
+  text-decoration: underline;
+}
