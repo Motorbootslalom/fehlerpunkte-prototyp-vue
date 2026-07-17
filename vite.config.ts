@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process'
 import { defineConfig, type Plugin } from 'vite'
-import react from '@vitejs/plugin-react'
+import vue from '@vitejs/plugin-vue'
 
 // Version = `git describe`: Tag + Commits-seit-Tag + Kurz-Hash, sonst nur der
 // Kurz-Hash (ohne Tag), jeweils mit `-dirty` bei uncommitteten Änderungen. Dazu
@@ -44,24 +44,14 @@ function reloadOnConfigYaml(): Plugin {
 }
 
 // Relative base ('./') sorgt dafür, dass der Build sowohl auf GitHub Pages
-// (Projekt-Unterpfad, z. B. /fehlerpunkte-prototyp/) als auch lokal via preview läuft.
-//
-// Zwei Einstiegspunkte (Multi-Page) zum Vergleich der PDF-Lösungen:
-//   index.html → Browser-Druck / Raster (Haupt-Prototyp)
-//   pdf.html   → echtes Vektor-PDF via @react-pdf/renderer
+// (Projekt-Unterpfad) als auch lokal via preview läuft. Einstiegspunkt ist
+// allein index.html (Browser-Druck / Raster-Download). Der frühere react-pdf-
+// Vergleich (pdf.html) ist in der Vue-Portierung noch nicht enthalten.
 export default defineConfig({
   base: './',
   define: {
     __GIT_VERSION__: JSON.stringify(git.version),
     __GIT_COMMIT_DATE__: JSON.stringify(git.date),
   },
-  plugins: [react(), reloadOnConfigYaml()],
-  build: {
-    rollupOptions: {
-      input: {
-        main: 'index.html',
-        pdf: 'pdf.html',
-      },
-    },
-  },
+  plugins: [vue(), reloadOnConfigYaml()],
 })

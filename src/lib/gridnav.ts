@@ -1,14 +1,14 @@
-import type { KeyboardEvent } from 'react'
-
 // Tastatur-Navigation in einer Bogen-Tabelle:
 //   • ↑ / ↓        - eine Zeile hoch/runter (gleiche Spalte)
 //   • Enter        - eine Zeile runter (wie ↓)
 //   • ← / →        - vorheriges/nächstes Feld, aber nur wenn der Cursor am
 //                    Rand des Textes steht (sonst normale Cursor-Bewegung)
 // Fokussiert wird nur innerhalb derselben Tabelle (.sheet-table).
+//
+// Nimmt das native KeyboardEvent (Vue `@keydown`), currentTarget ist das <input>.
 
-export function gridNavKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
-  const input = e.currentTarget
+export function gridNavKeyDown(e: KeyboardEvent): void {
+  const input = e.currentTarget as HTMLInputElement
   switch (e.key) {
     case 'ArrowUp':
       if (moveVertical(input, -1)) e.preventDefault()

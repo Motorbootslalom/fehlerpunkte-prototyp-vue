@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react'
+import { inject, reactive, watch, type App, type InjectionKey } from 'vue'
 import { CLASS_IDS, type AppState, type Bogen, type ClassId, type Lauf, type SheetTypeId } from '../types'
 import {
   applyBeschriftung,
@@ -65,7 +65,11 @@ export type Action =
   | { type: 'MARK_INITIALIZED' }
   | { type: 'RESET_ALL' }
 
-function reducer(state: AppState, action: Action): AppState {
+// Reine Reducer-Funktion (unverändert aus dem React-Prototyp übernommen): nimmt
+// den aktuellen Zustand und eine Aktion, liefert einen NEUEN vollständigen
+// Zustand. Der Vue-Store legt das Ergebnis per Object.assign auf den reaktiven
+// Zustand zurück.
+export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_EVENT':
       return { ...state, eventName: action.eventName }
@@ -201,39 +205,59 @@ function init(): AppState {
   return state
 }
 
-interface StoreContextValue {
+export interface Store {
   state: AppState
-  dispatch: React.Dispatch<Action>
+  dispatch: (action: Action) => void
 }
 
-const StoreContext = createContext<StoreContextValue | null>(null)
+const StoreKey: InjectionKey<Store> = Symbol('fehlerpunkte-store')
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, init)
+/**
+ * Erstellt den reaktiven Store und registriert ihn als Vue-Plugin (provide).
+ * Muss NACH dem Laden der Konfiguration (initConfig) aufgerufen werden, damit
+ * die Standard-Zusammenstellung die aktive Konfiguration berücksichtigt.
+ */
+export function createStore(): { install(app: App): void; store: Store } {
+  const state = reactive(init()) as AppState
+  const dispatch = (action: Action): void => {
+    // Reiner Reducer liefert neuen Zustand; per Object.assign zurück auf den
+    // reaktiven Zustand → Vue-Reaktivität greift.
+    Object.assign(state, reducer(state, action))
+  }
+  const store: Store = { state, dispatch }
 
-  useEffect(() => {
-    saveState(state)
-    // Adresszeile fortlaufend auf den aktuellen Stand spiegeln (Einstellungs-Link).
-    syncUrlToState(state)
-  }, [state])
+  // Bei jeder Änderung: lokal persistieren und Adresszeile spiegeln
+  // (Einstellungs-Link) - wie der useEffect im React-Prototyp.
+  watch(
+    state,
+    () => {
+      saveState(state)
+      syncUrlToState(state)
+    },
+    { deep: true, immediate: true },
+  )
 
-  return <StoreContext.Provider value={{ state, dispatch }}>{children}</StoreContext.Provider>
+  return {
+    store,
+    install(app: App) {
+      app.provide(StoreKey, store)
+    },
+  }
 }
 
-export function useStore(): StoreContextValue {
-  const ctx = useContext(StoreContext)
-  if (!ctx) throw new Error('useStore muss innerhalb von StoreProvider verwendet werden')
-  return ctx
+export function useStore(): Store {
+  const store = inject(StoreKey)
+  if (!store) throw new Error('useStore muss innerhalb der App (mit createStore) verwendet werden')
+  return store
 }
 
 /** Bequemer Lese-/Schreibzugriff auf eine einzelne Bogen-Zelle. */
 export function useCell(bogenId: string) {
   const { state, dispatch } = useStore()
-  const values = state.values[bogenId] ?? {}
   return {
     get: (nr: string, colKey: string, subIndex?: number) =>
-      values[cellKey(nr, colKey, subIndex)] ?? '',
-    getByKey: (key: string) => values[key] ?? '',
+      state.values[bogenId]?.[cellKey(nr, colKey, subIndex)] ?? '',
+    getByKey: (key: string) => state.values[bogenId]?.[key] ?? '',
     set: (cell: string, value: string) => dispatch({ type: 'SET_VALUE', bogenId, cell, value }),
   }
 }
