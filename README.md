@@ -69,6 +69,14 @@ Es gibt **zwei Einstiegspunkte** (Multi-Page-Build): die Vue-Eingabemaske
 Gruppenköpfe, Querformat, ohne Parcoursbild. Für die pixelgenaue WYSIWYG-Ausgabe
 sind **Browser-Druck** oder die **react-pdf-Insel** gedacht.
 
+> **Fazit aus dem Vergleich:** Die beiden clientseitigen Generatoren
+> (**pdfmake**, **jsPDF + autotable**) liefern **keine überzeugenden Ergebnisse** -
+> das Bogen-Layout müsste man dort mühsam nachbauen und bleibt trotzdem hinter der
+> WYSIWYG-Ansicht zurück. Genau dafür ist der Prototyp da: Er zeigt anschaulich,
+> dass **Browser-Druck** (empfohlen) und die **react-pdf-Insel** die besseren
+> Varianten sind. pdfmake/jsPDF bleiben nur als Anschauungs-/Vergleichsobjekt
+> erhalten.
+
 Alle Wege speisen sich aus derselben aktuellen Zusammenstellung. pdfmake und
 jsPDF teilen sich ein framework-agnostisches, „headless" **Sheet-Modell**
 (`src/lib/sheetModel.ts` - dieselbe Spalten-/Zeilen-/Σ-Logik wie die Vue-Ansicht).
