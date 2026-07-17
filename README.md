@@ -1,6 +1,6 @@
 # Fehlerpunkte - Motorbootslalom (Prototyp)
 
-**Live-Demo:** _(nach Deploy)_ <https://motorbootslalom.github.io/fehlerpunkte-prototyp/>
+**Live-Demo:** _(nach Deploy)_ <https://motorbootslalom.github.io/fehlerpunkte-prototyp-vue/>
 
 Interaktiver Konzept-**Prototyp** für die **Eingabemasken der
 Wettkampfrichter-Fehlerpunktlisten** (WKR-Listen) beim Motorboot-/Schlauchboot­slalom.
