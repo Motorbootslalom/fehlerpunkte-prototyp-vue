@@ -366,8 +366,11 @@ body {
 .event-bar .qr {
   position: absolute;
   right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
+  /* Etwas nach unten gesetzt statt auf der schmalen Leiste zentriert: so ragt
+     der QR nicht über die Kopf-Oberkante hinaus. Ohne transform, weil Chrome
+     transformierte Elemente beim Druck-Seitenumbruch teils auf die Vorseite
+     rendert und dort abschneidet. */
+  top: 5px;
   border: 1px solid #bbb;
 }
 
@@ -812,6 +815,12 @@ body {
   }
 
   .sheet-table tbody tr {
+    break-inside: avoid;
+  }
+
+  /* Die Kopfzeile (Event-Titel + QR) nicht mitten durch einen Seitenumbruch
+     trennen - der wiederholte <thead> soll je Seite komplett stehen. */
+  .sheet-table thead > tr:first-child {
     break-inside: avoid;
   }
 
