@@ -12,17 +12,25 @@ import { exportSheetsToPdf } from '../lib/exportPdf'
 import { exportPdfmake } from '../lib/exportPdfmake'
 import { exportJsPdfVector } from '../lib/exportJsPdfVector'
 import { describeBoegen, exportBaseName, printWithFilename } from '../lib/print'
+import {
+  LAEUFE,
+  classAllPositionsItems,
+  completeLaufItems,
+  formatClassOrder,
+  laufLabel,
+  parseClassOrder,
+  positionAllClassesItems,
+  type QuickLauf,
+} from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
 import { useStore } from '../state/store'
 import { CLASS_IDS, type ClassId, type Lauf, type SheetTypeId } from '../types'
-
-const LAEUFE: Lauf[] = [1, 2, 3]
 
 const { state, dispatch } = useStore()
 
 const addClass = ref<ClassId>('3')
 const addLauf = ref<Lauf>(1)
-const qpLauf = ref<Lauf>(1)
+const qpLauf = ref<QuickLauf>(1)
 const busy = ref(false)
 const busyPm = ref(false)
 const busyJs = ref(false)
@@ -60,14 +68,24 @@ function bulk(items: { typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }[]) {
   })
 }
 
+// Klassen jeweils in der gewählten Klassen-Reihenfolge; „Alle Läufe" = erst
+// Lauf 1 komplett, dann Lauf 2 usw.
 function completeLauf(l: Lauf) {
-  bulk(CLASS_IDS.flatMap((c) => order.value.map((t) => ({ typeId: t, klasse: c, lauf: l }))))
+  bulk(completeLaufItems(order.value, state.classOrder, l))
 }
 function positionAllClasses(t: SheetTypeId) {
-  bulk(CLASS_IDS.map((c) => ({ typeId: t, klasse: c, lauf: qpLauf.value })))
+  bulk(positionAllClassesItems(t, state.classOrder, qpLauf.value))
 }
 function classAllPositions(c: ClassId) {
-  bulk(order.value.map((t) => ({ typeId: t, klasse: c, lauf: qpLauf.value })))
+  bulk(classAllPositionsItems(c, order.value, qpLauf.value))
+}
+
+function setClassOrder(e: Event) {
+  const input = e.target as HTMLInputElement
+  const classOrder = parseClassOrder(input.value)
+  dispatch({ type: 'SET_CLASS_ORDER', classOrder })
+  // Bereinigte Form zurückschreiben - auch wenn sich der Zustand nicht ändert.
+  input.value = formatClassOrder(classOrder)
 }
 
 // Beschreibung aus der aktuellen Bogen-Auswahl (Position/Klasse/Lauf, nur
@@ -250,6 +268,17 @@ const commitDate = __GIT_COMMIT_DATE__
         <summary class="quickpick-title">Schnellauswahl</summary>
         <div class="qp-body">
           <div class="qp-row">
+            <label class="qp-label" for="qp-class-order">Klassen-Reihenfolge:</label>
+            <input
+              id="qp-class-order"
+              :value="formatClassOrder(state.classOrder)"
+              placeholder="z. B. 1, 3, E, 2, 5, 7, 4, 6"
+              title="Reihenfolge, in der die Schnellauswahl die Klassen anlegt. Nicht genannte Klassen kommen ans Ende; leer = Standard (E, 1 … 7)."
+              @change="setClassOrder"
+            />
+          </div>
+
+          <div class="qp-row">
             <span class="qp-label">Kompletter Lauf (alle Listen × alle Klassen):</span>
             <div class="qp-btns">
               <button
@@ -274,16 +303,23 @@ const commitDate = __GIT_COMMIT_DATE__
               >
                 {{ l }}. Lauf
               </button>
+              <button
+                :class="qpLauf === 'alle' ? 'active' : ''"
+                title="Erst Lauf 1 komplett, dann Lauf 2, dann Lauf 3 - jeweils in derselben Klassen-Reihenfolge"
+                @click="qpLauf = 'alle'"
+              >
+                Alle Läufe
+              </button>
             </div>
           </div>
 
           <div class="qp-row">
-            <span class="qp-label">Eine Position · alle Klassen · {{ qpLauf }}. Lauf:</span>
+            <span class="qp-label">Eine Position · alle Klassen · {{ laufLabel(qpLauf) }}:</span>
             <div class="qp-btns">
               <button
                 v-for="t in order"
                 :key="t"
-                :title="`${getSheetDef(t).menuLabel} für alle Klassen (${qpLauf}. Lauf)`"
+                :title="`${getSheetDef(t).menuLabel} für alle Klassen (${laufLabel(qpLauf)})`"
                 @click="positionAllClasses(t)"
               >
                 {{ getSheetDef(t).title }}
@@ -292,12 +328,12 @@ const commitDate = __GIT_COMMIT_DATE__
           </div>
 
           <div class="qp-row">
-            <span class="qp-label">Eine Klasse · alle Listen · {{ qpLauf }}. Lauf:</span>
+            <span class="qp-label">Eine Klasse · alle Listen · {{ laufLabel(qpLauf) }}:</span>
             <div class="qp-btns">
               <button
-                v-for="c in CLASS_IDS"
+                v-for="c in state.classOrder"
                 :key="c"
-                :title="`Alle Listentypen für Klasse ${c} (${qpLauf}. Lauf)`"
+                :title="`Alle Listentypen für Klasse ${c} (${laufLabel(qpLauf)})`"
                 @click="classAllPositions(c)"
               >
                 Kl. {{ c }}

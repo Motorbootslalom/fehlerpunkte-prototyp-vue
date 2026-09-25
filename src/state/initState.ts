@@ -7,6 +7,7 @@ import {
   positionAllowsClass,
 } from '../config/active'
 import { allDemoNumbers } from '../lib/demo'
+import { normalizeClassOrder } from '../lib/quickpick'
 import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
 import { loadState } from '../lib/storage'
 
@@ -41,6 +42,7 @@ export function defaultState(): AppState {
     emptyRows: 3,
     rowsPerPage: 0,
     numbers: allDemoNumbers(),
+    classOrder: [...CLASS_IDS],
     wkr: {},
     boegen: defaultBoegen(aufbau),
     values: {},
@@ -62,6 +64,8 @@ export function buildInitialState(): AppState {
   let state = loaded ? { ...defaultState(), ...loaded } : defaultState()
   // Ältere Stände speichern Startnummern als Zahlen → auf Strings normalisieren.
   if (loaded?.numbers) state = { ...state, numbers: normalizeNumbersMap(loaded.numbers) }
+  // Fehlt in älteren Ständen bzw. defensiv bereinigen.
+  state = { ...state, classOrder: normalizeClassOrder(state.classOrder) }
 
   // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand: Aufbau,
   // Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.
@@ -77,6 +81,7 @@ export function buildInitialState(): AppState {
       // Startnummern aus dem Link je Klasse übernehmen (fehlende Klassen bleiben
       // lokal/Demo).
       numbers: { ...state.numbers, ...shared.numbers },
+      classOrder: shared.classOrder ?? state.classOrder,
     }
     // Bögen nur ersetzen, wenn die Auswahl wirklich abweicht - so bleiben beim
     // normalen Neuladen (Auto-Sync-URL = eigener Stand) die lokalen IDs samt

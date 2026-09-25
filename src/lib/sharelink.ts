@@ -1,8 +1,10 @@
 import { CLASS_IDS, type AppState, type ClassId, type Lauf } from '../types'
+import { parseClassOrder } from './quickpick'
 
 // Teilbare Konfiguration in der URL (Feature „Einstellungs-Link"):
 // Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite, die
-// Startnummern je Klasse und die Bogen-Auswahl (Liste × Klasse × Lauf) werden
+// Startnummern je Klasse, die Klassen-Reihenfolge der Schnellauswahl und die
+// Bogen-Auswahl (Liste × Klasse × Lauf) werden
 // kompakt in den URL-Parameter `c` kodiert. NICHT enthalten sind eingetragene
 // Werte (Punkte/Zeiten) oder WKR-Namen - der Link stellt nur die
 // Zusammenstellung her, keine erfassten Daten.
@@ -21,6 +23,8 @@ export interface ShareConfig {
   rowsPerPage: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
+  /** Klassen-Reihenfolge der Schnellauswahl; fehlt in älteren Links. */
+  classOrder?: ClassId[]
   boegen: Array<{ typeId: string; klasse: ClassId; lauf: Lauf }>
 }
 
@@ -74,6 +78,7 @@ export function toShareConfig(state: AppState): ShareConfig {
     emptyRows: state.emptyRows,
     rowsPerPage: state.rowsPerPage,
     numbers: state.numbers,
+    classOrder: state.classOrder,
     boegen: state.boegen.map((b) => ({ typeId: b.typeId, klasse: b.klasse, lauf: b.lauf })),
   }
 }
@@ -98,6 +103,7 @@ export function encodeShareConfig(cfg: ShareConfig): string {
     r: cfg.emptyRows,
     p: cfg.rowsPerPage,
     n: cfg.numbers,
+    ...(cfg.classOrder ? { k: cfg.classOrder.join('') } : {}),
     g: boegenToWire(cfg.boegen),
   }
   return b64urlEncode(JSON.stringify(wire))
@@ -115,6 +121,7 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       emptyRows: typeof wire.r === 'number' ? wire.r : 3,
       rowsPerPage: typeof wire.p === 'number' ? wire.p : 0,
       numbers: normalizeNumbersMap(wire.n),
+      ...(typeof wire.k === 'string' ? { classOrder: parseClassOrder(wire.k) } : {}),
       boegen: boegenFromWire(wire.g),
     }
   } catch {

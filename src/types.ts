@@ -155,6 +155,11 @@ export interface AppState {
   rowsPerPage: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
+  /**
+   * Klassen-Reihenfolge der Schnellauswahl (immer alle Klassen genau einmal),
+   * z. B. 1, 3, E, 2, 5, 7, 4, 6. Standard: E, 1 … 7.
+   */
+  classOrder: ClassId[]
   /** WKR-Name je Bogen. */
   wkr: Record<string, string>
   /** Aktuell im Setup zusammengestellte Bögen. */

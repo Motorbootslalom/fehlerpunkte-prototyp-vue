@@ -237,8 +237,8 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 
 - Die aktuelle **Zusammenstellung** steckt fortlaufend in der **Adresszeile**
   (URL-Parameter `c`): Veranstaltung, Aufbau, Bojen-Bezeichnung, Leerzeilen,
-  Zeilen/Seite, die **Startnummern je Klasse** und die **Bogen-Auswahl**
-  (Liste × Klasse × Lauf). So lässt sich z. B. „Baden-Württemberg, alle
+  Zeilen/Seite, die **Startnummern je Klasse**, die **Klassen-Reihenfolge** der
+  Schnellauswahl und die **Bogen-Auswahl** (Liste × Klasse × Lauf). So lässt sich z. B. „Baden-Württemberg, alle
   Wasser-2-Listen" zusammenklicken und einfach **die URL teilen**; ein Knopf
   „Einstellungs-Link kopieren" legt sie in die Zwischenablage.
 - **Nicht** enthalten sind eingetragene Werte (Punkte/Zeiten) und WKR-Namen -
@@ -263,6 +263,11 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 - Produktiv kommen die Nummern und die Verzahnungs-/Gruppenaufteilung aus dem
   Schwesterprojekt *verzahnungs-prototyp* bzw. dem Auswertungstool.
 - Es gibt die Klassen **E und 1-7** (Klasse A entfällt).
+- **Reihenfolge der Bögen:** Die Schnellauswahl legt die Bögen in einer frei
+  wählbaren **Klassen-Reihenfolge** an (z. B. 1, 3, E, 2, 5, 7, 4, 6 - passend
+  zur Startfolge der Veranstaltung). Mit **„Alle Läufe"** kommt erst Lauf 1
+  komplett, dann Lauf 2 in derselben Reihenfolge usw. Produktiv ließe sich die
+  Reihenfolge aus der Verzahnung ableiten.
 - **Jede 5. Zeile** ist grau hinterlegt - reine Lesehilfe zur Orientierung.
 
 ## 11. Datenschutz

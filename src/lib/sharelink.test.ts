@@ -10,6 +10,7 @@ function stateFixture(): AppState {
     emptyRows: 5,
     rowsPerPage: 12,
     numbers: { '2': ['1', '2', '3'] },
+    classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
     wkr: { bg_1: 'Max' },
     boegen: [
       { id: 'bg_1', typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
@@ -31,11 +32,21 @@ describe('sharelink', () => {
       emptyRows: 5,
       rowsPerPage: 12,
       numbers: { '2': ['1', '2', '3'] },
+      classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
       boegen: [
         { typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
         { typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
       ],
     })
+  })
+
+  it('Klassen-Reihenfolge: fehlt in älteren Links, wird sonst vervollständigt', () => {
+    const alt = toShareConfig(stateFixture())
+    delete alt.classOrder
+    expect(decodeShareConfig(encodeShareConfig(alt))?.classOrder).toBeUndefined()
+
+    const kurz = { ...alt, classOrder: ['3', '1'] as ShareConfig['classOrder'] }
+    expect(decodeShareConfig(encodeShareConfig(kurz))?.classOrder).toEqual(['3', '1', 'E', '2', '4', '5', '6', '7'])
   })
 
   it('überträgt keine eingetragenen Werte oder WKR-Namen', () => {

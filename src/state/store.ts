@@ -1,6 +1,7 @@
 import { inject, reactive, watch, type App, type InjectionKey } from 'vue'
 import type { AppState, Bogen, ClassId, Lauf, SheetTypeId } from '../types'
 import { applyBeschriftung } from '../config/active'
+import { normalizeClassOrder } from '../lib/quickpick'
 import { cellKey } from '../lib/scoring'
 import { syncUrlToState } from '../lib/sharelink'
 import { clearState, saveState } from '../lib/storage'
@@ -13,6 +14,7 @@ export type Action =
   | { type: 'SET_EMPTY_ROWS'; emptyRows: number }
   | { type: 'SET_ROWS_PER_PAGE'; rowsPerPage: number }
   | { type: 'SET_NUMBERS'; klasse: ClassId; numbers: string[] }
+  | { type: 'SET_CLASS_ORDER'; classOrder: ClassId[] }
   | { type: 'SET_WKR'; bogenId: string; name: string }
   | { type: 'ADD_BOGEN'; typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }
   | { type: 'ADD_BOEGEN_BULK'; items: { typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }[] }
@@ -55,6 +57,9 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_NUMBERS':
       return { ...state, numbers: { ...state.numbers, [action.klasse]: action.numbers } }
+
+    case 'SET_CLASS_ORDER':
+      return { ...state, classOrder: normalizeClassOrder(action.classOrder) }
 
     case 'SET_WKR':
       return { ...state, wkr: { ...state.wkr, [action.bogenId]: action.name } }
