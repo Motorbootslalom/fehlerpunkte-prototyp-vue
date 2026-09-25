@@ -685,15 +685,18 @@ body {
 
 .course img {
   max-width: 100%;
-  max-height: 78mm;
+  /* 70 statt 78 mm: gleicht den größeren Unterschriftsplatz (+7 mm, siehe
+     .sheet-signature-row) aus - Bögen mit Bild werden insgesamt nicht höher. */
+  max-height: 70mm;
 }
 
 /* Zeile am Fuß: mittige Seitenzahl (mehrseitiger Druck) + rechte Unterschrift.
    position: relative, damit die Seitenzahl mittig „auf Höhe der Unterschrift"
-   liegt, während die Unterschrift rechtsbündig bleibt. */
+   liegt, während die Unterschrift rechtsbündig bleibt. padding-top ist der
+   Platz zum Unterschreiben über der Linie (≈ 11 mm). */
 .sheet-signature-row {
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: 42px;
   position: relative;
   display: flex;
   flex-direction: column;

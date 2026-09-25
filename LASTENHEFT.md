@@ -47,7 +47,8 @@ Jeder Bogen ist eine A4-Seite (Knoten: Querformat) und besteht aus:
 - **Tabelle:** eine Zeile je Startnummer (Startreihenfolge), plus einige leere
   Zeilen. Spalten je nach Listentyp (siehe §4).
 - **Fuß:** Legende (Fehlercodes mit Punkten, Disqualifikations-Codes A-X),
-  ggf. Parcoursbild, Unterschriftszeile „Unterschrift WKR“.
+  ggf. Parcoursbild, Unterschriftszeile „Unterschrift WKR“ mit genug Platz zum
+  Unterschreiben darüber (ca. 1 cm).
 
 ## 4. Aufbauten & Listentypen (Stationen am Parcours)
 

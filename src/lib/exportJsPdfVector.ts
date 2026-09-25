@@ -105,8 +105,8 @@ export async function exportJsPdfVector(fileName: string, state: AppState): Prom
     let y = (doc.lastAutoTable?.finalY ?? headerBottom) + 4
     y = drawLegend(doc, pg, y, marginX)
 
-    // Unterschrift + ggf. Seitenangabe.
-    y += 3
+    // Unterschrift + ggf. Seitenangabe; darüber Platz zum Unterschreiben.
+    y += 9
     doc.setFontSize(7)
     if (pg.pageCount > 1) doc.text(`Seite ${pg.pageIndex + 1} / ${pg.pageCount}`, marginX, y)
     doc.text('________________________  Unterschrift WKR', pageW - marginX - 70, y)

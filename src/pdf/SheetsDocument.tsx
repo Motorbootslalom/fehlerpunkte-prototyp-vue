@@ -77,7 +77,8 @@ const s = StyleSheet.create({
   // registriert (react-pdf würde sonst beim Auflösen hängen).
   note: { fontSize: 7, color: '#333', marginBottom: 1 },
 
-  signatureRow: { marginTop: 14, position: 'relative', alignItems: 'flex-end' },
+  // marginTop = Platz zum Unterschreiben über der Linie.
+  signatureRow: { marginTop: 42, position: 'relative', alignItems: 'flex-end' },
   pageIndicator: {
     position: 'absolute',
     left: 0,

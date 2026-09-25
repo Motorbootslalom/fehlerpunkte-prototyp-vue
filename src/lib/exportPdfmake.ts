@@ -94,7 +94,8 @@ function pageContent(pg: SheetModelPage): Content[] {
           : { text: '' },
         { text: '________________________\nUnterschrift WKR', fontSize: 7, alignment: 'right', width: 160 },
       ],
-      margin: [0, 8, 0, 0],
+      // Oberer Rand = Platz zum Unterschreiben über der Linie.
+      margin: [0, 24, 0, 0],
     },
   ]
   return content
