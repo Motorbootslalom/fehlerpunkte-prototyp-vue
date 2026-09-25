@@ -134,10 +134,10 @@ hinweise:
 aufbauten:
   - id: alcatraz
     name: Alcatraz
-    positionen: [zeit, steg, gate135, gate245, tor5, mueb, parcours, knoten]
+    positionen: [zeit, steg, gate135, gate245, tor5, tor5pue, mueb, parcours, knoten]
   - id: frontal
     name: Frontal
-    positionen: [zeit, steg, frontal135, frontal245, tor5, mueb, parcours, knoten]
+    positionen: [zeit, steg, frontal135, frontal245, tor5, tor5pue, mueb, parcours, knoten]
   - id: berlin
     name: Berlin
     positionen: [steg, bstartziel, brechts, blinks]
@@ -178,6 +178,19 @@ positionen:
 
   - id: tor5
     titel: "Tor 5"
+    menue: "Tor 5 (Einfahrt)"
+    ausrichtung: hoch
+    summeSpalte: sum
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    katalog: tor5
+    spalten:
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
+      - { key: sum, label: "Σ", typ: summe }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+
+  - id: tor5pue
+    titel: "Tor 5 + Parcours"
     menue: "Tor 5 (Einfahrt + Parcoursüberwachung)"
     ausrichtung: hoch
     bild: alcatraz_Parcours
