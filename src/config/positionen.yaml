@@ -163,7 +163,7 @@ positionen:
     titel: "Steg"
     menue: "Steg (Ablegen / Anlegen)"
     ausrichtung: hoch
-    disq: alle
+    disq: [A, C, D, E, F, H, I, K, L, X]  # nur die relevanten Disqualifikationen
     # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
     # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
     spalten:
@@ -182,7 +182,7 @@ positionen:
     ausrichtung: hoch
     bild: alcatraz_Parcours
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     katalog: tor5
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
@@ -196,7 +196,7 @@ positionen:
     ausrichtung: hoch
     klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     katalog: mueb
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
@@ -210,7 +210,7 @@ positionen:
     menue: "Parcours einfach (nur Fahrweg)"
     ausrichtung: hoch
     bild: alcatraz_Parcours
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: parcours
     spalten:
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
@@ -248,7 +248,7 @@ positionen:
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteA"] }
@@ -275,7 +275,7 @@ positionen:
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -300,7 +300,7 @@ positionen:
     abblenden: [Tor5_oben, Tor1_innen-7, Schikane, g3068]
     bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -323,7 +323,7 @@ positionen:
     abblenden: [Tor5_unten, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
     bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -339,7 +339,7 @@ positionen:
   - id: parallelparcours
     titel: "Parallelslalom"
     menue: "Parallelslalom (nur Fahrweg)"
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["seiteB seiteA"] }
       - { key: b1a, label: "Boje 1", typ: boje }
@@ -363,7 +363,7 @@ positionen:
     ausrichtung: hoch
     bild: alcatraz_Parcours
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: zeit1, label: "Zeit 1", typ: zeit }
@@ -380,7 +380,7 @@ positionen:
     ausrichtung: hoch
     bild: alcatraz_Parcours
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     katalog: mueb
     hinweis: blickrichtung
     spalten:
@@ -400,7 +400,7 @@ positionen:
     ausrichtung: hoch
     bild: alcatraz_Parcours
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     hinweis: blickrichtung
     spalten:
       - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
@@ -428,7 +428,7 @@ positionen:
     abblenden: [Tor1_innen, Tor2_aussen, Tor3_innen, Tor4, Tor5, Tor1_innen-7, Schikane, g3068, SpeedbojeKlasse7]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     # hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -456,7 +456,7 @@ positionen:
     abblenden: [Tor1, Tor2, Tor3, Tor4_aussen, Tor5_oben, Tor1_innen-7, Tor1_aussen-3, Schikane, g3068]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     # hinweis: blickrichtung
     katalog: tor5
     spalten:
@@ -484,7 +484,7 @@ positionen:
     abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, Tor1_aussen-3, g3068, SpeedbojeKlasse7]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     # hinweis: blickrichtung
     katalog: mueb
     spalten:
@@ -517,7 +517,7 @@ positionen:
     abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, Tor1_innen-7, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: alle
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
     # hinweis: blickrichtung
     katalog: tor5
     spalten:

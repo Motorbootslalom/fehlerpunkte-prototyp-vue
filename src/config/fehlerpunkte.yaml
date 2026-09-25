@@ -14,8 +14,8 @@ disqualifikationen:
   - { code: E, text: "Sitzen auf dem Schlauch (auch in gebückter Haltung)" }
   - { code: F, text: "Stehen im Boot (außer zum Ein- und Aussteigen und Anreißen des Motors)" }
   - { code: G, text: "Überfahren einer Boje oder des Mann-über-Bord" }
-  - { code: H, text: "Anfahren zur Umrundung Tor 1 mit Backbordseite (Klasse 5 - 7)" }
-  - { code: I, text: "Anfahren zur Umrundung Tor 1 mit Steuerbordseite (Klasse 3 und 4)" }
+  - { code: H, text: "\"Bending\" Herausslehen über Bootsbreite hinaus (außer bei MüB und An/Ablegen)" }
+  - { code: I, text: "Anlegen mit Backboardseite (Anlegen auf der falschen Seite)" }
   - { code: J, text: "Auslassen eines Tores/falscher Parcours/Anlegen auf der falschen Seite" }
   - { code: K, text: "Ablegen des Quickstop (außer Motorstart bzw. Belegen der Klampe mit Leerlauf)" }
   - { code: L, text: "Anfahren MüB oder ablegen des Ringes an Steuerbord" }
@@ -27,7 +27,7 @@ kataloge:
     titel: "Einfahrt Tor 5 (gleichzeitig Parcoursüberwachung):"
     fehler:
       - { code: 1, text: "nicht mit gesamter Länge eingefahren", punkte: 20 }
-      - { code: 2, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 2, text: "Durchreißen der Schaltung / erst ab Klasse 4", punkte: 5 }
 
   mueb:
     titel: "Fehler (MüB):"
@@ -35,7 +35,7 @@ kataloge:
       - { code: 13, text: "kein Leerlauf", punkte: 5 }
       - { code: 14, text: "Rettungsring nicht mit beiden Händen über die Stange gehoben", punkte: 5 }
       - { code: 15, text: "Rettungsring nicht mit beiden Händen aufgelegt", punkte: 5 }
-      - { code: 16, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 16, text: "Durchreißen der Schaltung / erst ab Klasse 4", punkte: 5 }
       - { code: 17, text: "Nicht vollständig aufgestoppt", punkte: 5 }
       - { code: 18, text: "Rettungsring geworfen oder fallengelassen", punkte: 5 }
       - { code: 19, text: "2. und 3. Versuch des Elementes", punkte: 5 }
@@ -47,7 +47,7 @@ kataloge:
     fehler:
       - { code: 3, text: "erneute Stegberührung", punkte: 5 }
       - { code: 4, text: "Treten auf den Schlauch / ab Klasse 3", punkte: 5 }
-      - { code: 5, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 5, text: "Durchreißen der Schaltung / erst ab Klasse 4", punkte: 5 }
 
   stegAnlegen:
     titel: "Anlegen (AN)"
@@ -55,6 +55,6 @@ kataloge:
       - { code: 7, text: "2. und 3. Versuch des Elementes", punkte: 5 }
       - { code: 8, text: "Festmacherleine nicht im Anlegebereich", punkte: 5 }
       - { code: 9, text: "Massive Stegberührung", punkte: 10 }
-      - { code: 10, text: "Durchreißen der Schaltung / erst ab Klasse 5", punkte: 5 }
+      - { code: 10, text: "Durchreißen der Schaltung / erst ab Klasse 4", punkte: 5 }
       - { code: 11, text: "Rückwärtsfahren auf dem Weg zum Steg", punkte: 5 }
       - { code: 12, text: "Boot nicht im Stillstand/kein Leerlauf, obwohl Hand am Steg", punkte: 10 }
