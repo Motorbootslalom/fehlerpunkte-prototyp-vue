@@ -206,7 +206,7 @@ function SheetPage({
 }: {
   state: AppState
   bogen: Bogen
-  chunkNums: number[]
+  chunkNums: string[]
   pageIndex: number
   pageCount: number
   images: CourseImages
@@ -216,7 +216,7 @@ function SheetPage({
   const values = state.values[bogen.id] ?? {}
   const get = (k: string) => values[k] ?? ''
 
-  const rows: RowData[] = chunkNums.map((n) => ({ id: String(n), nr: String(n), fixed: true, shaded: false }))
+  const rows: RowData[] = chunkNums.map((n) => ({ id: n, nr: n, fixed: true, shaded: false }))
   // Leerzeilen je Seite (einstellbar). Seiten-Präfix hält die Zeilen-IDs im
   // Dokument eindeutig und deckt sich mit den Zellschlüsseln der HTML-Ansicht.
   for (let i = 0; i < state.emptyRows; i++) {

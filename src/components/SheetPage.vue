@@ -32,7 +32,7 @@ interface Leaf {
 const props = defineProps<{
   bogen: Bogen
   def: SheetDef
-  chunkNums: number[]
+  chunkNums: string[]
   pageIndex: number
   pageCount: number
 }>()
@@ -101,7 +101,7 @@ const drehung = computed(() => props.def.bildDrehung ?? 0)
 const gedreht = computed(() => Math.abs(drehung.value) === 90)
 
 const rows = computed<Row[]>(() => {
-  const r: Row[] = props.chunkNums.map((n) => ({ id: String(n), nr: String(n), fixed: true, shaded: false }))
+  const r: Row[] = props.chunkNums.map((n) => ({ id: n, nr: n, fixed: true, shaded: false }))
   // Immer genau `emptyRows` leere Zeilen nach den Startnummern - auf jeder Seite.
   // Seiten-Präfix hält die Zellschlüssel je Seite eindeutig.
   for (let i = 0; i < state.emptyRows; i++) {

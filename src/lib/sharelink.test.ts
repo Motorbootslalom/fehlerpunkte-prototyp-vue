@@ -9,7 +9,7 @@ function stateFixture(): AppState {
     beschriftung: 'ls',
     emptyRows: 5,
     rowsPerPage: 12,
-    numbers: { '2': [1, 2, 3] },
+    numbers: { '2': ['1', '2', '3'] },
     wkr: { bg_1: 'Max' },
     boegen: [
       { id: 'bg_1', typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
@@ -30,7 +30,7 @@ describe('sharelink', () => {
       beschriftung: 'ls',
       emptyRows: 5,
       rowsPerPage: 12,
-      numbers: { '2': [1, 2, 3] },
+      numbers: { '2': ['1', '2', '3'] },
       boegen: [
         { typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
         { typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
@@ -63,20 +63,20 @@ describe('sharelink', () => {
     expect(round?.boegen).toEqual([{ typeId: 'zeit', klasse: '2', lauf: 1 }])
   })
 
-  it('überträgt die Startnummern je Klasse und filtert unbekannte Klassen/Nicht-Zahlen', () => {
+  it('überträgt die Startnummern je Klasse und filtert unbekannte Klassen/ungültige Einträge', () => {
     const cfg: ShareConfig = {
       eventName: 'X',
       aufbau: 'a',
       beschriftung: 'b',
       emptyRows: 0,
       rowsPerPage: 0,
-      // Absichtlich ungültige Einträge (unbekannte Klasse Z, Nicht-Zahl) - müssen
-      // beim Dekodieren herausgefiltert werden.
-      numbers: { '2': [7, 8], Z: [1], '4': ['x', 9] } as unknown as ShareConfig['numbers'],
+      // Absichtlich ungültige Einträge (unbekannte Klasse Z, leerer String, null)
+      // müssen herausgefiltert werden; Zahlen aus alten Links werden zu Strings.
+      numbers: { '2': ['7', '8'], Z: ['1'], '4': ['', null, 9], E: ['E01'] } as unknown as ShareConfig['numbers'],
       boegen: [],
     }
     const round = decodeShareConfig(encodeShareConfig(cfg))
-    expect(round?.numbers).toEqual({ '2': [7, 8], '4': [9] })
+    expect(round?.numbers).toEqual({ '2': ['7', '8'], '4': ['9'], E: ['E01'] })
   })
 
   it('liefert null bei kaputtem Parameter', () => {

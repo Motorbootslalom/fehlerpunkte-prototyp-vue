@@ -7,7 +7,7 @@ import {
   positionAllowsClass,
 } from '../config/active'
 import { allDemoNumbers } from '../lib/demo'
-import { readShareConfig, type ShareConfig } from '../lib/sharelink'
+import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
 import { loadState } from '../lib/storage'
 
 // Framework-agnostischer Anfangszustand. Wird sowohl vom Vue-Store (Eingabe-App)
@@ -60,6 +60,8 @@ function sameBoegenShape(a: Bogen[], b: ShareConfig['boegen']): boolean {
 export function buildInitialState(): AppState {
   const loaded = loadState()
   let state = loaded ? { ...defaultState(), ...loaded } : defaultState()
+  // Ältere Stände speichern Startnummern als Zahlen → auf Strings normalisieren.
+  if (loaded?.numbers) state = { ...state, numbers: normalizeNumbersMap(loaded.numbers) }
 
   // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand: Aufbau,
   // Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.

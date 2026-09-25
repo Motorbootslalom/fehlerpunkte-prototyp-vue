@@ -154,7 +154,7 @@ export interface AppState {
    */
   rowsPerPage: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
-  numbers: Partial<Record<ClassId, number[]>>
+  numbers: Partial<Record<ClassId, string[]>>
   /** WKR-Name je Bogen. */
   wkr: Record<string, string>
   /** Aktuell im Setup zusammengestellte Bögen. */

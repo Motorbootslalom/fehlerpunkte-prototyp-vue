@@ -20,18 +20,25 @@ export interface ShareConfig {
   emptyRows: number
   rowsPerPage: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
-  numbers: Partial<Record<ClassId, number[]>>
+  numbers: Partial<Record<ClassId, string[]>>
   boegen: Array<{ typeId: string; klasse: ClassId; lauf: Lauf }>
 }
 
-/** Startnummern-Map defensiv aus der Wire-Form lesen (nur bekannte Klassen). */
-function numbersFromWire(raw: unknown): Partial<Record<ClassId, number[]>> {
+/**
+ * Startnummern-Map defensiv lesen (nur bekannte Klassen). Akzeptiert Strings
+ * (z. B. "E01") sowie Zahlen aus älteren Links/Ständen und liefert Strings.
+ */
+export function normalizeNumbersMap(raw: unknown): Partial<Record<ClassId, string[]>> {
   if (!raw || typeof raw !== 'object') return {}
-  const out: Partial<Record<ClassId, number[]>> = {}
+  const out: Partial<Record<ClassId, string[]>> = {}
   for (const [klasse, list] of Object.entries(raw as Record<string, unknown>)) {
     if (!CLASS_IDS.includes(klasse as ClassId)) continue
     if (!Array.isArray(list)) continue
-    const nums = list.filter((n): n is number => typeof n === 'number' && Number.isFinite(n))
+    const nums: string[] = []
+    for (const n of list) {
+      if (typeof n === 'number' && Number.isFinite(n)) nums.push(String(n))
+      else if (typeof n === 'string' && n.trim() !== '') nums.push(n.trim())
+    }
     out[klasse as ClassId] = nums
   }
   return out
@@ -107,7 +114,7 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       beschriftung: typeof wire.b === 'string' ? wire.b : '',
       emptyRows: typeof wire.r === 'number' ? wire.r : 3,
       rowsPerPage: typeof wire.p === 'number' ? wire.p : 0,
-      numbers: numbersFromWire(wire.n),
+      numbers: normalizeNumbersMap(wire.n),
       boegen: boegenFromWire(wire.g),
     }
   } catch {

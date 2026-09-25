@@ -23,7 +23,7 @@ function chunk<T>(items: T[], size: number): T[][] {
   return out
 }
 
-const chunks = computed<number[][]>(() => {
+const chunks = computed<string[][]>(() => {
   const nums = state.numbers[props.bogen.klasse] ?? []
   // Startnummern seitenweise aufteilen (Minimum 5 Starter/Seite erzwingt der
   // Reducer). rowsPerPage 0 = keine feste Aufteilung → eine durchlaufende Seite.

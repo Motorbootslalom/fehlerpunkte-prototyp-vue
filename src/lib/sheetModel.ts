@@ -101,7 +101,7 @@ export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[]
   const getByKey = (k: string) => state.values[bogen.id]?.[k] ?? ''
 
   return chunks.map((chunkNums, pageIndex) => {
-    const rowKeys = chunkNums.map((n) => ({ nr: String(n), fixed: true, key: String(n) }))
+    const rowKeys = chunkNums.map((n) => ({ nr: n, fixed: true, key: n }))
     for (let i = 0; i < state.emptyRows; i++) {
       rowKeys.push({ nr: '', fixed: false, key: `_p${pageIndex}_x${i}` })
     }

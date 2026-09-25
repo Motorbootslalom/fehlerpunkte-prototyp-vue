@@ -12,7 +12,7 @@ export type Action =
   | { type: 'SET_BESCHRIFTUNG'; beschriftung: string }
   | { type: 'SET_EMPTY_ROWS'; emptyRows: number }
   | { type: 'SET_ROWS_PER_PAGE'; rowsPerPage: number }
-  | { type: 'SET_NUMBERS'; klasse: ClassId; numbers: number[] }
+  | { type: 'SET_NUMBERS'; klasse: ClassId; numbers: string[] }
   | { type: 'SET_WKR'; bogenId: string; name: string }
   | { type: 'ADD_BOGEN'; typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }
   | { type: 'ADD_BOEGEN_BULK'; items: { typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }[] }
