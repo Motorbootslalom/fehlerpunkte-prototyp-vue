@@ -153,6 +153,12 @@ export interface AppState {
    * und eine mittige „Seite n / X"-Angabe.
    */
   rowsPerPage: number
+  /**
+   * Aufteilen erst ab so vielen Startern (nur mit rowsPerPage > 0): kleinere
+   * Klassen bleiben eine Seite, z. B. ab 25 Startern je 15 pro Seite, 16-24
+   * bleiben zusammen. 0 = jede Klasse mit mehr als rowsPerPage Startern.
+   */
+  splitFrom: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
   /**

@@ -2,6 +2,7 @@ import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/
 import type { Style } from '@react-pdf/types'
 import { getSheetDef } from '../config/active'
 import { cellKey, columnsForClass, scoreRow } from '../lib/scoring'
+import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
 import { bogenPayload } from '../lib/qr'
 import type { AppState, Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
@@ -154,14 +155,6 @@ export function courseKey(dir: string, klasse: string, drehung: number): string 
 /** Breite der Beschreibungsspalte je Listentyp (in pt), im Browser gemessen. */
 export type LegendWidths = Record<string, number>
 
-/** Startnummern in Seiten-Blöcke aufteilen (mehrseitiger Druck). */
-function chunk<T>(items: T[], size: number): T[][] {
-  if (size <= 0) return [items]
-  const out: T[][] = []
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
-  return out
-}
-
 export function SheetsDocument({
   state,
   images,
@@ -174,11 +167,10 @@ export function SheetsDocument({
   return (
     <Document title="Fehlerpunkte">
       {state.boegen.flatMap((b) => {
-        const nums = state.numbers[b.klasse] ?? []
         // rowsPerPage 0 = durchlaufend (react-pdf bricht selbst um); sonst je
-        // Block eine eigene A4-Seite mit Kopf, Legende/Bild und Unterschrift.
-        const chunks = state.rowsPerPage > 0 ? chunk(nums, state.rowsPerPage) : [nums]
-        if (chunks.length === 0) chunks.push([])
+        // Block eine eigene A4-Seite mit Kopf, Legende/Bild und Unterschrift
+        // (bei splitFrom erst ab so vielen Startern).
+        const chunks = pageChunks(state.numbers[b.klasse] ?? [], state.rowsPerPage, state.splitFrom)
         return chunks.map((chunkNums, pi) => (
           <SheetPage
             key={`${b.id}:${pi}`}

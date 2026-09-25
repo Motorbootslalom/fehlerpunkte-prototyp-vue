@@ -13,6 +13,7 @@ export type Action =
   | { type: 'SET_BESCHRIFTUNG'; beschriftung: string }
   | { type: 'SET_EMPTY_ROWS'; emptyRows: number }
   | { type: 'SET_ROWS_PER_PAGE'; rowsPerPage: number }
+  | { type: 'SET_SPLIT_FROM'; splitFrom: number }
   | { type: 'SET_NUMBERS'; klasse: ClassId; numbers: string[] }
   | { type: 'SET_CLASS_ORDER'; classOrder: ClassId[] }
   | { type: 'SET_WKR'; bogenId: string; name: string }
@@ -54,6 +55,10 @@ export function reducer(state: AppState, action: Action): AppState {
       const v = Math.max(0, Math.min(100, Math.round(action.rowsPerPage)))
       return { ...state, rowsPerPage: v === 0 ? 0 : Math.max(5, v) }
     }
+
+    case 'SET_SPLIT_FROM':
+      // 0 = aus (jede Klasse über „Zeilen/Seite“ wird aufgeteilt).
+      return { ...state, splitFrom: Math.max(0, Math.min(200, Math.round(action.splitFrom) || 0)) }
 
     case 'SET_NUMBERS':
       return { ...state, numbers: { ...state.numbers, [action.klasse]: action.numbers } }

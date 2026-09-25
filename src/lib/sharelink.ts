@@ -2,12 +2,13 @@ import { CLASS_IDS, type AppState, type ClassId, type Lauf } from '../types'
 import { parseClassOrder } from './quickpick'
 
 // Teilbare Konfiguration in der URL (Feature „Einstellungs-Link"):
-// Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite, die
-// Startnummern je Klasse, die Klassen-Reihenfolge der Schnellauswahl und die
-// Bogen-Auswahl (Liste × Klasse × Lauf) werden
-// kompakt in den URL-Parameter `c` kodiert. NICHT enthalten sind eingetragene
-// Werte (Punkte/Zeiten) oder WKR-Namen - der Link stellt nur die
-// Zusammenstellung her, keine erfassten Daten.
+// Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite samt „Teilen
+// ab", die Startnummern je Klasse, die Klassen-Reihenfolge der Schnellauswahl
+// und die Bogen-Auswahl (Liste × Klasse × Lauf) werden kompakt in den
+// URL-Parameter `c` kodiert. NICHT enthalten sind eingetragene Werte
+// (Punkte/Zeiten) oder WKR-Namen - der Link stellt nur die Zusammenstellung
+// her, keine erfassten Daten. Fehlende Angaben (z. B. im Link aus dem
+// Verzahnungstool) lassen den lokalen Stand unverändert.
 //
 // Die Adresszeile wird bei jeder Änderung aktualisiert (Auto-Sync, siehe
 // StoreProvider), sodass sich der aktuelle Stand jederzeit kopieren lässt.
@@ -19,8 +20,10 @@ export interface ShareConfig {
   eventName: string
   aufbau: string
   beschriftung: string
-  emptyRows: number
-  rowsPerPage: number
+  /** Leerzeilen/Seitenaufteilung; fehlen in Links ohne diese Angaben (z. B. aus dem Verzahnungstool). */
+  emptyRows?: number
+  rowsPerPage?: number
+  splitFrom?: number
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
   /** Klassen-Reihenfolge der Schnellauswahl; fehlt in älteren Links. */
@@ -77,6 +80,7 @@ export function toShareConfig(state: AppState): ShareConfig {
     beschriftung: state.beschriftung,
     emptyRows: state.emptyRows,
     rowsPerPage: state.rowsPerPage,
+    splitFrom: state.splitFrom,
     numbers: state.numbers,
     classOrder: state.classOrder,
     boegen: state.boegen.map((b) => ({ typeId: b.typeId, klasse: b.klasse, lauf: b.lauf })),
@@ -102,6 +106,7 @@ export function encodeShareConfig(cfg: ShareConfig): string {
     b: cfg.beschriftung,
     r: cfg.emptyRows,
     p: cfg.rowsPerPage,
+    u: cfg.splitFrom,
     n: cfg.numbers,
     ...(cfg.classOrder ? { k: cfg.classOrder.join('') } : {}),
     g: boegenToWire(cfg.boegen),
@@ -118,8 +123,9 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       eventName: typeof wire.e === 'string' ? wire.e : '',
       aufbau: typeof wire.a === 'string' ? wire.a : '',
       beschriftung: typeof wire.b === 'string' ? wire.b : '',
-      emptyRows: typeof wire.r === 'number' ? wire.r : 3,
-      rowsPerPage: typeof wire.p === 'number' ? wire.p : 0,
+      ...(typeof wire.r === 'number' ? { emptyRows: wire.r } : {}),
+      ...(typeof wire.p === 'number' ? { rowsPerPage: wire.p } : {}),
+      ...(typeof wire.u === 'number' ? { splitFrom: wire.u } : {}),
       numbers: normalizeNumbersMap(wire.n),
       ...(typeof wire.k === 'string' ? { classOrder: parseClassOrder(wire.k) } : {}),
       boegen: boegenFromWire(wire.g),

@@ -9,6 +9,7 @@ function stateFixture(): AppState {
     beschriftung: 'ls',
     emptyRows: 5,
     rowsPerPage: 12,
+    splitFrom: 25,
     numbers: { '2': ['1', '2', '3'] },
     classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
     wkr: { bg_1: 'Max' },
@@ -31,6 +32,7 @@ describe('sharelink', () => {
       beschriftung: 'ls',
       emptyRows: 5,
       rowsPerPage: 12,
+      splitFrom: 25,
       numbers: { '2': ['1', '2', '3'] },
       classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
       boegen: [
@@ -38,6 +40,16 @@ describe('sharelink', () => {
         { typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
       ],
     })
+  })
+
+  it('Leerzeilen/Seitenaufteilung fehlen in Links ohne diese Angaben (lokale Werte bleiben)', () => {
+    // Wie der Link aus dem Verzahnungstool: nur Veranstaltung + Startnummern.
+    const round = decodeShareConfig(
+      encodeShareConfig({ eventName: 'X', aufbau: '', beschriftung: '', numbers: { '3': ['301'] }, boegen: [] }),
+    )
+    expect(round?.emptyRows).toBeUndefined()
+    expect(round?.rowsPerPage).toBeUndefined()
+    expect(round?.splitFrom).toBeUndefined()
   })
 
   it('Klassen-Reihenfolge: fehlt in älteren Links, wird sonst vervollständigt', () => {

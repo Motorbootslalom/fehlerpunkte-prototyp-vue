@@ -205,7 +205,26 @@ const commitDate = __GIT_COMMIT_DATE__
           "
         />
       </label>
-      <p class="hint">Zeilen / Seite: 0 = automatisch, sonst Startnummern pro Druckseite (min. 5).</p>
+      <label
+        class="field field-nums"
+        style="margin-top: 8px"
+        title="Nur Klassen mit mindestens so vielen Startern werden auf mehrere Seiten aufgeteilt; kleinere bleiben eine Seite. 0 = jede Klasse mit mehr Startern als „Zeilen / Seite“."
+      >
+        <span>Teilen ab</span>
+        <input
+          type="number"
+          :min="0"
+          :max="200"
+          :value="state.splitFrom"
+          :disabled="state.rowsPerPage === 0"
+          @input="dispatch({ type: 'SET_SPLIT_FROM', splitFrom: Number(($event.target as HTMLInputElement).value) })"
+        />
+      </label>
+      <p class="hint">
+        Zeilen / Seite: 0 = automatisch, sonst Startnummern pro Druckseite (min. 5). Teilen ab: erst
+        Klassen mit so vielen Startern aufteilen, z. B. 15 / 25 = ab 25 Startern je 15 pro Seite,
+        16-24 bleiben eine Seite (0 = immer).
+      </p>
       <div class="btn-row" style="margin-top: 10px">
         <button
           title="Kopiert eine URL, die genau diese Zusammenstellung wiederherstellt - ohne eingetragene Werte"

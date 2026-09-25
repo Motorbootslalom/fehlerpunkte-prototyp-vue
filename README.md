@@ -39,6 +39,10 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
   Raster-PDF (html2canvas + jsPDF) sowie zwei Vektor-PDF-Generatoren (pdfmake und
   jsPDF + autotable). Dazu die **react-pdf-Insel** (`pdf.html`) mit Live-Vorschau
   und eingebettetem Parcoursbild.
+- **Seitenaufteilung:** „Zeilen / Seite“ teilt große Klassen auf mehrere
+  A4-Seiten (jede mit Legende, Unterschrift und „Seite n / X“); „Teilen ab“
+  macht das erst ab einer Mindestzahl Starter, z. B. 15 / 25 = ab 25 Startern
+  je 15 pro Seite, 16-24 bleiben eine Seite.
 - **Bögen zusammenstellen:** Listentyp, Klasse und Lauf je Bogen wählen,
   sortieren, hinzufügen/entfernen; Startnummern editierbar. Die
   **Schnellauswahl** legt ganze Gruppen an (kompletter Lauf, eine Position für

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getSheetDef } from '../config/active'
+import { pageChunks } from '../lib/paging'
 import { useStore } from '../state/store'
 import type { Bogen } from '../types'
 import SheetPage from './SheetPage.vue'
@@ -15,22 +16,12 @@ const { state } = useStore()
 
 const def = computed(() => getSheetDef(props.bogen.typeId))
 
-/** Startnummern in Seiten-Blöcke aufteilen (mehrseitiger Druck). */
-function chunk<T>(items: T[], size: number): T[][] {
-  if (size <= 0) return [items]
-  const out: T[][] = []
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
-  return out
-}
-
-const chunks = computed<string[][]>(() => {
-  const nums = state.numbers[props.bogen.klasse] ?? []
-  // Startnummern seitenweise aufteilen (Minimum 5 Starter/Seite erzwingt der
-  // Reducer). rowsPerPage 0 = keine feste Aufteilung → eine durchlaufende Seite.
-  const c = state.rowsPerPage > 0 ? chunk(nums, state.rowsPerPage) : [nums]
-  if (c.length === 0) c.push([])
-  return c
-})
+// Startnummern seitenweise aufteilen (Minimum 5 Starter/Seite erzwingt der
+// Reducer). rowsPerPage 0 = keine feste Aufteilung → eine durchlaufende Seite;
+// splitFrom > 0 = erst ab so vielen Startern aufteilen.
+const chunks = computed<string[][]>(() =>
+  pageChunks(state.numbers[props.bogen.klasse] ?? [], state.rowsPerPage, state.splitFrom),
+)
 </script>
 
 <template>

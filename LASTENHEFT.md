@@ -207,6 +207,12 @@ Intern wird jede Zeit als Hundertstelsekunden geführt, damit gerechnet werden k
   Spaltenüberschriften, **Legende/Parcoursbild und die konfigurierten
   Leerzeilen** sowie - mittig auf Höhe der Unterschrift - eine **„Seite n / X"**-
   Angabe. So bleibt jede Einzelseite eine vollständige, unterschreibbare Liste.
+- **Teilen ab** (einstellbar, Standard **0 = immer**): Aufgeteilt werden nur
+  Klassen mit **mindestens so vielen Startern**, kleinere bleiben eine Seite.
+  Beispiel: Zeilen/Seite 15, Teilen ab 25 → 25 Starter = 15 + 10 Zeilen,
+  16-24 Starter bleiben eine Seite. Wie viele Starter auf eine A4-Seite passen,
+  hängt vom Listentyp ab (Steg mit großer Legende: ca. 20 Starter plus
+  3 Leerzeilen im Browser-Druck).
 
 ## 8. Druck / PDF-Export
 

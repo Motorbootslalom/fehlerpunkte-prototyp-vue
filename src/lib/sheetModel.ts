@@ -1,4 +1,5 @@
 import { getSheetDef } from '../config/active'
+import { pageChunks } from './paging'
 import { bogenPayload } from './qr'
 import { cellKey, columnsForClass, formatDisqs, scoreRow } from './scoring'
 import { formatTimeDisplay, parseTime } from './time'
@@ -72,13 +73,6 @@ function buildLeaves(columns: Column[]): ModelLeaf[] {
   )
 }
 
-function chunk<T>(items: T[], size: number): T[][] {
-  if (size <= 0) return [items]
-  const out: T[][] = []
-  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size))
-  return out
-}
-
 /** Alle Druckseiten eines Bogens (bei „Zeilen/Seite“ mehrere, sonst eine). */
 export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[] {
   const def = getSheetDef(bogen.typeId)
@@ -93,9 +87,7 @@ export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[]
   }))
   const twoRow = cols.some((c) => c.sub && c.sub.length > 0)
 
-  const nums = state.numbers[bogen.klasse] ?? []
-  const chunks = state.rowsPerPage > 0 ? chunk(nums, state.rowsPerPage) : [nums]
-  if (chunks.length === 0) chunks.push([])
+  const chunks = pageChunks(state.numbers[bogen.klasse] ?? [], state.rowsPerPage, state.splitFrom)
   const pageCount = chunks.length
 
   const getByKey = (k: string) => state.values[bogen.id]?.[k] ?? ''
