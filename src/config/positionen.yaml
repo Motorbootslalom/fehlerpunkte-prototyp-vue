@@ -194,6 +194,12 @@ positionen:
     titel: "Mann-über-Bord"
     menue: "Mann-über-Bord / Schikane"
     ausrichtung: hoch
+    bild: mueb
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Beobachtet wird nur die seiteA-Hälfte (untere Boje). Neben Tor 2/4 (aus
+    # `hebt` abgeleitet) werden daher die OBEREN Bojen von Tor 5 / Start-Ziel, die
+    # Schikane (MüB) und die obere Speedboje (7) abgeblendet.
+    abblenden: [Tor5_oben, Tor1_innen-7, g3068, Tor5_unten, Tor1_aussen-3, SpeedbojeKlasse7]
     klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
     summeSpalte: sum
     disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
