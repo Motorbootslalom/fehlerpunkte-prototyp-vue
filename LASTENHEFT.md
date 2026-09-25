@@ -203,8 +203,13 @@ Intern wird jede Zeit als Hundertstelsekunden geführt, damit gerechnet werden k
   Leerzeilen auf ein A4-Blatt passen. Passt ein Bogen nicht, wird er auf so
   wenige Seiten wie möglich verteilt - gleichmäßig (Mitte, Drittel, …) und auf
   **5er-Schritte** aufgerundet: 24 Starter bei höchstens 20 je Blatt → 15 + 9,
-  58 → 20 + 20 + 18. Gilt für Bildschirm und Browser-Druck; react-pdf-Insel und
-  pdfmake/jsPDF brechen bei `0` weiterhin selbst um.
+  58 → 20 + 20 + 18. Kostet das Aufrunden eine zusätzliche Seite, wird nur
+  gleichmäßig geteilt (20 bei höchstens 9 → 7 + 7 + 6). Am Blattende bleiben
+  **5 mm Sicherheitsreserve** frei, damit der Druck mit den Standard-Rändern
+  des Browsers (= `@page`-Rand 8 mm) nicht doch umbricht - Vorschau und Druck
+  setzen minimal verschieden. Ohne Ränder zu drucken ist keine Lösung: Dann
+  schneidet der Drucker den Rand ab. Gilt für Bildschirm und Browser-Druck;
+  react-pdf-Insel und pdfmake/jsPDF brechen bei `0` weiterhin selbst um.
 - Ist ein Wert **≥ 5** gesetzt, wird der Bogen **fest nach so vielen Startern**
   auf mehrere A4-Seiten aufgeteilt. **Jede Seite** trägt Kopf,
   Spaltenüberschriften, **Legende/Parcoursbild und die konfigurierten

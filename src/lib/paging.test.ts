@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { PX_PER_MM, autoPageSize, overflowRows, pageChunks, printableHeightPx, rowsThatFit } from './paging'
+import {
+  PRINT_RESERVE_MM,
+  PX_PER_MM,
+  autoPageSize,
+  overflowRows,
+  pageChunks,
+  printableHeightPx,
+  rowsThatFit,
+} from './paging'
 
 const nums = (n: number) => Array.from({ length: n }, (_, i) => String(301 + i))
 const sizes = (chunks: string[][]) => chunks.map((c) => c.length)
@@ -69,6 +77,12 @@ describe('autoPageSize (5er-Schritte: Mitte, Drittel, …)', () => {
     expect(autoPageSize(58, 0)).toBe(58)
     expect(autoPageSize(10, 3)).toBe(3)
   })
+
+  it('kostet das Aufrunden eine Seite, wird nur gleichmäßig geteilt', () => {
+    expect(autoPageSize(20, 9)).toBe(7) // 7 + 7 + 6 statt 5 + 5 + 5 + 5
+    expect(autoPageSize(20, 8)).toBe(7) // 7 + 7 + 6
+    expect(autoPageSize(19, 9)).toBe(7) // 7 + 7 + 5
+  })
 })
 
 describe('Messung', () => {
@@ -89,9 +103,16 @@ describe('Messung', () => {
     expect(overflowRows(printableHeightPx(210), 210, 25)).toBe(0)
   })
 
-  it('rowsThatFit: Zeilen, die neben Kopf/Fuß auf die Seite passen', () => {
-    expect(rowsThatFit(seite - 23 * 25, 25, 297)).toBe(23)
-    expect(rowsThatFit(seite - 23 * 25 + 2, 25, 297)).toBe(22)
+  it('rowsThatFit: Zeilen, die neben Kopf/Fuß auf die Seite passen (mit Reserve)', () => {
+    const reserve = PRINT_RESERVE_MM * PX_PER_MM
+    expect(rowsThatFit(seite - reserve - 23 * 25, 25, 297)).toBe(23)
+    expect(rowsThatFit(seite - reserve - 23 * 25 + 1, 25, 297)).toBe(22)
     expect(rowsThatFit(100, 0, 297)).toBe(0)
+  })
+
+  it('rowsThatFit: eine Seite, die ohne Reserve genau passt, gilt als zu voll', () => {
+    // Steg: 20 Starter + 3 Leerzeilen füllten das Blatt bis auf 0,1 mm.
+    const rowPx = 6.1 * PX_PER_MM
+    expect(rowsThatFit(seite - 0.1 * PX_PER_MM - 23 * rowPx, rowPx, 297)).toBe(22)
   })
 })

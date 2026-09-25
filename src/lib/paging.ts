@@ -8,6 +8,15 @@ export const PX_PER_MM = 96 / 25.4
 /** Druckrand (@page margin) - die Bildschirm-Ansicht nutzt denselben Innenrand. */
 export const PRINT_MARGIN_MM = 8
 
+/**
+ * Sicherheitsreserve je Druckseite für die automatische Aufteilung. Vorschau
+ * und Druck setzen minimal verschieden (Schrift-Hinting, Pixelraster, Browser,
+ * Druckertreiber): Eine Seite, die in der Vorschau auf den Zehntelmillimeter
+ * passt (z. B. Steg mit 20 Startern + 3 Leerzeilen), bricht beim Drucken mit
+ * Standard-Rändern sonst um.
+ */
+export const PRINT_RESERVE_MM = 5
+
 /** Blatthöhe in mm: A4 hoch 297, quer 210. */
 export function pageHeightMm(orientation: 'portrait' | 'landscape'): number {
   return orientation === 'landscape' ? 210 : 297
@@ -33,27 +42,29 @@ export function overflowRows(contentPx: number, heightMm: number, rowPx: number)
 /**
  * Wie viele Tabellenzeilen (Starter + Leerzeilen) passen auf eine Druckseite?
  * `fixedPx` = alles außer den Zeilen: Kopf, Spaltenköpfe, Legende/Bild,
- * Unterschrift. Gleiche 1-px-Toleranz wie {@link overflowRows}.
+ * Unterschrift. Unten bleibt {@link PRINT_RESERVE_MM} frei.
  */
 export function rowsThatFit(fixedPx: number, rowPx: number, heightMm: number): number {
   if (rowPx <= 0) return 0
-  return Math.max(0, Math.floor((printableHeightPx(heightMm) - fixedPx + 1) / rowPx))
+  const usablePx = printableHeightPx(heightMm) - PRINT_RESERVE_MM * PX_PER_MM
+  return Math.max(0, Math.floor((usablePx - fixedPx) / rowPx))
 }
 
 /**
  * Automatische Seitengröße: Passen alle `n` Starter auf eine Seite (höchstens
  * `capacity`), bleibt es eine. Sonst so wenige Seiten wie möglich, gleichmäßig
  * geteilt und auf 5er-Schritte aufgerundet (Mitte, Drittel, …): 24 Starter bei
- * höchstens 20 pro Seite → 15 + 9, 58 → 20 + 20 + 18.
+ * höchstens 20 pro Seite → 15 + 9, 58 → 20 + 20 + 18. Kostete das Aufrunden
+ * eine zusätzliche Seite, bleibt es beim gleichmäßigen Teilen: 20 bei
+ * höchstens 9 → 7 + 7 + 6 (statt 5 + 5 + 5 + 5).
  * `capacity` 0 = unbekannt → eine Seite.
  */
 export function autoPageSize(n: number, capacity: number): number {
   if (capacity <= 0 || n <= capacity) return n
-  if (capacity < 5) return capacity
-  for (let pages = 2; ; pages++) {
-    const size = Math.ceil(n / pages / 5) * 5
-    if (size <= capacity) return size
-  }
+  const pages = Math.ceil(n / capacity)
+  const even = Math.ceil(n / pages)
+  const rounded = Math.ceil(even / 5) * 5
+  return rounded <= capacity ? rounded : even
 }
 
 function sliceBy<T>(items: T[], size: number): T[][] {

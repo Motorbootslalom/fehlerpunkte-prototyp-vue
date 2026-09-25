@@ -41,8 +41,10 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
   und eingebettetem Parcoursbild.
 - **Seitenaufteilung:** Große Klassen kommen auf mehrere A4-Seiten, jede mit
   Legende, Unterschrift und „Seite n / X“. Standard („Zeilen / Seite“ = 0) ist
-  **automatisch**: Die Vorschau misst, was auf ein Blatt passt, und teilt zu
-  große Bögen gleichmäßig in 5er-Schritten (24 → 15 + 9, 58 → 20 + 20 + 18).
+  **automatisch**: Die Vorschau misst, was auf ein Blatt passt (mit 5 mm
+  Sicherheitsreserve für den Druck mit Standard-Rändern), und teilt zu große
+  Bögen gleichmäßig in 5er-Schritten (24 → 15 + 9, 58 → 20 + 20 + 18); kostet
+  das Aufrunden eine Seite, wird nur gleichmäßig geteilt (20 → 7 + 7 + 6).
   Ein fester Wert übersteuert das; „Teilen ab“ teilt dann erst ab einer
   Mindestzahl Starter (z. B. 15 / 25). Ergäbe ein fester Wert eine Seite, die
   nicht aufs Blatt passt, wird automatisch geteilt; ohne Messung warnt die
