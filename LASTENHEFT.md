@@ -214,8 +214,10 @@ Intern wird jede Zeit als Hundertstelsekunden geführt, damit gerechnet werden k
   Klassen mit **mindestens so vielen Startern**, kleinere bleiben eine Seite.
   Beispiel: Zeilen/Seite 15, Teilen ab 25 → 25 Starter = 15 + 10 Zeilen,
   16-24 Starter bleiben eine Seite. Wie viele Starter auf eine A4-Seite passen,
-  hängt vom Listentyp ab (Steg mit großer Legende: ca. 20 Starter plus
-  3 Leerzeilen im Browser-Druck).
+  hängt vom Listentyp ab (mit 3 Leerzeilen: Steg 20, Tor 1/3/5 19 Starter im
+  Browser-Druck). Ergäbe ein fester Wert eine Seite, die nicht aufs Blatt
+  passt, gilt dafür die automatische Aufteilung - Beschreibung und
+  Unterschrift rutschen nie auf eine eigene Seite.
 - **Vorschau = Druckseite:** Das Blatt am Bildschirm hat dieselben Maße wie die
   Druckseite (A4, 8 mm Rand). Passt eine Seite nicht auf ein Blatt (z. B. ein
   zu großer fester Wert), zeigt die Vorschau einen Hinweis „ca. N Zeilen zu

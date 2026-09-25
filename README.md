@@ -44,8 +44,9 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
   **automatisch**: Die Vorschau misst, was auf ein Blatt passt, und teilt zu
   große Bögen gleichmäßig in 5er-Schritten (24 → 15 + 9, 58 → 20 + 20 + 18).
   Ein fester Wert übersteuert das; „Teilen ab“ teilt dann erst ab einer
-  Mindestzahl Starter (z. B. 15 / 25). Passt eine Seite trotzdem nicht, warnt
-  die Vorschau mit roter Seitenende-Linie.
+  Mindestzahl Starter (z. B. 15 / 25). Ergäbe ein fester Wert eine Seite, die
+  nicht aufs Blatt passt, wird automatisch geteilt; ohne Messung warnt die
+  Vorschau mit roter Seitenende-Linie.
 - **Bögen zusammenstellen:** Listentyp, Klasse und Lauf je Bogen wählen,
   sortieren, hinzufügen/entfernen; Startnummern editierbar. Die
   **Schnellauswahl** legt ganze Gruppen an (kompletter Lauf, eine Position für

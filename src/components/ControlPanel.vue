@@ -224,7 +224,7 @@ const commitDate = __GIT_COMMIT_DATE__
         Zeilen / Seite: 0 = automatisch (misst, was auf ein Blatt passt, und teilt in 5er-Schritten,
         z. B. 24 → 15 + 9), sonst fest so viele Starter pro Seite (min. 5). Teilen ab (nur bei festem
         Wert): erst Klassen mit so vielen Startern aufteilen, z. B. 15 / 25 = ab 25 Startern je 15 pro
-        Seite (0 = immer).
+        Seite (0 = immer). Passt eine Seite trotzdem nicht aufs Blatt, wird automatisch geteilt.
       </p>
       <div class="btn-row" style="margin-top: 10px">
         <button

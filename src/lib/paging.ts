@@ -71,12 +71,16 @@ function sliceBy<T>(items: T[], size: number): T[][] {
  *   pdfmake/jsPDF) eine durchlaufende Seite.
  * - `rowsPerPage` > 0 = fest nach so vielen Startern; mit `splitFrom` > 0 nur
  *   Klassen mit **mindestens** so vielen Startern (z. B. ab 25 je 15 pro Seite,
- *   16-24 bleiben zusammen).
+ *   16-24 bleiben zusammen). Ergäbe das eine Seite, die laut Messung nicht aufs
+ *   Blatt passt, gilt die automatische Aufteilung - Beschreibung und
+ *   Unterschrift sollen nie auf eine eigene Seite rutschen.
  *
  * Liefert immer mindestens einen (ggf. leeren) Block.
  */
 export function pageChunks<T>(items: T[], rowsPerPage: number, splitFrom = 0, autoCapacity = 0): T[][] {
-  if (rowsPerPage <= 0) return sliceBy(items, autoPageSize(items.length, autoCapacity))
+  const auto = () => sliceBy(items, autoPageSize(items.length, autoCapacity))
+  if (rowsPerPage <= 0) return auto()
   const split = items.length > rowsPerPage && items.length >= splitFrom
-  return split ? sliceBy(items, rowsPerPage) : [items]
+  const fixed = split ? sliceBy(items, rowsPerPage) : [items]
+  return autoCapacity > 0 && fixed.some((c) => c.length > autoCapacity) ? auto() : fixed
 }

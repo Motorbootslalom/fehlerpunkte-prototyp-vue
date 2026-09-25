@@ -29,8 +29,16 @@ describe('pageChunks', () => {
     expect(sizes(pageChunks(nums(58), 0, 0, 20))).toEqual([20, 20, 18])
   })
 
-  it('feste Zeilen/Seite gehen vor der Messung', () => {
+  it('feste Zeilen/Seite gelten, solange jede Seite aufs Blatt passt', () => {
     expect(sizes(pageChunks(nums(25), 15, 25, 20))).toEqual([15, 10])
+    expect(sizes(pageChunks(nums(20), 15, 25, 20))).toEqual([20]) // Steg: 20 passen
+  })
+
+  it('passt eine feste Seite nicht aufs Blatt, wird automatisch geteilt', () => {
+    // Tor 1/3/5: höchstens 19 Starter je Blatt; 15 / 25 würde 20 zusammenlassen.
+    expect(sizes(pageChunks(nums(20), 15, 25, 19))).toEqual([10, 10])
+    // Fester Wert 20 bei nur 18 passenden: 40 → 15 + 15 + 10 statt 20 + 20
+    expect(sizes(pageChunks(nums(40), 20, 0, 18))).toEqual([15, 15, 10])
   })
 
   it('liefert für eine leere Klasse genau einen leeren Block', () => {
