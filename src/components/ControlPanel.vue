@@ -192,7 +192,7 @@ const commitDate = __GIT_COMMIT_DATE__
       <label
         class="field field-nums"
         style="margin-top: 8px"
-        title="0 = automatisch (eine durchlaufende Seite). Ab 5: nach so vielen Startern beginnt eine neue Druckseite - jede Seite mit Legende/Bild/Leerzeilen und „Seite n / X“."
+        title="0 = automatisch: Passt ein Bogen nicht auf ein Blatt, wird er gleichmäßig in 5er-Schritten geteilt (z. B. 24 Starter → 15 + 9, 58 → 20 + 20 + 18). Ab 5: fest nach so vielen Startern. Jede Seite mit Legende/Bild/Leerzeilen und „Seite n / X“."
       >
         <span>Zeilen / Seite</span>
         <input
@@ -221,9 +221,10 @@ const commitDate = __GIT_COMMIT_DATE__
         />
       </label>
       <p class="hint">
-        Zeilen / Seite: 0 = automatisch, sonst Startnummern pro Druckseite (min. 5). Teilen ab: erst
-        Klassen mit so vielen Startern aufteilen, z. B. 15 / 25 = ab 25 Startern je 15 pro Seite,
-        16-24 bleiben eine Seite (0 = immer).
+        Zeilen / Seite: 0 = automatisch (misst, was auf ein Blatt passt, und teilt in 5er-Schritten,
+        z. B. 24 → 15 + 9), sonst fest so viele Starter pro Seite (min. 5). Teilen ab (nur bei festem
+        Wert): erst Klassen mit so vielen Startern aufteilen, z. B. 15 / 25 = ab 25 Startern je 15 pro
+        Seite (0 = immer).
       </p>
       <div class="btn-row" style="margin-top: 10px">
         <button

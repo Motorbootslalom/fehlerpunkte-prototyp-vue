@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gridNavKeyDown } from '../lib/gridnav'
 import { normalizeCodeCell } from '../lib/codes'
+import { PRINT_MARGIN_MM, overflowRows, pageHeightMm as pageHeightOf } from '../lib/paging'
 import { allowedSet, sanitizeBuoy, sanitizeCodeInput, sanitizeDisq } from '../lib/disq'
 import { cellKey, columnsForClass, formatDisqs, scoreRow, type RowScore } from '../lib/scoring'
 import { useCell, useStore } from '../state/store'
@@ -229,10 +230,50 @@ function onWkr(name: string) {
 function onImgError(e: Event) {
   ;(e.target as HTMLImageElement).style.display = 'none'
 }
+
+// Passt die Seite auf ein A4-Blatt? Das Blatt am Bildschirm hat dieselben Maße
+// wie die Druckseite (A4, 8 mm Rand); ist der Inhalt höher, bricht der Druck um
+// und Beschreibung/Unterschrift landen auf einer weiteren Seite. Das zeigt die
+// Vorschau mit Hinweis und Seitenende-Linie (nur am Bildschirm). Die erste
+// Seite meldet außerdem die Höhe von Kopf/Fuß und die Zeilenhöhe an SheetView -
+// daraus ergibt sich die automatische Seitenaufteilung.
+const emit = defineEmits<{ (e: 'layout', m: { fixedPx: number; rowPx: number }): void }>()
+const sheetEl = ref<HTMLElement | null>(null)
+const tooManyRows = ref(0)
+const pageHeightMm = computed(() => pageHeightOf(props.def.orientation))
+function measurePage() {
+  const table = sheetEl.value?.querySelector<HTMLTableElement>('.sheet-table')
+  const rows = table?.tBodies[0]?.rows
+  if (!table || !rows || rows.length === 0) return
+  const contentPx = table.getBoundingClientRect().height
+  const rowPx =
+    (rows[rows.length - 1].getBoundingClientRect().bottom - rows[0].getBoundingClientRect().top) / rows.length
+  if (contentPx <= 0 || rowPx <= 0) return // ohne Layout (z. B. Test-DOM) nichts messen
+  tooManyRows.value = overflowRows(contentPx, pageHeightMm.value, rowPx)
+  if (props.pageIndex === 0) emit('layout', { fixedPx: contentPx - rows.length * rowPx, rowPx })
+}
+let resizeObserver: ResizeObserver | undefined
+onMounted(() => {
+  measurePage()
+  const table = sheetEl.value?.querySelector('.sheet-table')
+  if (typeof ResizeObserver !== 'undefined' && table) {
+    resizeObserver = new ResizeObserver(measurePage)
+    resizeObserver.observe(table)
+  }
+})
+onBeforeUnmount(() => resizeObserver?.disconnect())
 </script>
 
 <template>
-  <div :class="`sheet sheet--${def.orientation}${gedreht ? ' sheet--rotated' : ''}`">
+  <div ref="sheetEl" :class="`sheet sheet--${def.orientation}${gedreht ? ' sheet--rotated' : ''}`">
+    <template v-if="tooManyRows > 0">
+      <p class="sheet-overflow-note">
+        ⚠ Passt nicht auf ein A4-Blatt (ca. {{ tooManyRows }} {{ tooManyRows === 1 ? 'Zeile' : 'Zeilen' }} zu
+        viel): Beschreibung und Unterschrift rutschen beim Drucken auf eine weitere Seite - rote Linie =
+        Seitenende. „Zeilen / Seite“ bzw. „Teilen ab“ verringern.
+      </p>
+      <div class="sheet-page-end" :style="{ top: `${pageHeightMm - PRINT_MARGIN_MM}mm` }" />
+    </template>
     <!-- Der Bogen ist EINE Tabelle: <thead>/<tfoot> wiederholen sich beim Druck
          automatisch auf jeder Seite, falls eine Seite doch noch umbricht. -->
     <table class="sheet-table" @focusin="handleFocus" @focusout="handleBlur">

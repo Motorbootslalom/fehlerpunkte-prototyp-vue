@@ -325,13 +325,15 @@ body {
    ============================================================ */
 
 .sheet {
+  position: relative;
   background: #fff;
   color: var(--ink);
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
-  /* A4 hochkant */
+  /* A4 hochkant; Innenrand = Druckrand (@page margin), damit die Vorschau
+     dieselben Maße hat wie die Druckseite (Umbrüche, Seitenende-Prüfung). */
   width: 210mm;
   min-height: 297mm;
-  padding: 10mm 9mm;
+  padding: 8mm;
   display: flex;
   flex-direction: column;
   font-size: 10.5pt;
@@ -340,6 +342,28 @@ body {
 .sheet--landscape {
   width: 297mm;
   min-height: 210mm;
+}
+
+/* Seite zu hoch für ein A4-Blatt (siehe SheetPage): Hinweis im oberen Rand und
+   rote Linie, wo die Druckseite endet. Nur am Bildschirm. */
+.sheet-overflow-note {
+  position: absolute;
+  top: 1mm;
+  left: 8mm;
+  right: 8mm;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: #b42318;
+  font-weight: 600;
+}
+
+.sheet-page-end {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed #d92d20;
+  pointer-events: none;
 }
 
 /* ---------- Kopf ------------------------------------------- */
@@ -784,7 +808,9 @@ body {
     background: #fff;
   }
 
-  .control-panel {
+  .control-panel,
+  .sheet-overflow-note,
+  .sheet-page-end {
     display: none !important;
   }
 

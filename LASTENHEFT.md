@@ -199,9 +199,12 @@ Intern wird jede Zeit als Hundertstelsekunden geführt, damit gerechnet werden k
   (Standard **3**) für Nachmeldungen.
 - **Jede 5. Zeile** ist grau hinterlegt (Lesehilfe).
 - **Zeilen pro Seite** (einstellbar, Standard **0 = automatisch**): Bei `0`
-  bleibt es eine durchlaufende Tabelle; der Browser bricht bei Bedarf selbst um
-  und wiederholt Kopf/Spaltenüberschriften (`thead`) sowie die Fuß-Legende
-  (`tfoot`) je Seite (Firefox jede Seite, Chrome letzte Seite).
+  misst die Vorschau, wie viele Starter neben Kopf, Legende/Bild und
+  Leerzeilen auf ein A4-Blatt passen. Passt ein Bogen nicht, wird er auf so
+  wenige Seiten wie möglich verteilt - gleichmäßig (Mitte, Drittel, …) und auf
+  **5er-Schritte** aufgerundet: 24 Starter bei höchstens 20 je Blatt → 15 + 9,
+  58 → 20 + 20 + 18. Gilt für Bildschirm und Browser-Druck; react-pdf-Insel und
+  pdfmake/jsPDF brechen bei `0` weiterhin selbst um.
 - Ist ein Wert **≥ 5** gesetzt, wird der Bogen **fest nach so vielen Startern**
   auf mehrere A4-Seiten aufgeteilt. **Jede Seite** trägt Kopf,
   Spaltenüberschriften, **Legende/Parcoursbild und die konfigurierten
@@ -213,6 +216,10 @@ Intern wird jede Zeit als Hundertstelsekunden geführt, damit gerechnet werden k
   16-24 Starter bleiben eine Seite. Wie viele Starter auf eine A4-Seite passen,
   hängt vom Listentyp ab (Steg mit großer Legende: ca. 20 Starter plus
   3 Leerzeilen im Browser-Druck).
+- **Vorschau = Druckseite:** Das Blatt am Bildschirm hat dieselben Maße wie die
+  Druckseite (A4, 8 mm Rand). Passt eine Seite nicht auf ein Blatt (z. B. ein
+  zu großer fester Wert), zeigt die Vorschau einen Hinweis „ca. N Zeilen zu
+  viel" und eine rote Seitenende-Linie (nur am Bildschirm, nicht im Druck).
 
 ## 8. Druck / PDF-Export
 
