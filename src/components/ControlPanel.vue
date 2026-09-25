@@ -20,6 +20,7 @@ import {
   laufLabel,
   parseClassOrder,
   positionAllClassesItems,
+  withoutLaufRepeats,
   type QuickLauf,
 } from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
@@ -61,10 +62,15 @@ async function copyShareLink() {
 }
 
 function bulk(items: { typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }[]) {
-  // Nicht passende Klassen je Position auslassen (z. B. MüB erst ab Klasse 4).
+  // Nicht passende Klassen je Position auslassen (z. B. MüB erst ab Klasse 4);
+  // lauf-unabhängige Listen (Knoten) nur einmal je Klasse.
   dispatch({
     type: 'ADD_BOEGEN_BULK',
-    items: items.filter((it) => positionAllowsClass(it.typeId, it.klasse)),
+    items: withoutLaufRepeats(
+      items.filter((it) => positionAllowsClass(it.typeId, it.klasse)),
+      (t) => getSheetDef(t).showLauf === false,
+      state.boegen,
+    ),
   })
 }
 

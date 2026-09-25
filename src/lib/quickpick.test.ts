@@ -7,6 +7,7 @@ import {
   normalizeClassOrder,
   parseClassOrder,
   positionAllClassesItems,
+  withoutLaufRepeats,
 } from './quickpick'
 import type { ClassId } from '../types'
 
@@ -61,6 +62,24 @@ describe('Schnellauswahl', () => {
   it('kompletter Lauf: Klassen in gewählter Reihenfolge × Positionen', () => {
     const items = completeLaufItems(['zeit', 'steg'], ['3', 'E'] as ClassId[], 1)
     expect(items.map((it) => `${it.klasse}:${it.typeId}`)).toEqual(['3:zeit', '3:steg', 'E:zeit', 'E:steg'])
+  })
+
+  it('lauf-unabhängige Liste (Knoten) bei „Alle Läufe" nur einmal je Klasse', () => {
+    const laufFree = (t: string) => t === 'knoten'
+    const alle = positionAllClassesItems('knoten', ['3', 'E'] as ClassId[], 'alle')
+    const items = withoutLaufRepeats(alle, laufFree)
+    expect(items.map((it) => `${it.lauf}:${it.klasse}:${it.typeId}`)).toEqual(['1:3:knoten', '1:E:knoten'])
+
+    const klasse = withoutLaufRepeats(classAllPositionsItems('E', ['zeit', 'knoten'], 'alle'), laufFree)
+    expect(klasse.map((it) => `${it.lauf}:${it.typeId}`)).toEqual(['1:zeit', '1:knoten', '2:zeit', '3:zeit'])
+  })
+
+  it('lauf-unabhängige Liste: schon vorhandene Bögen nicht noch einmal anlegen', () => {
+    const laufFree = (t: string) => t === 'knoten'
+    const existing = [{ typeId: 'knoten', klasse: '3' as ClassId }, { typeId: 'zeit', klasse: 'E' as ClassId }]
+    const lauf2 = completeLaufItems(['zeit', 'knoten'], ['3', 'E'] as ClassId[], 2)
+    const items = withoutLaufRepeats(lauf2, laufFree, existing)
+    expect(items.map((it) => `${it.klasse}:${it.typeId}`)).toEqual(['3:zeit', 'E:zeit', 'E:knoten'])
   })
 
   it('beschriftet den Lauf', () => {

@@ -80,6 +80,26 @@ export function classAllPositionsItems(
   return laeufeOf(q).flatMap((lauf) => positions.map((typeId) => ({ typeId, klasse, lauf })))
 }
 
+/**
+ * Lauf-unabhängige Positionen (`lauf: false`, z. B. Knoten) gibt es je Klasse
+ * nur einmal: Wiederholungen aus „Alle Läufe" und schon vorhandene Bögen
+ * derselben Position/Klasse fallen weg. Übrig bleibt der erste Lauf.
+ */
+export function withoutLaufRepeats(
+  items: BogenWahl[],
+  laufFree: (typeId: SheetTypeId) => boolean,
+  existing: { typeId: SheetTypeId; klasse: ClassId }[] = [],
+): BogenWahl[] {
+  const key = (b: { typeId: SheetTypeId; klasse: ClassId }) => `${b.typeId}:${b.klasse}`
+  const seen = new Set(existing.filter((b) => laufFree(b.typeId)).map(key))
+  return items.filter((it) => {
+    if (!laufFree(it.typeId)) return true
+    if (seen.has(key(it))) return false
+    seen.add(key(it))
+    return true
+  })
+}
+
 /** Kompletter Lauf: alle Klassen (gewählte Reihenfolge) × alle Positionen. */
 export function completeLaufItems(
   positions: SheetTypeId[],
