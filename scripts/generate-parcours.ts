@@ -6,6 +6,10 @@
 // react-pdf-Druck, der kein SVG einbetten kann).
 //
 // Aufruf: `node scripts/generate-parcours.ts` (bzw. `npm run parcours:build`).
+// Ist die erzeugte SVG identisch mit der vorhandenen (und das PNG da), wird der
+// Satz NICHT neu gerastert: PNGs fallen je Umgebung (resvg/Schriften) byte-weise
+// anders aus - ein Neuschreiben machte den Git-Baum im Build „dirty“.
+// `--force` rastert trotzdem alles neu (z. B. nach einem resvg-Update).
 //
 // Gesteuert wird das über positionen.yaml:
 //   • Positions-Feld  bildGenerator: true   → dieses Bild wird generiert
@@ -118,8 +122,10 @@ function run(): void {
     return
   }
 
+  const force = process.argv.includes('--force')
   let svgCount = 0
   let pngCount = 0
+  let unchanged = 0
   for (const [target, { source, dim }] of jobs) {
     const srcDir = resolve(parcoursRoot, source)
     const outDir = resolve(parcoursRoot, target)
@@ -135,7 +141,13 @@ function run(): void {
       const { svg, missing } = applyDimming(srcSvg, dim)
       if (missing.length > 0)
         console.warn(`      ⚠ ${file}: IDs nicht gefunden: ${missing.join(', ')}`)
-      writeFileSync(resolve(outDir, file), svg)
+      const outSvg = resolve(outDir, file)
+      const outPng = resolve(outDir, file.replace(/\.svg$/, '.png'))
+      if (!force && existsSync(outPng) && existsSync(outSvg) && readFileSync(outSvg, 'utf8') === svg) {
+        unchanged++
+        continue
+      }
+      writeFileSync(outSvg, svg)
       svgCount++
       const png = new Resvg(svg, {
         fitTo: { mode: 'zoom', value: PNG_ZOOM },
@@ -143,9 +155,11 @@ function run(): void {
       })
         .render()
         .asPng()
-      writeFileSync(resolve(outDir, file.replace(/\.svg$/, '.png')), png)
+      writeFileSync(outPng, png)
       pngCount++
     }
   }
-  console.log(`\n  ✔ ${jobs.size} Bild-Satz/Sätze, ${svgCount} SVG + ${pngCount} PNG erzeugt.`)
+  console.log(
+    `\n  ✔ ${jobs.size} Bild-Satz/Sätze, ${svgCount} SVG + ${pngCount} PNG erzeugt, ${unchanged} unverändert.`,
+  )
 }
