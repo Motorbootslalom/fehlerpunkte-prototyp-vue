@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import {
   getAufbau,
   getAufbauten,
@@ -25,6 +25,7 @@ import {
   type QuickLauf,
 } from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
+import { showLaufzettel } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import { CLASS_IDS, type ClassId, type Lauf, type SheetTypeId } from '../types'
 
@@ -105,6 +106,20 @@ function setClassOrder(e: Event) {
 const describe = () => describeBoegen(state.boegen, (t) => getSheetDef(t).title)
 const namePreview = computed(() => exportBaseName(state.eventName, describe()))
 const currentName = () => exportBaseName(state.eventName, describe(), new Date())
+
+// Nur die Laufzettel drucken: Die Bögen bleiben in der Vorschau (sie liefern die
+// Seitenzahlen), die Druck-CSS blendet sie über die body-Klasse aus.
+async function printLaufzettel() {
+  showLaufzettel.value = true
+  await nextTick()
+  document.body.classList.add('print-laufzettel')
+  const done = () => {
+    document.body.classList.remove('print-laufzettel')
+    window.removeEventListener('afterprint', done)
+  }
+  window.addEventListener('afterprint', done)
+  printWithFilename(exportBaseName(state.eventName, 'Laufzettel', new Date()))
+}
 
 async function downloadPdf() {
   busy.value = true
@@ -271,6 +286,30 @@ const commitDate = __GIT_COMMIT_DATE__
         Der Download-Button erzeugt eine gerasterte Bild-PDF (unschärfer) - nur als Fallback.
         <br />
         Dateiname: <code>{{ namePreview }} - …Uhr</code>
+      </p>
+
+      <h3 class="cp-subhead">Laufzettel</h3>
+      <label class="cp-check">
+        <input
+          type="checkbox"
+          :checked="showLaufzettel"
+          @change="showLaufzettel = ($event.target as HTMLInputElement).checked"
+        />
+        Laufzettel in der Vorschau zeigen
+      </label>
+      <div class="btn-row" style="margin-top: 8px">
+        <button
+          :disabled="state.boegen.length === 0"
+          title="Druckt nur die Laufzettel (A4 quer) - die Bögen werden dabei ausgelassen"
+          @click="printLaufzettel"
+        >
+          🖨 Nur Laufzettel drucken
+        </button>
+      </div>
+      <p class="hint">
+        Je Klasse/Lauf der Bögen-Liste ein A4-Querblatt, das auf A5 gefaltet wird: rechts am Falz
+        Klasse und Lauf, daneben eine Checkbox je gedruckter Seite (Reihenfolge wie im Aufbau). Die
+        Seitenzahlen kommen aus der Vorschau - „Zeilen / Seite“ vorher einstellen.
       </p>
 
       <h3 class="cp-subhead">Vektor-PDF-Wege zum Vergleich</h3>

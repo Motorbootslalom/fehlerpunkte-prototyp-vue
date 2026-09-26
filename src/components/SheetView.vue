@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watchEffect } from 'vue'
 import { getSheetDef } from '../config/active'
 import { pageChunks, pageHeightMm, rowsThatFit } from '../lib/paging'
+import { pageCounts } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import type { Bogen } from '../types'
 import SheetPage from './SheetPage.vue'
@@ -38,6 +39,14 @@ const capacity = computed(() => {
 const chunks = computed<string[][]>(() =>
   pageChunks(state.numbers[props.bogen.klasse] ?? [], state.rowsPerPage, state.splitFrom, capacity.value),
 )
+
+// Seitenzahl für die Laufzettel melden (bogen.id bleibt je Instanz gleich).
+watchEffect(() => {
+  pageCounts[props.bogen.id] = chunks.value.length
+})
+onBeforeUnmount(() => {
+  delete pageCounts[props.bogen.id]
+})
 </script>
 
 <template>

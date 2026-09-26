@@ -180,6 +180,14 @@ body {
   font-weight: 600;
 }
 
+.cp-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 .hint {
   font-size: 11.5px;
   color: #8b95a6;
@@ -795,6 +803,105 @@ body {
 }
 
 /* ============================================================
+   LAUFZETTEL (A4 quer, in der Mitte auf A5 gefaltet)
+   ============================================================ */
+
+.laufzettel-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Inhalt = Druckbereich (A4 quer minus 2 × 8 mm Rand), in der Höhe 2 mm
+   Reserve gegen Umbruch auf eine zweite Seite. Der Rand ist ringsum gleich,
+   daher liegt die Mitte des Inhalts auf der Blattmitte - dem Falz. */
+.lz-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 192mm;
+}
+
+/* Rechte Hälfte = Vorderseite nach dem Falten; gestrichelte Linie = Falz. */
+.lz-front {
+  display: flex;
+  min-width: 0;
+  padding-left: 4mm;
+  border-left: 0.3mm dashed #999;
+}
+
+/* Klasse/Lauf senkrecht am Falz (wie ein Buchrücken), von unten nach oben. */
+.lz-spine {
+  flex: none;
+  width: 20mm;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10mm;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lz-klasse {
+  font-size: 28pt;
+}
+
+.lz-lauf {
+  font-size: 22pt;
+}
+
+.lz-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2mm 0 0 5mm;
+  border-left: 0.4mm solid #000;
+}
+
+.lz-title {
+  margin: 0 0 4mm;
+  font-size: 11pt;
+  color: #444;
+}
+
+.lz-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13pt;
+}
+
+.lz-list li {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  padding: 1.6mm 0;
+  line-height: 1.25;
+  break-inside: avoid;
+}
+
+/* Viele Seiten: zweispaltig und etwas kleiner, damit alles aufs Blatt passt. */
+.lz-list--2 {
+  columns: 2;
+  column-gap: 6mm;
+  font-size: 12pt;
+}
+
+.lz-list--2 li {
+  padding: 1.2mm 0;
+}
+
+.lz-box {
+  flex: none;
+  width: 5mm;
+  height: 5mm;
+  border: 0.4mm solid #000;
+}
+
+/* ============================================================
    DRUCK
    ============================================================ */
 
@@ -856,6 +963,20 @@ body {
   /* Querformat-Bögen einzeln drehen */
   .sheet--landscape {
     page: landscape;
+  }
+
+  /* Laufzettel nur über „Nur Laufzettel drucken“ (body.print-laufzettel) -
+     dann umgekehrt ohne die Bögen. */
+  .laufzettel-stack {
+    display: none !important;
+  }
+
+  body.print-laufzettel .laufzettel-stack {
+    display: block !important;
+  }
+
+  body.print-laufzettel .sheet:not(.laufzettel) {
+    display: none !important;
   }
 
   .cell-input:focus {
