@@ -52,13 +52,13 @@ describe('sharelink', () => {
     expect(round?.splitFrom).toBeUndefined()
   })
 
-  it('Klassen-Reihenfolge: fehlt in älteren Links, wird sonst vervollständigt', () => {
+  it('Klassen-Reihenfolge: fehlt in älteren Links, eine Teilauswahl bleibt erhalten', () => {
     const alt = toShareConfig(stateFixture())
     delete alt.classOrder
     expect(decodeShareConfig(encodeShareConfig(alt))?.classOrder).toBeUndefined()
 
     const kurz = { ...alt, classOrder: ['3', '1'] as ShareConfig['classOrder'] }
-    expect(decodeShareConfig(encodeShareConfig(kurz))?.classOrder).toEqual(['3', '1', 'E', '2', '4', '5', '6', '7'])
+    expect(decodeShareConfig(encodeShareConfig(kurz))?.classOrder).toEqual(['3', '1'])
   })
 
   it('überträgt keine eingetragenen Werte oder WKR-Namen', () => {

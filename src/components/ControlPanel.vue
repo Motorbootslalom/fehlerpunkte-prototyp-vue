@@ -19,9 +19,11 @@ import {
   completeLaufItems,
   formatClassOrder,
   laufLabel,
+  missingClasses,
   parseClassOrder,
   positionAllClassesItems,
   positionButtonLabels,
+  withMissingClasses,
   withoutLaufRepeats,
   type QuickLauf,
 } from '../lib/quickpick'
@@ -95,6 +97,12 @@ function classAllPositions(c: ClassId) {
 }
 function allClassesAllPositions() {
   bulk(allClassesAllPositionsItems(state.classOrder, order.value, qpLauf.value))
+}
+
+// Aus der Klassen-Reihenfolge entfernte Klassen (↻ hängt sie wieder an).
+const fehlendeKlassen = computed(() => missingClasses(state.classOrder))
+function restoreClasses() {
+  dispatch({ type: 'SET_CLASS_ORDER', classOrder: withMissingClasses(state.classOrder) })
 }
 
 function setClassOrder(e: Event) {
@@ -347,13 +355,24 @@ const commitDate = __GIT_COMMIT_DATE__
         <div class="qp-body">
           <div class="qp-row">
             <label class="qp-label" for="qp-class-order">Klassen-Reihenfolge:</label>
-            <input
-              id="qp-class-order"
-              :value="formatClassOrder(state.classOrder)"
-              placeholder="z. B. 1, 3, E, 2, 5, 7, 4, 6"
-              title="Reihenfolge, in der die Schnellauswahl die Klassen anlegt. Nicht genannte Klassen kommen ans Ende; leer = Standard (E, 1 … 7)."
-              @change="setClassOrder"
-            />
+            <div class="qp-order">
+              <input
+                id="qp-class-order"
+                :value="formatClassOrder(state.classOrder)"
+                placeholder="z. B. 1, 3, E, 2, 5, 7, 4, 6"
+                title="Reihenfolge, in der die Schnellauswahl die Klassen anlegt. Nicht genannte Klassen werden ausgelassen; leer = alle (E, 1 … 7)."
+                @change="setClassOrder"
+              />
+              <button
+                v-if="fehlendeKlassen.length > 0"
+                class="qp-reset"
+                :title="`Fehlende Klassen wieder anhängen: ${fehlendeKlassen.join(', ')}`"
+                :aria-label="`Fehlende Klassen wieder anhängen: ${fehlendeKlassen.join(', ')}`"
+                @click="restoreClasses"
+              >
+                ↻
+              </button>
+            </div>
           </div>
 
           <div class="qp-row">

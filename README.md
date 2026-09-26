@@ -54,8 +54,8 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
   **Schnellauswahl** legt ganze Gruppen an (kompletter Lauf, eine Position für
   alle Klassen, eine Klasse für alle Listen) - in einer frei wählbaren
   **Klassen-Reihenfolge** (z. B. `1, 3, E, 2, 5, 7, 4, 6`; nicht genannte Klassen
-  kommen ans Ende) und wahlweise für **alle Läufe**: erst Lauf 1 komplett, dann
-  Lauf 2 in derselben Reihenfolge usw.
+  werden ausgelassen, ↻ hängt sie wieder an) und wahlweise für **alle Läufe**:
+  erst Lauf 1 komplett, dann Lauf 2 in derselben Reihenfolge usw.
 
 ## Bedienung
 

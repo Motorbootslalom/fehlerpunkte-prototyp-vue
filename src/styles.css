@@ -282,6 +282,24 @@ body {
   color: #aeb8c7;
 }
 
+/* Klassen-Reihenfolge + ↻ (fehlende Klassen wieder anhängen) */
+.qp-order {
+  display: flex;
+  gap: 5px;
+}
+
+.qp-order input {
+  flex: 1;
+  min-width: 0;
+}
+
+.qp-reset {
+  flex: none;
+  padding: 0 10px;
+  font-size: 16px;
+  line-height: 1;
+}
+
 .qp-btns {
   display: flex;
   flex-wrap: wrap;

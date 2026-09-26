@@ -285,7 +285,8 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 - Es gibt die Klassen **E und 1-7** (Klasse A entfällt).
 - **Reihenfolge der Bögen:** Die Schnellauswahl legt die Bögen in einer frei
   wählbaren **Klassen-Reihenfolge** an (z. B. 1, 3, E, 2, 5, 7, 4, 6 - passend
-  zur Startfolge der Veranstaltung). Mit **„Alle Läufe"** kommt erst Lauf 1
+  zur Startfolge der Veranstaltung). Nicht genannte Klassen lässt sie aus; ein
+  ↻-Knopf hängt fehlende Klassen wieder an (E, 1 … 7). Mit **„Alle Läufe"** kommt erst Lauf 1
   komplett, dann Lauf 2 in derselben Reihenfolge usw. Lauf-unabhängige Listen
   (`lauf: false`, z. B. Knoten) legt die Schnellauswahl je Klasse **nur einmal**
   an - auch bei „Alle Läufe“ oder mehreren „Kompletter Lauf“-Klicks. Produktiv

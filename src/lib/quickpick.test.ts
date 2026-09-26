@@ -5,10 +5,12 @@ import {
   completeLaufItems,
   formatClassOrder,
   laufLabel,
+  missingClasses,
   normalizeClassOrder,
   parseClassOrder,
   positionAllClassesItems,
   positionButtonLabels,
+  withMissingClasses,
   withoutLaufRepeats,
 } from './quickpick'
 import { getAufbau } from '../config/active'
@@ -26,15 +28,22 @@ describe('Klassen-Reihenfolge', () => {
     expect(parseClassOrder('13E25746')).toEqual(ORDER)
   })
 
-  it('hängt nicht genannte Klassen in Standard-Reihenfolge an', () => {
-    expect(parseClassOrder('3, 1')).toEqual(['3', '1', 'E', '2', '4', '5', '6', '7'])
+  it('lässt nicht genannte Klassen weg', () => {
+    expect(parseClassOrder('3, 1')).toEqual(['3', '1'])
   })
 
-  it('ignoriert Unbekanntes und Doppeltes; leer = Standard', () => {
-    expect(parseClassOrder('Klasse 3, 9, 10, 3, x')).toEqual(['3', 'E', '1', '2', '4', '5', '6', '7'])
+  it('ignoriert Unbekanntes und Doppeltes; leer = alle', () => {
+    expect(parseClassOrder('Klasse 3, 9, 10, 3, x')).toEqual(['3'])
     expect(parseClassOrder('')).toEqual(['E', '1', '2', '3', '4', '5', '6', '7'])
-    expect(normalizeClassOrder(['Z', '2', 2, '2'])).toEqual(['2', 'E', '1', '3', '4', '5', '6', '7'])
+    expect(normalizeClassOrder(['Z', '2', 2, '2'])).toEqual(['2'])
     expect(normalizeClassOrder(undefined)).toEqual(['E', '1', '2', '3', '4', '5', '6', '7'])
+  })
+
+  it('↻: fehlende Klassen in Standard-Reihenfolge hinten anhängen', () => {
+    const order: ClassId[] = ['5', '1', '3']
+    expect(missingClasses(order)).toEqual(['E', '2', '4', '6', '7'])
+    expect(withMissingClasses(order)).toEqual(['5', '1', '3', 'E', '2', '4', '6', '7'])
+    expect(missingClasses(ORDER)).toEqual([])
   })
 
   it('formatiert für die Anzeige', () => {

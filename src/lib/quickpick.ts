@@ -21,16 +21,27 @@ function isClassId(s: string): s is ClassId {
 }
 
 /**
- * Bereinigt eine Klassen-Reihenfolge: Unbekanntes und Doppeltes fällt weg,
- * nicht genannte Klassen folgen in Standard-Reihenfolge. Das Ergebnis enthält
- * also immer alle Klassen genau einmal.
+ * Bereinigt eine Klassen-Reihenfolge: Unbekanntes und Doppeltes fällt weg.
+ * Nicht genannte Klassen bleiben weg - die Schnellauswahl lässt sie aus (zum
+ * Wiederherstellen siehe {@link withMissingClasses}). Leer = alle Klassen in
+ * Standard-Reihenfolge.
  */
 export function normalizeClassOrder(raw: unknown): ClassId[] {
   const out: ClassId[] = []
   if (Array.isArray(raw)) {
     for (const c of raw) if (typeof c === 'string' && isClassId(c) && !out.includes(c)) out.push(c)
   }
-  return [...out, ...CLASS_IDS.filter((c) => !out.includes(c))]
+  return out.length > 0 ? out : [...CLASS_IDS]
+}
+
+/** Klassen, die in der Reihenfolge fehlen (in Standard-Reihenfolge E, 1 … 7). */
+export function missingClasses(order: ClassId[]): ClassId[] {
+  return CLASS_IDS.filter((c) => !order.includes(c))
+}
+
+/** Hängt die fehlenden Klassen in Standard-Reihenfolge hinten an. */
+export function withMissingClasses(order: ClassId[]): ClassId[] {
+  return [...order, ...missingClasses(order)]
 }
 
 /**
