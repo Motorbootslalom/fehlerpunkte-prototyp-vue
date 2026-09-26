@@ -268,6 +268,25 @@ const commitDate = __GIT_COMMIT_DATE__
         Wert): erst Klassen mit so vielen Startern aufteilen, z. B. 15 / 25 = ab 25 Startern je 15 pro
         Seite (0 = immer). Passt eine Seite trotzdem nicht aufs Blatt, wird automatisch geteilt.
       </p>
+      <label
+        class="cp-check"
+        style="margin-top: 8px"
+        title="Beschreibung (Legende, Fehlerpunkte, Parcours) auf eine eigene Rückseite je Blatt - für doppelseitigen Druck"
+      >
+        <input
+          type="checkbox"
+          :checked="state.descriptionOnBack"
+          @change="
+            dispatch({ type: 'SET_DESCRIPTION_ON_BACK', on: ($event.target as HTMLInputElement).checked })
+          "
+        />
+        Anne-Feature: Beschreibung auf der Rückseite
+      </label>
+      <p class="hint">
+        Doppelseitig drucken (Wenden an der langen Kante): Die Beschreibung steht dann auf der
+        Rückseite - Blatt (z. B. am Klemmbrett) nach oben klappen, und sie steht richtig herum.
+        Vorne ist mehr Platz für Starter.
+      </p>
       <div class="btn-row" style="margin-top: 10px">
         <button
           title="Kopiert eine URL, die genau diese Zusammenstellung wiederherstellt - ohne eingetragene Werte"

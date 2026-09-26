@@ -188,6 +188,14 @@ body {
   cursor: pointer;
 }
 
+/* Checkbox nicht wie die Textfelder auf volle Breite ziehen. */
+.control-panel .cp-check input {
+  flex: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
 .hint {
   font-size: 11.5px;
   color: #8b95a6;
@@ -818,6 +826,93 @@ body {
 
 .sheet--rotated .sheet-signature-row {
   grid-area: sig;
+}
+
+/* ============================================================
+   „ANNE-FEATURE“: Beschreibung auf der Rückseite (siehe lib/backside.ts)
+   ============================================================ */
+
+/* Vorderseite: Hinweis statt Beschreibung. */
+.back-hint {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  margin-top: 3mm;
+  padding: 2mm 3mm;
+  border: 1.5px dashed #7a86c9;
+  font-size: 0.85em;
+}
+
+.back-hint-icon {
+  flex: none;
+  width: 7mm;
+  height: 7mm;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Rückseite: ganze Druckfläche (Blatt minus 2 × 8 mm Rand, 2 mm Reserve gegen
+   Umbruch). Hochformat wird als Ganzes um 180° gedreht. */
+.back-page {
+  height: calc(297mm - 18mm);
+}
+
+.sheet--landscape .back-page {
+  height: calc(210mm - 18mm);
+}
+
+.back-page--flip {
+  transform: rotate(180deg);
+}
+
+/* Beim Nach-oben-Klappen ist nur die (in Leserichtung) obere Blatthälfte sichtbar:
+   halbe Blatthöhe minus Rand (8 mm) und 5 mm Abstand zum Knick. */
+.back-half {
+  height: calc(297mm / 2 - 13mm);
+  overflow: hidden;
+  display: flex;
+  gap: 8px;
+}
+
+.sheet--landscape .back-half {
+  height: calc(210mm / 2 - 13mm);
+}
+
+.back-half .course {
+  margin: 0;
+}
+
+/* Hochformat-Bild (±90° gedreht) rechts neben der Legende, volle Höhe. */
+.back-half--side .legend {
+  flex: 1;
+  min-width: 0;
+}
+
+.back-half--side .course {
+  flex: none;
+  width: 60mm;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Querformat-Bild unter der Legende, füllt den Rest der Hälfte. */
+.back-half--stack {
+  flex-direction: column;
+}
+
+.back-half--stack .course {
+  flex: 1;
+  min-height: 0;
+}
+
+.back-half--stack .course img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: contain;
 }
 
 /* ============================================================

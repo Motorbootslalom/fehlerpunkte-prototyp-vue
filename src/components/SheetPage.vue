@@ -7,6 +7,8 @@ import { allowedSet, sanitizeBuoy, sanitizeCodeInput, sanitizeDisq } from '../li
 import { cellKey, columnsForClass, formatDisqs, scoreRow, type RowScore } from '../lib/scoring'
 import { useCell, useStore } from '../state/store'
 import type { Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
+import { hasDescription } from '../lib/backside'
+import CourseImage from './CourseImage.vue'
 import Legend from './Legend.vue'
 import SheetHeader from './SheetHeader.vue'
 import TimeCell from './TimeCell.vue'
@@ -40,7 +42,6 @@ const props = defineProps<{
 
 const { state, dispatch } = useStore()
 const cell = useCell(props.bogen.id)
-const base = import.meta.env.BASE_URL
 
 // Fadenkreuz: aktuell fokussierte Zeile/Spalte (Orientierungs-Hervorhebung).
 const focus = ref<{ row: number; col: number } | null>(null)
@@ -227,9 +228,6 @@ function onNrInput(row: Row, e: Event) {
 function onWkr(name: string) {
   dispatch({ type: 'SET_WKR', bogenId: props.bogen.id, name })
 }
-function onImgError(e: Event) {
-  ;(e.target as HTMLImageElement).style.display = 'none'
-}
 
 // Passt die Seite auf ein A4-Blatt? Das Blatt am Bildschirm hat dieselben Maße
 // wie die Druckseite (A4, 8 mm Rand); ist der Inhalt höher, bricht der Druck um
@@ -265,7 +263,10 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
 </script>
 
 <template>
-  <div ref="sheetEl" :class="`sheet sheet--${def.orientation}${gedreht ? ' sheet--rotated' : ''}`">
+  <div
+    ref="sheetEl"
+    :class="`sheet sheet--${def.orientation}${gedreht && !state.descriptionOnBack ? ' sheet--rotated' : ''}`"
+  >
     <template v-if="tooManyRows > 0">
       <p class="sheet-overflow-note">
         ⚠ Passt nicht auf ein A4-Blatt (ca. {{ tooManyRows }} {{ tooManyRows === 1 ? 'Zeile' : 'Zeilen' }} zu
@@ -320,33 +321,21 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
         <tr>
           <td class="sheet-foot-cell" :colspan="totalCols">
             <div class="sheet-footer">
-              <Legend :def="def" />
-              <div v-if="def.courseImageDir" class="course">
-                <!-- Um ±90° gedreht und formatfüllend: Inline-SVG mit
-                     preserveAspectRatio füllt die (beliebig hohe) Box proportional. -->
-                <svg
-                  v-if="gedreht"
-                  class="course-svg"
-                  viewBox="0 0 100 237"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <image
-                    :href="`${base}parcours/${def.courseImageDir}/Klasse${bogen.klasse}.svg`"
-                    width="237"
-                    height="100"
-                    :transform="
-                      drehung === -90 ? 'translate(0 237) rotate(-90)' : 'translate(100 0) rotate(90)'
-                    "
-                    preserveAspectRatio="xMidYMid meet"
-                  />
+              <template v-if="!state.descriptionOnBack">
+                <Legend :def="def" />
+                <div v-if="def.courseImageDir" class="course">
+                  <CourseImage :dir="def.courseImageDir" :klasse="bogen.klasse" :drehung="drehung" />
+                </div>
+              </template>
+              <!-- „Anne-Feature“: Beschreibung steht auf der Rückseite (SheetBackPage). -->
+              <div v-else-if="hasDescription(def)" class="back-hint">
+                <svg class="back-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 21V4M5 11l7-7 7 7" />
                 </svg>
-                <img
-                  v-else
-                  :src="`${base}parcours/${def.courseImageDir}/Klasse${bogen.klasse}.svg`"
-                  :alt="`Parcours Klasse ${bogen.klasse}`"
-                  :style="drehung === 180 ? { transform: 'rotate(180deg)' } : undefined"
-                  @error="onImgError"
-                />
+                <span>
+                  Beschreibung (Fehlerpunkte, Disqualifikationen, Parcours) steht auf der Rückseite -
+                  zum Lesen das Blatt nach oben klappen.
+                </span>
               </div>
               <div class="sheet-signature-row">
                 <span v-if="pageCount > 1" class="page-indicator">

@@ -5,6 +5,7 @@ import { pageChunks, pageHeightMm, rowsThatFit } from '../lib/paging'
 import { pageCounts } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import type { Bogen } from '../types'
+import SheetBackPage from './SheetBackPage.vue'
 import SheetPage from './SheetPage.vue'
 
 // Rendert einen Bogen, bei Bedarf auf mehrere A4-Seiten aufgeteilt; jede Seite
@@ -50,14 +51,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <SheetPage
-    v-for="(chunkNums, pi) in chunks"
-    :key="`${bogen.id}:${pi}`"
-    :bogen="bogen"
-    :def="def"
-    :chunk-nums="chunkNums"
-    :page-index="pi"
-    :page-count="chunks.length"
-    @layout="onLayout"
-  />
+  <template v-for="(chunkNums, pi) in chunks" :key="`${bogen.id}:${pi}`">
+    <SheetPage
+      :bogen="bogen"
+      :def="def"
+      :chunk-nums="chunkNums"
+      :page-index="pi"
+      :page-count="chunks.length"
+      @layout="onLayout"
+    />
+    <!-- „Anne-Feature“: je Vorderseite eine Rückseite mit der Beschreibung. -->
+    <SheetBackPage v-if="state.descriptionOnBack" :bogen="bogen" :def="def" />
+  </template>
 </template>

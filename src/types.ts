@@ -159,6 +159,13 @@ export interface AppState {
    * bleiben zusammen. 0 = jede Klasse mit mehr als rowsPerPage Startern.
    */
   splitFrom: number
+  /**
+   * „Anne-Feature“: Die Beschreibung (Legende + Parcoursbild) steht nicht unter
+   * der Tabelle, sondern auf einer eigenen Rückseite je Blatt - für den
+   * doppelseitigen Druck, so ausgerichtet, dass sie beim Nach-oben-Klappen des
+   * Blatts von unten lesbar ist.
+   */
+  descriptionOnBack: boolean
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
   /**

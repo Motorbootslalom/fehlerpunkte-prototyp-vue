@@ -24,6 +24,8 @@ export interface ShareConfig {
   emptyRows?: number
   rowsPerPage?: number
   splitFrom?: number
+  /** „Anne-Feature“ (Beschreibung auf der Rückseite); fehlt in älteren Links. */
+  descriptionOnBack?: boolean
   /** Startnummern je Klasse (Reihenfolge = Startreihenfolge). */
   numbers: Partial<Record<ClassId, string[]>>
   /** Klassen-Reihenfolge der Schnellauswahl; fehlt in älteren Links. */
@@ -81,6 +83,7 @@ export function toShareConfig(state: AppState): ShareConfig {
     emptyRows: state.emptyRows,
     rowsPerPage: state.rowsPerPage,
     splitFrom: state.splitFrom,
+    descriptionOnBack: state.descriptionOnBack,
     numbers: state.numbers,
     classOrder: state.classOrder,
     boegen: state.boegen.map((b) => ({ typeId: b.typeId, klasse: b.klasse, lauf: b.lauf })),
@@ -107,6 +110,7 @@ export function encodeShareConfig(cfg: ShareConfig): string {
     r: cfg.emptyRows,
     p: cfg.rowsPerPage,
     u: cfg.splitFrom,
+    ...(cfg.descriptionOnBack !== undefined ? { d: cfg.descriptionOnBack } : {}),
     n: cfg.numbers,
     ...(cfg.classOrder ? { k: cfg.classOrder.join('') } : {}),
     g: boegenToWire(cfg.boegen),
@@ -126,6 +130,7 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       ...(typeof wire.r === 'number' ? { emptyRows: wire.r } : {}),
       ...(typeof wire.p === 'number' ? { rowsPerPage: wire.p } : {}),
       ...(typeof wire.u === 'number' ? { splitFrom: wire.u } : {}),
+      ...(typeof wire.d === 'boolean' ? { descriptionOnBack: wire.d } : {}),
       numbers: normalizeNumbersMap(wire.n),
       ...(typeof wire.k === 'string' ? { classOrder: parseClassOrder(wire.k) } : {}),
       boegen: boegenFromWire(wire.g),

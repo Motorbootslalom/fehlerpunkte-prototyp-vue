@@ -10,6 +10,7 @@ function stateFixture(): AppState {
     emptyRows: 5,
     rowsPerPage: 12,
     splitFrom: 25,
+    descriptionOnBack: true,
     numbers: { '2': ['1', '2', '3'] },
     classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
     wkr: { bg_1: 'Max' },
@@ -33,6 +34,7 @@ describe('sharelink', () => {
       emptyRows: 5,
       rowsPerPage: 12,
       splitFrom: 25,
+      descriptionOnBack: true,
       numbers: { '2': ['1', '2', '3'] },
       classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
       boegen: [
@@ -50,6 +52,7 @@ describe('sharelink', () => {
     expect(round?.emptyRows).toBeUndefined()
     expect(round?.rowsPerPage).toBeUndefined()
     expect(round?.splitFrom).toBeUndefined()
+    expect(round?.descriptionOnBack).toBeUndefined()
   })
 
   it('Klassen-Reihenfolge: fehlt in älteren Links, eine Teilauswahl bleibt erhalten', () => {

@@ -42,6 +42,7 @@ export function defaultState(): AppState {
     emptyRows: 3,
     rowsPerPage: 0,
     splitFrom: 0,
+    descriptionOnBack: false,
     numbers: allDemoNumbers(),
     classOrder: [...CLASS_IDS],
     wkr: {},
@@ -82,6 +83,7 @@ export function buildInitialState(): AppState {
       emptyRows: shared.emptyRows ?? state.emptyRows,
       rowsPerPage: shared.rowsPerPage ?? state.rowsPerPage,
       splitFrom: shared.splitFrom ?? state.splitFrom,
+      descriptionOnBack: shared.descriptionOnBack ?? state.descriptionOnBack,
       // Startnummern aus dem Link je Klasse übernehmen (fehlende Klassen bleiben
       // lokal/Demo).
       numbers: { ...state.numbers, ...shared.numbers },
