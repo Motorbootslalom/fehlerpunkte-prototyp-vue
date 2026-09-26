@@ -138,10 +138,13 @@ hinweise:
 aufbauten:
   - id: alcatraz
     name: Alcatraz
-    positionen: [zeit, steg, gate135, gate245, tor5, tor5pue, mueb, parcours, knoten]
+    positionen: [zeit, vorsteg, steg, gate135, gate245, tor5, mueb, parcours]
+  - id: alcatrazdm26
+    name: Alcatraz-DM26
+    positionen: [zeit, zeit, zeit, vorsteg, steg, gate135os, gate245os, tor5, mueb, parcoursms]
   - id: frontal
     name: Frontal
-    positionen: [zeit, steg, frontal135, frontal245, tor5, tor5pue, mueb, parcours, knoten]
+    positionen: [zeit, steg, frontal135, frontal245, tor5, mueb, parcours]
   - id: berlin
     name: Berlin
     positionen: [steg, bstartziel, brechts, blinks]
