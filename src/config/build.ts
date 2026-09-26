@@ -197,6 +197,31 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
   })
 
   const known = new Set(positions.map((p) => p.typeId))
+
+  // Steht eine Position mehrfach in einem Aufbau (z. B. dreimal Zeit für drei
+  // Zeitnahmen), wird jedes Vorkommen eine eigene, nummerierte Position -
+  // „Zeit (1)“, „Zeit (2)“ … mit eigener ID (zeit-1 …). So unterscheiden sich
+  // Kopf, QR-Code, Laufzettel und Schnellauswahl.
+  const instanzen = new Map<string, SheetDef[]>() // Basis-ID → nummerierte Positionen
+  function nummeriert(ids: string[]): string[] {
+    const anzahl = new Map<string, number>()
+    for (const id of ids) anzahl.set(id, (anzahl.get(id) ?? 0) + 1)
+    const bisher = new Map<string, number>()
+    return ids.map((id) => {
+      if ((anzahl.get(id) ?? 0) < 2) return id
+      const n = (bisher.get(id) ?? 0) + 1
+      bisher.set(id, n)
+      const nid = `${id}-${n}`
+      const liste = instanzen.get(id) ?? []
+      if (!liste.some((d) => d.typeId === nid)) {
+        const basis = positions.find((p) => p.typeId === id)!
+        liste.push({ ...basis, typeId: nid, title: `${basis.title} (${n})`, menuLabel: `${basis.menuLabel} (${n})` })
+        instanzen.set(id, liste)
+      }
+      return nid
+    })
+  }
+
   // Positionen mit `schnellauswahl: true` stehen jedem Aufbau als Zusatz zur
   // Verfügung (sofern sie nicht ohnehin zu ihm gehören).
   const schnell = (raw.positionen ?? []).filter((p) => p.schnellauswahl === true).map((p) => p.id)
@@ -204,10 +229,12 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
   const aufbauten: ResolvedAufbau[] =
     raw.aufbauten && raw.aufbauten.length > 0
       ? raw.aufbauten.map((a) => {
-          const order = a.positionen.filter((id) => known.has(id))
-          return { id: a.id, name: a.name, order, zusatz: schnell.filter((id) => !order.includes(id)) }
+          const order = nummeriert(a.positionen.filter((id) => known.has(id)))
+          return { id: a.id, name: a.name, order, zusatz: schnell.filter((id) => !a.positionen.includes(id)) }
         })
       : [{ id: 'standard', name: 'Standard', order: positions.map((p) => p.typeId), zusatz: [] }]
+  // Nummerierte Positionen direkt hinter ihrer Basis-Position einreihen.
+  const allePositionen = positions.flatMap((p) => [p, ...(instanzen.get(p.typeId) ?? [])])
 
   const beschriftungen: BeschriftungScheme[] = (raw.beschriftungen ?? []).map((b) => ({
     id: b.id,
@@ -221,5 +248,5 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
     schritte: (raw.laufzettel?.schritte ?? []).map((x) => String(x)),
   }
 
-  return { positions, aufbauten, allDisqs, beschriftungen, laufzettel }
+  return { positions: allePositionen, aufbauten, allDisqs, beschriftungen, laufzettel }
 }

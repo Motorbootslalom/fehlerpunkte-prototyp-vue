@@ -125,6 +125,26 @@ describe('Schnellauswahl', () => {
     expect(getAufbau('berlin').zusatz).not.toContain('gate135')
   })
 
+  it('mehrfache Position im Aufbau wird nummeriert (3× Zeit → Zeit (1) … (3))', () => {
+    const spalten = [{ key: 'x', label: 'X', typ: 'boje' as const }]
+    const cfg = buildConfig({
+      aufbauten: [
+        { id: 'a', name: 'A', positionen: ['z', 'p', 'z', 'z'] },
+        { id: 'b', name: 'B', positionen: ['z', 'p'] },
+      ],
+      positionen: [
+        { id: 'z', titel: 'Zeit', menue: 'Zeitnahme', spalten },
+        { id: 'p', titel: 'P', spalten },
+      ],
+    })
+    expect(cfg.aufbauten[0].order).toEqual(['z-1', 'p', 'z-2', 'z-3'])
+    expect(cfg.aufbauten[1].order).toEqual(['z', 'p']) // einfach vorhanden → unverändert
+    expect(cfg.positions.map((p) => p.typeId)).toEqual(['z', 'z-1', 'z-2', 'z-3', 'p'])
+    const z2 = cfg.positions.find((p) => p.typeId === 'z-2')!
+    expect([z2.title, z2.menuLabel]).toEqual(['Zeit (2)', 'Zeitnahme (2)'])
+    expect(z2.columns).toEqual(cfg.positions[0].columns)
+  })
+
   it('Zusatz-Position, die schon im Aufbau steht, erscheint nicht doppelt', () => {
     const spalten = [{ key: 'x', label: 'X', typ: 'boje' as const }]
     const cfg = buildConfig({
