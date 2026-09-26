@@ -237,6 +237,19 @@ positionen:
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
       - { key: disq, label: "Disq.", typ: disq }
 
+  - id: parcoursms
+    titel: "Parcours"
+    menue: "Parcours einfach mit Start und Ziel"
+    ausrichtung: hoch
+    bild: alcatraz_Parcours
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    hinweis: parcours
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
+      - { key: disq, label: "Disq.", typ: disq }
+
   - id: knoten
     titel: "Knoten"
     menue: "Knoten"
@@ -282,6 +295,31 @@ positionen:
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 
+  - id: gate135os
+    titel: "Tor 1 / 3 / 5"
+    menue: "Tore 1 / 3 / 5 ohne Start/Ziel"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_I_os     # eigenes Bild: Start/Ziel zusätzlich abgeblendet
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Wie gate135, aber ohne Start/Ziel: neben Tor 2/4 (aus `hebt`) werden die
+    # OBERE Boje von Tor 5, BEIDE Start-/Ziel-Bojen, die Schikane (MüB) und die
+    # obere Speedboje (7) abgeblendet.
+    abblenden: [Tor5_oben, Start+Ziel, Schikane, g3068]
+    bildDrehung: 90
+    pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
+    summeSpalte: sum
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    hinweis: blickrichtung
+    spalten:
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor1 }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor3 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
   - id: gate245
     titel: "Tor 2 / 4 / 5"
     menue: "Tore 2 / 4 / 5"
@@ -306,6 +344,31 @@ positionen:
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
+
+  - id: gate245os
+    titel: "Tor 2 / 4 / 5"
+    menue: "Tore 2 / 4 / 5 ohne Start/Ziel"
+    ausrichtung: hoch
+    subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
+    bild: alcatraz_II_os    # eigenes Bild: Start/Ziel zusätzlich abgeblendet
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Wie gate245, aber ohne Start/Ziel: neben Tor 1/3 (aus `hebt`) werden die
+    # UNTERE Boje von Tor 5, BEIDE Start-/Ziel-Bojen, die Schikane (MüB) und die
+    # untere Speedboje (8) abgeblendet.
+    abblenden: [Tor5_unten, Start+Ziel, Schikane, SpeedbojeKlasse7]
+    bildDrehung: 90
+    pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
+    summeSpalte: sum
+    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    hinweis: blickrichtung
+    spalten:
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor2 }
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor4 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteB", "rueck seiteB"], subTrenner: doppelt, hebt: Tor5 }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 
