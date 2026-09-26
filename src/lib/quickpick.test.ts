@@ -11,6 +11,7 @@ import {
   withoutLaufRepeats,
 } from './quickpick'
 import { getAufbau } from '../config/active'
+import { buildConfig } from '../config/build'
 import type { ClassId } from '../types'
 
 const ORDER: ClassId[] = ['1', '3', 'E', '2', '5', '7', '4', '6']
@@ -98,10 +99,31 @@ describe('Schnellauswahl', () => {
     expect(labels).toEqual({ gate135: 'Tore 1 / 3 / 5', gate135os: 'Tore 1 / 3 / 5 ohne Start/Ziel', zeit: 'Zeit' })
   })
 
-  it('Positionen ohne Aufbau stehen jedem Aufbau als Zusatz zur Wahl', () => {
+  it('Positionen mit „schnellauswahl: true“ stehen jedem Aufbau als Zusatz zur Wahl', () => {
     const { order, zusatz } = getAufbau('alcatraz')
     expect(zusatz).toEqual(expect.arrayContaining(['gate135os', 'gate245os', 'parcoursms']))
     expect(zusatz.some((t) => order.includes(t))).toBe(false)
-    expect(getAufbau('berlin').zusatz).toEqual(zusatz)
+    // Positionen anderer Aufbauten ohne den Schalter bleiben dort.
+    expect(zusatz).not.toContain('frontal135')
+    expect(getAufbau('berlin').zusatz).not.toContain('gate135')
+  })
+
+  it('Zusatz-Position, die schon im Aufbau steht, erscheint nicht doppelt', () => {
+    const spalten = [{ key: 'x', label: 'X', typ: 'boje' as const }]
+    const cfg = buildConfig({
+      aufbauten: [
+        { id: 'a', name: 'A', positionen: ['p', 'v'] },
+        { id: 'b', name: 'B', positionen: ['p'] },
+      ],
+      positionen: [
+        { id: 'p', titel: 'P', spalten },
+        { id: 'v', titel: 'V', schnellauswahl: true, spalten },
+        { id: 'w', titel: 'W', spalten },
+      ],
+    })
+    expect(cfg.aufbauten.map((a) => [a.id, a.order, a.zusatz])).toEqual([
+      ['a', ['p', 'v'], []],
+      ['b', ['p'], ['v']],
+    ])
   })
 })

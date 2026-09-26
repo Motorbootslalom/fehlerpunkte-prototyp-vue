@@ -9,9 +9,10 @@ export interface ResolvedAufbau {
   name: string
   /** Positions-IDs dieses Aufbaus (nur existierende, in Reihenfolge). */
   order: string[]
-  /** Positionen, die in KEINEM Aufbau stehen (z. B. Varianten wie „ohne
-   *  Start/Ziel“), in YAML-Reihenfolge. Nicht Teil der Standard-Bögen bzw. des
-   *  kompletten Laufs, aber in der Schnellauswahl und den Menüs wählbar. */
+  /** Positionen mit `schnellauswahl: true`, die nicht schon in `order` stehen
+   *  (z. B. Varianten wie „ohne Start/Ziel“), in YAML-Reihenfolge. Nicht Teil
+   *  der Standard-Bögen bzw. des kompletten Laufs, aber in der Schnellauswahl
+   *  und den Menüs wählbar. */
   zusatz: string[]
 }
 
@@ -194,19 +195,16 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
   })
 
   const known = new Set(positions.map((p) => p.typeId))
-  // Positionen ohne Aufbau stehen jedem Aufbau als Zusatz zur Verfügung - so
-  // taucht eine neue Position in der YAML automatisch in der Schnellauswahl auf.
-  const referenced = new Set((raw.aufbauten ?? []).flatMap((a) => a.positionen))
-  const zusatz = positions.map((p) => p.typeId).filter((id) => !referenced.has(id))
+  // Positionen mit `schnellauswahl: true` stehen jedem Aufbau als Zusatz zur
+  // Verfügung (sofern sie nicht ohnehin zu ihm gehören).
+  const schnell = (raw.positionen ?? []).filter((p) => p.schnellauswahl === true).map((p) => p.id)
   // Aufbauten: nur existierende Positions-IDs; ohne Definition ein Standard mit allen.
   const aufbauten: ResolvedAufbau[] =
     raw.aufbauten && raw.aufbauten.length > 0
-      ? raw.aufbauten.map((a) => ({
-          id: a.id,
-          name: a.name,
-          order: a.positionen.filter((id) => known.has(id)),
-          zusatz,
-        }))
+      ? raw.aufbauten.map((a) => {
+          const order = a.positionen.filter((id) => known.has(id))
+          return { id: a.id, name: a.name, order, zusatz: schnell.filter((id) => !order.includes(id)) }
+        })
       : [{ id: 'standard', name: 'Standard', order: positions.map((p) => p.typeId), zusatz: [] }]
 
   const beschriftungen: BeschriftungScheme[] = (raw.beschriftungen ?? []).map((b) => ({

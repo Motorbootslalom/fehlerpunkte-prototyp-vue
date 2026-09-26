@@ -12,6 +12,10 @@
 #   menue        Ausführlicher Name in den Auswahl-Menüs (Default: titel).
 #   ausrichtung  hoch (A4 Hochformat, Default) | quer (Querformat, z. B. Knoten).
 #   lauf         false = Lauf NICHT im Kopf zeigen (z. B. Knoten). Default true.
+#   schnellauswahl true = zusätzlich in JEDEM Aufbau wählbar (Schnellauswahl
+#                „Eine Position · alle Klassen“ + Bogen-Menüs), z. B. Varianten,
+#                die in keinem Aufbau stehen. Default false: nur in den
+#                Aufbauten, die die Position nennen.
 #   bild         Bild-Ordner unter public/parcours (z. B. alcatraz_Parcours).
 #   bildGenerator true = `bild` wird beim Build aus `bildQuelle` erzeugt: die per
 #                Spalten-`hebt` markierten Tore bleiben voll, der Rest wird
@@ -240,6 +244,7 @@ positionen:
   - id: parcoursms
     titel: "Parcours"
     menue: "Parcours einfach mit Start und Ziel"
+    schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
     bild: alcatraz_Parcours
     disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
@@ -298,6 +303,7 @@ positionen:
   - id: gate135os
     titel: "Tor 1 / 3 / 5"
     menue: "Tore 1 / 3 / 5 ohne Start/Ziel"
+    schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
     subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
     bild: alcatraz_I_os     # eigenes Bild: Start/Ziel zusätzlich abgeblendet
@@ -350,6 +356,7 @@ positionen:
   - id: gate245os
     titel: "Tor 2 / 4 / 5"
     menue: "Tore 2 / 4 / 5 ohne Start/Ziel"
+    schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
     subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
     bild: alcatraz_II_os    # eigenes Bild: Start/Ziel zusätzlich abgeblendet

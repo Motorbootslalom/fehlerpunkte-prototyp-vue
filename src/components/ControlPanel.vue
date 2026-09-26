@@ -46,8 +46,7 @@ const addTypeRaw = ref<SheetTypeId>('')
 // „Eine Klasse · alle Listen“.
 const order = computed(() => getAufbau(state.aufbau).order)
 // Wählbar (Menüs, „Eine Position · alle Klassen“): der Aufbau plus alle
-// Positionen, die in keinem Aufbau stehen - neue YAML-Positionen erscheinen so
-// automatisch.
+// Positionen mit `schnellauswahl: true` aus der YAML.
 const menuOrder = computed(() => [...order.value, ...getAufbau(state.aufbau).zusatz])
 const buttonLabels = computed(() => positionButtonLabels(menuOrder.value.map(getSheetDef)))
 const beschriftungen = computed(() => getBeschriftungen())

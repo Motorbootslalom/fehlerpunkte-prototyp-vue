@@ -224,14 +224,15 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
         err('UNKNOWN_POSITION_REF', `Aufbau "${a?.id}" verweist auf unbekannte Position "${pid}".`, where)
   })
 
-  // ---- Verwaiste Positionen (in keinem Aufbau genutzt) - nur Hinweis ------
+  // ---- Verwaiste Positionen (in keinem Aufbau, nicht in der Schnellauswahl)
+  // - nur Hinweis: sie wären nirgends wählbar.
   if (aufbauten.length > 0) {
     const used = new Set(aufbauten.flatMap((a) => a?.positionen ?? []))
     for (const p of positionen)
-      if (p?.id && !used.has(p.id))
+      if (p?.id && !used.has(p.id) && p.schnellauswahl !== true)
         warn(
           'ORPHAN_POSITION',
-          `Position "${p.id}" steht in keinem Aufbau - nur als Zusatz (Schnellauswahl / Menü) wählbar.`,
+          `Position "${p.id}" steht in keinem Aufbau und hat kein "schnellauswahl: true" - sie ist nirgends wählbar.`,
           'positionen',
         )
   }

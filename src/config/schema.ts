@@ -91,6 +91,12 @@ export interface RawPosition {
   ausrichtung?: 'hoch' | 'quer'
   /** Lauf im Kopf zeigen? false z. B. bei Knoten (nur einmal abgenommen). */
   lauf?: boolean
+  /**
+   * true = zusätzlich in JEDEM Aufbau wählbar (Schnellauswahl „Eine Position ·
+   * alle Klassen“ und Bogen-Menüs), z. B. Varianten wie „ohne Start/Ziel“, die
+   * in keinem Aufbau stehen. Fehlt/false → nur in den Aufbauten, die sie nennen.
+   */
+  schnellauswahl?: boolean
   /** Bild-Ordner unter public/parcours (z. B. alcatraz_Parcours). */
   bild?: string
   /**
