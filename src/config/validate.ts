@@ -229,7 +229,11 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     const used = new Set(aufbauten.flatMap((a) => a?.positionen ?? []))
     for (const p of positionen)
       if (p?.id && !used.has(p.id))
-        warn('ORPHAN_POSITION', `Position "${p.id}" wird von keinem Aufbau referenziert.`, 'positionen')
+        warn(
+          'ORPHAN_POSITION',
+          `Position "${p.id}" steht in keinem Aufbau - nur als Zusatz (Schnellauswahl / Menü) wählbar.`,
+          'positionen',
+        )
   }
 
   return issues

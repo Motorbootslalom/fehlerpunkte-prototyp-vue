@@ -100,6 +100,21 @@ export function withoutLaufRepeats(
   })
 }
 
+/**
+ * Beschriftung der Positions-Knöpfe: der Kurzname (titel) - außer mehrere
+ * Positionen teilen ihn (z. B. „Tor 1 / 3 / 5“ mit und ohne Start/Ziel), dann
+ * der ausführliche Menü-Name, damit die Knöpfe unterscheidbar bleiben.
+ */
+export function positionButtonLabels(
+  defs: { typeId: SheetTypeId; title: string; menuLabel: string }[],
+): Record<SheetTypeId, string> {
+  const count = new Map<string, number>()
+  for (const d of defs) count.set(d.title, (count.get(d.title) ?? 0) + 1)
+  return Object.fromEntries(
+    defs.map((d) => [d.typeId, (count.get(d.title) ?? 0) > 1 ? d.menuLabel : d.title]),
+  )
+}
+
 /** Kompletter Lauf: alle Klassen (gewählte Reihenfolge) × alle Positionen. */
 export function completeLaufItems(
   positions: SheetTypeId[],

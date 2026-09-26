@@ -63,7 +63,7 @@ export function defaultAufbauId(): string {
 /** Aufbau nach ID (Fallback: erster/Standard-Aufbau). */
 export function getAufbau(id: string): ResolvedAufbau {
   const a = cfg().aufbauten.find((x) => x.id === id)
-  return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', order: [] }
+  return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', order: [], zusatz: [] }
 }
 
 export function allDisqs(): DisqDef[] {

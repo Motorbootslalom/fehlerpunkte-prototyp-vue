@@ -20,6 +20,7 @@ import {
   laufLabel,
   parseClassOrder,
   positionAllClassesItems,
+  positionButtonLabels,
   withoutLaufRepeats,
   type QuickLauf,
 } from '../lib/quickpick'
@@ -41,12 +42,18 @@ const copied = ref(false)
 const pdfIslandUrl = `${import.meta.env.BASE_URL}pdf.html`
 const addTypeRaw = ref<SheetTypeId>('')
 
-// Positionen des gewählten Aufbaus (Setup).
+// Positionen des gewählten Aufbaus (Setup) - Basis für „Kompletter Lauf“ und
+// „Eine Klasse · alle Listen“.
 const order = computed(() => getAufbau(state.aufbau).order)
+// Wählbar (Menüs, „Eine Position · alle Klassen“): der Aufbau plus alle
+// Positionen, die in keinem Aufbau stehen - neue YAML-Positionen erscheinen so
+// automatisch.
+const menuOrder = computed(() => [...order.value, ...getAufbau(state.aufbau).zusatz])
+const buttonLabels = computed(() => positionButtonLabels(menuOrder.value.map(getSheetDef)))
 const beschriftungen = computed(() => getBeschriftungen())
 const aufbauten = computed(() => getAufbauten())
 const addType = computed(() =>
-  order.value.includes(addTypeRaw.value) ? addTypeRaw.value : (order.value[0] ?? ''),
+  menuOrder.value.includes(addTypeRaw.value) ? addTypeRaw.value : (menuOrder.value[0] ?? ''),
 )
 
 async function copyShareLink() {
@@ -343,12 +350,12 @@ const commitDate = __GIT_COMMIT_DATE__
             <span class="qp-label">Eine Position · alle Klassen · {{ laufLabel(qpLauf) }}:</span>
             <div class="qp-btns">
               <button
-                v-for="t in order"
+                v-for="t in menuOrder"
                 :key="t"
                 :title="`${getSheetDef(t).menuLabel} für alle Klassen (${laufLabel(qpLauf)})`"
                 @click="positionAllClasses(t)"
               >
-                {{ getSheetDef(t).title }}
+                {{ buttonLabels[t] }}
               </button>
             </div>
           </div>
@@ -381,7 +388,7 @@ const commitDate = __GIT_COMMIT_DATE__
               dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { typeId: ($event.target as HTMLSelectElement).value } })
             "
           >
-            <option v-for="t in order" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
+            <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
           </select>
           <select
             :value="b.klasse"
@@ -417,7 +424,7 @@ const commitDate = __GIT_COMMIT_DATE__
 
       <div class="add-bogen">
         <select :value="addType" @change="addTypeRaw = ($event.target as HTMLSelectElement).value">
-          <option v-for="t in order" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
+          <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
         </select>
         <select :value="addClass" @change="addClass = ($event.target as HTMLSelectElement).value as ClassId">
           <option v-for="c in CLASS_IDS" :key="c" :value="c">Kl. {{ c }}</option>

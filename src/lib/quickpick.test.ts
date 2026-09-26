@@ -7,8 +7,10 @@ import {
   normalizeClassOrder,
   parseClassOrder,
   positionAllClassesItems,
+  positionButtonLabels,
   withoutLaufRepeats,
 } from './quickpick'
+import { getAufbau } from '../config/active'
 import type { ClassId } from '../types'
 
 const ORDER: ClassId[] = ['1', '3', 'E', '2', '5', '7', '4', '6']
@@ -85,5 +87,21 @@ describe('Schnellauswahl', () => {
   it('beschriftet den Lauf', () => {
     expect(laufLabel(2)).toBe('2. Lauf')
     expect(laufLabel('alle')).toBe('alle Läufe')
+  })
+
+  it('Positions-Knöpfe: Kurzname, bei gleichem Kurznamen der Menü-Name', () => {
+    const labels = positionButtonLabels([
+      { typeId: 'gate135', title: 'Tor 1 / 3 / 5', menuLabel: 'Tore 1 / 3 / 5' },
+      { typeId: 'gate135os', title: 'Tor 1 / 3 / 5', menuLabel: 'Tore 1 / 3 / 5 ohne Start/Ziel' },
+      { typeId: 'zeit', title: 'Zeit', menuLabel: 'Zeitnahme' },
+    ])
+    expect(labels).toEqual({ gate135: 'Tore 1 / 3 / 5', gate135os: 'Tore 1 / 3 / 5 ohne Start/Ziel', zeit: 'Zeit' })
+  })
+
+  it('Positionen ohne Aufbau stehen jedem Aufbau als Zusatz zur Wahl', () => {
+    const { order, zusatz } = getAufbau('alcatraz')
+    expect(zusatz).toEqual(expect.arrayContaining(['gate135os', 'gate245os', 'parcoursms']))
+    expect(zusatz.some((t) => order.includes(t))).toBe(false)
+    expect(getAufbau('berlin').zusatz).toEqual(zusatz)
   })
 })
