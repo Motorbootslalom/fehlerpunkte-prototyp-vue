@@ -134,6 +134,19 @@ hinweise:
   knoten: "Fehler: 5 pro fehlerhafter Knoten"
   parcours: "Es ist nur der eigentliche Fahrweg zu beobachten - keine Bojenberührungen!"
 
+# ---- Laufzettel (je Klasse/Lauf) ----------------------------------
+# Unter den Checkboxen je gedruckter Seite folgen diese Arbeitsschritte der
+# Auswertung, jeweils mit eigener Checkbox (Reihenfolge wie hier).
+laufzettel:
+  titel: "Auswertung"
+  schritte:
+    - "Ergebnis sortiert nach Startnummer drucken (geheftet mit den WKR-Listen)"
+    - "Ergebnis sortiert nach Platz"
+    - "Kontrolliert"
+    - "Unterschrieben"
+    - "Ausgehangen"
+    - "An die ML geschickt"
+
 # ---- Aufbauten (Setups) - der erste ist der Standard ---------------
 aufbauten:
   - id: alcatraz

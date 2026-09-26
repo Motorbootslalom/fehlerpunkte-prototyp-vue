@@ -819,6 +819,8 @@ body {
 .lz-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  /* Zeile fest auf die Blatthöhe - sonst wächst sie mit dem Inhalt mit. */
+  grid-template-rows: minmax(0, 1fr);
   height: 192mm;
 }
 
@@ -881,6 +883,32 @@ body {
   padding: 1.6mm 0;
   line-height: 1.25;
   break-inside: avoid;
+}
+
+/* Seiten-Liste füllt den Platz über den Arbeitsschritten (feste Höhe, damit
+   LaufzettelPage messen kann, ob sie zweispaltig werden muss). */
+.lz-pages {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Arbeitsschritte der Auswertung unten auf der Vorderseite. */
+.lz-steps {
+  flex: none;
+  margin-top: 3mm;
+  padding-top: 2.5mm;
+  border-top: 0.4mm solid #000;
+}
+
+.lz-steps-title {
+  margin: 0 0 1mm;
+  font-size: 11pt;
+  font-weight: 700;
+}
+
+.lz-steps .lz-list {
+  font-size: 12pt;
 }
 
 /* Viele Seiten: zweispaltig und etwas kleiner, damit alles aufs Blatt passt. */

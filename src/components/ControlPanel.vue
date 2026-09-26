@@ -112,6 +112,9 @@ const currentName = () => exportBaseName(state.eventName, describe(), new Date()
 async function printLaufzettel() {
   showLaufzettel.value = true
   await nextTick()
+  // Laufzettel messen nach dem Einblenden, ob sie zweispaltig werden - das
+  // Neu-Rendern abwarten, bevor der Druckdialog das Layout einfriert.
+  await new Promise((r) => setTimeout(r))
   document.body.classList.add('print-laufzettel')
   const done = () => {
     document.body.classList.remove('print-laufzettel')

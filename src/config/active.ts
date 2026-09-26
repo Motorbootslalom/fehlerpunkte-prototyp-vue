@@ -70,6 +70,11 @@ export function allDisqs(): DisqDef[] {
   return cfg().allDisqs
 }
 
+/** Laufzettel-Konfiguration (Arbeitsschritte der Auswertung). */
+export function getLaufzettelConfig(): ResolvedConfig['laufzettel'] {
+  return cfg().laufzettel
+}
+
 /** Verfügbare Bezeichnungs-Schemata (Bojen-Kürzel), für die Umschaltung. */
 export function getBeschriftungen(): BeschriftungScheme[] {
   return cfg().beschriftungen

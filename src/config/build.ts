@@ -33,6 +33,8 @@ export interface ResolvedConfig {
   allDisqs: DisqDef[]
   /** Auf der Seite umschaltbare Bezeichnungs-Schemata (der erste ist Standard). */
   beschriftungen: BeschriftungScheme[]
+  /** Laufzettel: Arbeitsschritte der Auswertung unter den Seiten-Checkboxen. */
+  laufzettel: { titel?: string; schritte: string[] }
 }
 
 // 'trenner' ist keine Datenspalte und taucht hier nicht auf (wird vorher aus der
@@ -214,5 +216,10 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
     raeumlich: b.raeumlich ?? false,
   }))
 
-  return { positions, aufbauten, allDisqs, beschriftungen }
+  const laufzettel = {
+    titel: raw.laufzettel?.titel,
+    schritte: (raw.laufzettel?.schritte ?? []).map((x) => String(x)),
+  }
+
+  return { positions, aufbauten, allDisqs, beschriftungen, laufzettel }
 }

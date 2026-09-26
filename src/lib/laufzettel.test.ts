@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildLaufzettel } from './laufzettel'
+import { getLaufzettelConfig } from '../config/active'
 import type { Bogen, ClassId, Lauf } from '../types'
 
 const TITLES: Record<string, string> = { zeit: 'Zeit', vorsteg: 'Vorsteg', steg: 'Steg', gate135os: 'Tor 1 / 3 / 5' }
@@ -51,5 +52,12 @@ describe('Laufzettel', () => {
   it('unbekannte Seitenzahl zählt als eine Seite', () => {
     const [z] = buildLaufzettel([bogen('a', 'zeit')], ['zeit'], titleOf, () => 0)
     expect(labels(z)).toEqual(['Zeit'])
+  })
+
+  it('Arbeitsschritte der Auswertung kommen aus positionen.yaml', () => {
+    const { titel, schritte } = getLaufzettelConfig()
+    expect(titel).toBe('Auswertung')
+    expect(schritte[0]).toMatch(/^Ergebnis sortiert nach Startnummer/)
+    expect(schritte.slice(2)).toEqual(['Kontrolliert', 'Unterschrieben', 'Ausgehangen', 'An die ML geschickt'])
   })
 })

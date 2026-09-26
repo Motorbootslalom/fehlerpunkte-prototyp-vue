@@ -174,6 +174,14 @@ export interface RawAufbau {
   positionen: string[]
 }
 
+/** Laufzettel (je Klasse/Lauf): Arbeitsschritte unter den Seiten-Checkboxen. */
+export interface RawLaufzettel {
+  /** Überschrift des Schritte-Blocks (fehlt = keine). */
+  titel?: string
+  /** Arbeitsschritte der Auswertung, je mit Checkbox (in dieser Reihenfolge). */
+  schritte?: string[]
+}
+
 /** positionen.yaml */
 export interface RawPositionen {
   /**
@@ -191,6 +199,8 @@ export interface RawPositionen {
   beschriftungen?: RawBeschriftung[]
   /** Wiederverwendbare Hinweistexte (Bojen-Bezeichnungen). */
   hinweise?: Record<string, string>
+  /** Laufzettel: Arbeitsschritte der Auswertung. */
+  laufzettel?: RawLaufzettel
   /** Aufbauten (Setups); der erste ist der Standard. */
   aufbauten?: RawAufbau[]
   /** Alle Positionen (werden von den Aufbauten per ID referenziert). */

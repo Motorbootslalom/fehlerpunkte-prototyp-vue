@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getAufbau, getSheetDef } from './config/active'
+import { getAufbau, getLaufzettelConfig, getSheetDef } from './config/active'
 import { buildLaufzettel } from './lib/laufzettel'
 import { pageCounts, showLaufzettel } from './state/laufzettel'
 import { useStore } from './state/store'
@@ -19,6 +19,8 @@ const laufzettel = computed(() =>
     (id) => pageCounts[id] ?? 1,
   ),
 )
+// Arbeitsschritte der Auswertung (positionen.yaml → laufzettel).
+const lzConfig = getLaufzettelConfig()
 </script>
 
 <template>
@@ -36,6 +38,8 @@ const laufzettel = computed(() =>
             :key="`${z.klasse}:${z.lauf}`"
             :zettel="z"
             :event-name="state.eventName"
+            :schritte-titel="lzConfig.titel"
+            :schritte="lzConfig.schritte"
           />
         </section>
         <SheetView v-for="b in state.boegen" :key="b.id" :bogen="b" />
