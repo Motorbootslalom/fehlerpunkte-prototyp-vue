@@ -180,6 +180,18 @@ positionen:
       - { key: disq, label: "Disq.", typ: disq }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
 
+  - id: vorsteg
+    titel: "Vorsteg"
+    menue: "Vorsteg"
+    schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
+    ausrichtung: hoch
+    disq: [A, K, X]  # nur die relevanten Disqualifikationen
+    # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
+    # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
+    spalten:
+      - { key: disq, label: "Disq.", typ: disq }
+      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
+
   - id: tor5
     titel: "Tor 5"
     menue: "Tor 5 (Einfahrt)"
