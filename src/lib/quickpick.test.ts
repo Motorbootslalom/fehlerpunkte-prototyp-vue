@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  allClassesAllPositionsItems,
   classAllPositionsItems,
   completeLaufItems,
   formatClassOrder,
@@ -83,6 +84,22 @@ describe('Schnellauswahl', () => {
     const lauf2 = completeLaufItems(['zeit', 'knoten'], ['3', 'E'] as ClassId[], 2)
     const items = withoutLaufRepeats(lauf2, laufFree, existing)
     expect(items.map((it) => `${it.klasse}:${it.typeId}`)).toEqual(['3:zeit', 'E:zeit', 'E:knoten'])
+  })
+
+  it('„Alle“: alle Klassen in gewählter Reihenfolge × Positionen, Lauf für Lauf', () => {
+    const items = allClassesAllPositionsItems(['3', 'E'] as ClassId[], ['zeit', 'steg'], 'alle')
+    expect(items.slice(0, 5).map((it) => `${it.lauf}:${it.klasse}:${it.typeId}`)).toEqual([
+      '1:3:zeit',
+      '1:3:steg',
+      '1:E:zeit',
+      '1:E:steg',
+      '2:3:zeit',
+    ])
+    expect(items).toHaveLength(12)
+    expect(allClassesAllPositionsItems(['3', 'E'] as ClassId[], ['zeit'], 2).map((it) => `${it.lauf}:${it.klasse}`)).toEqual([
+      '2:3',
+      '2:E',
+    ])
   })
 
   it('beschriftet den Lauf', () => {

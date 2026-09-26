@@ -81,6 +81,18 @@ export function classAllPositionsItems(
 }
 
 /**
+ * Alle Klassen (gewählte Reihenfolge) × alle Positionen des Aufbaus: je Lauf
+ * ein kompletter Lauf - bei „Alle Läufe" erst Lauf 1 komplett, dann Lauf 2 usw.
+ */
+export function allClassesAllPositionsItems(
+  classOrder: ClassId[],
+  positions: SheetTypeId[],
+  q: QuickLauf,
+): BogenWahl[] {
+  return laeufeOf(q).flatMap((lauf) => completeLaufItems(positions, classOrder, lauf))
+}
+
+/**
  * Lauf-unabhängige Positionen (`lauf: false`, z. B. Knoten) gibt es je Klasse
  * nur einmal: Wiederholungen aus „Alle Läufe" und schon vorhandene Bögen
  * derselben Position/Klasse fallen weg. Übrig bleibt der erste Lauf.

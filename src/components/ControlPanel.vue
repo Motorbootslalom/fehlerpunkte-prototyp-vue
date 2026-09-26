@@ -14,6 +14,7 @@ import { exportJsPdfVector } from '../lib/exportJsPdfVector'
 import { describeBoegen, exportBaseName, printWithFilename } from '../lib/print'
 import {
   LAEUFE,
+  allClassesAllPositionsItems,
   classAllPositionsItems,
   completeLaufItems,
   formatClassOrder,
@@ -91,6 +92,9 @@ function positionAllClasses(t: SheetTypeId) {
 }
 function classAllPositions(c: ClassId) {
   bulk(classAllPositionsItems(c, order.value, qpLauf.value))
+}
+function allClassesAllPositions() {
+  bulk(allClassesAllPositionsItems(state.classOrder, order.value, qpLauf.value))
 }
 
 function setClassOrder(e: Event) {
@@ -411,6 +415,12 @@ const commitDate = __GIT_COMMIT_DATE__
                 @click="classAllPositions(c)"
               >
                 Kl. {{ c }}
+              </button>
+              <button
+                :title="`Alle Klassen in der Klassen-Reihenfolge × alle Listentypen (${laufLabel(qpLauf)})`"
+                @click="allClassesAllPositions"
+              >
+                Alle
               </button>
             </div>
           </div>
