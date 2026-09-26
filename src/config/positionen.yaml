@@ -311,6 +311,9 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
       - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
+      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: [7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA"] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
@@ -338,6 +341,9 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
       - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
+      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: [7] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 
@@ -364,6 +370,8 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteB", "rueck seiteB"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
+      # Speedboje nur ab Klasse 5 (Kl. 7: „Sp. 1“ laut Papierliste Alcatraz 2).
+      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
@@ -391,6 +399,8 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteB", "rueck seiteB"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
+      # Speedboje nur ab Klasse 5 (Kl. 7: „Sp. 1“ laut Papierliste Alcatraz 2).
+      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 
@@ -415,6 +425,9 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["rueck seiteA", "hin seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor3 }
       - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1 }
+      # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
+      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1, klassen: [7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
@@ -438,6 +451,8 @@ positionen:
       - { key: t5, label: "Tor 5", typ: boje, sub: ["rueck seiteB", "hin seiteB"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteA, hebt: Tor4 }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteA, hebt: Tor2 }
+      # Speedboje nur ab Klasse 5 (Kl. 7: „Sp. 1“ laut Papierliste Alcatraz 2).
+      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }

@@ -98,6 +98,25 @@ describe('columnsForClass - Speed/MüB je Klasse, Tor-Bojen immer', () => {
     expect(keys('blinks', '7')).toContain('speed2')
   })
 
+  it('Tor 2 / 4 / 5: Speed 1 ab Klasse 5 (alle Varianten)', () => {
+    for (const id of ['gate245', 'gate245os', 'frontal245']) {
+      expect(keys(id, '4')).not.toContain('speed1')
+      expect(keys(id, '5')).toContain('speed1')
+      expect(keys(id, '7')).toContain('speed1')
+    }
+    // Reihenfolge wie auf der Papierliste: nach Tor 2 (Rückfahrt), vor Ziel.
+    expect(keys('gate245', '5').slice(-5)).toEqual(['t2b', 'speed1', 'ziel', 'disq', 'sum'])
+  })
+
+  it('Tor 1 / 3 / 5: nur Klasse 7 mit Speed 2 und zweitem Tor 1', () => {
+    for (const id of ['gate135', 'gate135os', 'frontal135']) {
+      expect(keys(id, '6')).not.toContain('speed2')
+      expect(keys(id, '6')).not.toContain('t1c')
+    }
+    expect(keys('gate135', '7').slice(-6)).toEqual(['t1b', 'speed2', 't1c', 'ziel', 'disq', 'sum'])
+    expect(keys('gate135os', '7').slice(-5)).toEqual(['t1b', 'speed2', 't1c', 'disq', 'sum'])
+  })
+
   it('Berlin Rechts: MüB erst ab Klasse 4', () => {
     expect(keys('brechts', '3')).not.toContain('mueb')
     expect(keys('brechts', '4')).toContain('mueb')
