@@ -323,7 +323,8 @@ positionen:
       - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor3 }
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: ["E", 1, 2, 3, 5, 6, 7] }
       # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
       - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: [7] }
@@ -353,7 +354,8 @@ positionen:
       - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor3 }
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1 }
+      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: ["E", 1, 2, 3, 5, 6, 7] }
       # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
       - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor1, klassen: [7] }
@@ -437,7 +439,8 @@ positionen:
       - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteB", "hin seiteA"], innen: seiteB, hebt: Tor3 }
       - { key: t5, label: "Tor 5", typ: boje, sub: ["rueck seiteA", "hin seiteA"], subTrenner: doppelt, hebt: Tor5 }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor3 }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1 }
+      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1, klassen: ["E", 1, 2, 3, 5, 6, 7] }
       # Klasse 7: Speedboje 2, danach ein zweites Mal durch Tor 1 (Papierliste Alcatraz 1).
       - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteB", "rueck seiteA"], innen: seiteB, hebt: Tor1, klassen: [7] }
@@ -521,7 +524,8 @@ positionen:
       - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
       - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], klassen: ["E", 1, 2, 3, 5, 6, 7] }
       # Mann-über-Bord erst ab Klasse 4.
       - { key: mueb, label: "MüB", typ: code, punkteSpalte: mp, breite: 1, klassen: [4, 5, 6, 7] }
       - { key: mp, label: "MüB-Pkt.", typ: summe, klassen: [4, 5, 6, 7] }
@@ -572,7 +576,8 @@ positionen:
       - { typ: trenner, design: "doppelt" }
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteB"], innen: seiteB }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
+      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteA, klassen: ["E", 1, 2, 3, 5, 6, 7] }
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteA, klassen: [7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
       - { key: disq, label: "Disq.", typ: disq }

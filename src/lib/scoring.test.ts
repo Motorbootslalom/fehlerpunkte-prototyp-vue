@@ -117,6 +117,15 @@ describe('columnsForClass - Speed/MüB je Klasse, Tor-Bojen immer', () => {
     expect(keys('gate135os', '7').slice(-5)).toEqual(['t1b', 'speed2', 't1c', 'disq', 'sum'])
   })
 
+  it('Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1', () => {
+    for (const id of ['gate135', 'gate135os', 'frontal135', 'brechts', 'bawueland1', 'bawuewasser1']) {
+      expect(keys(id, '4')).not.toContain('t1b')
+      expect(keys(id, '3')).toContain('t1b')
+    }
+    // Wie Excel und die alte Papierliste: … Tor 5, Tor 3, Ziel.
+    expect(keys('gate135', '4').slice(-5)).toEqual(['t5', 't3b', 'ziel', 'disq', 'sum'])
+  })
+
   it('Berlin Rechts: MüB erst ab Klasse 4', () => {
     expect(keys('brechts', '3')).not.toContain('mueb')
     expect(keys('brechts', '4')).toContain('mueb')
