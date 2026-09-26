@@ -1,0 +1,1683 @@
+{
+  "_hinweis": "Erzeugt von scripts/excel_mapping.py - nicht von Hand ändern.",
+  "quelle": "Deutsche Meisterschaft 2026.xlsm",
+  "erzeugt": "2026-09-27",
+  "titel": {
+    "blatt": "Eingaben",
+    "zelle": "C2"
+  },
+  "seiten": {
+    "A": "Eingabe!L9/L11 bzw. Ü!$Y$5",
+    "B": "Eingabe!L8/L10 bzw. Ü!$Y$4"
+  },
+  "klassen": {
+    "E": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "B",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF KE {lauf}L W",
+        "steg": "ST KE {lauf}L",
+        "tor135": "T1_3_5 KE {lauf}L ALC",
+        "tor245": "T2_4_5 KE {lauf}L ALC",
+        "tor5": "T5 KE {lauf}L ALC",
+        "zeit": "EZ KE {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "ef",
+          "spalte": "J"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "1R/B": {
+          "blatt": "ef",
+          "spalte": "AC"
+        },
+        "2H/A": {
+          "blatt": "ef",
+          "spalte": "M"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2R/A": {
+          "blatt": "ef",
+          "spalte": "AB"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "3H/B": {
+          "blatt": "ef",
+          "spalte": "N"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "3R/B": {
+          "blatt": "ef",
+          "spalte": "Y"
+        },
+        "4H/A": {
+          "blatt": "ef",
+          "spalte": "Q"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "4R/A": {
+          "blatt": "ef",
+          "spalte": "X"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "1": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "D",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K1 {lauf}L W",
+        "steg": "ST K1 {lauf}L",
+        "tor135": "T1_3_5 K1 {lauf}L ALC",
+        "tor245": "T2_4_5 K1 {lauf}L ALC",
+        "tor5": "T5 K1 {lauf}L ALC",
+        "zeit": "EZ K1 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "2H/A": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "2R/A": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "3H/B": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "4H/A": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "4R/A": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "N"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "O"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "O"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "2": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "F",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K2 {lauf}L W",
+        "steg": "ST K2 {lauf}L",
+        "tor135": "T1_3_5 K2 {lauf}L ALC",
+        "tor245": "T2_4_5 K2 {lauf}L ALC",
+        "tor5": "T5 K2 {lauf}L ALC",
+        "zeit": "EZ K2 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "2H/A": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "2R/A": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "3H/B": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "4H/A": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "4R/A": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "N"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "O"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "O"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "3": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "H",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K3 {lauf}L W",
+        "steg": "ST K3 {lauf}L",
+        "tor135": "T1_3_5 K3 {lauf}L ALC",
+        "tor245": "T2_4_5 K3 {lauf}L ALC",
+        "tor5": "T5 K3 {lauf}L ALC",
+        "zeit": "EZ K3 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "2H/A": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "2R/A": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "3H/B": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "4H/A": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "4R/A": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "N"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "O"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "O"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "4": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "J",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "sch": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K4 {lauf}L W",
+        "steg": "ST K4 {lauf}L",
+        "tor135": "T1_3_5 K4 {lauf}L ALC",
+        "tor245": "T2_4_5 K4 {lauf}L ALC",
+        "tor5": "T5 K4 {lauf}L ALC",
+        "sch": "SCH K4 {lauf}L",
+        "zeit": "EZ K4 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "2H/A": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "2R/A": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "3H/B": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "4H/A": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "4R/A": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "bemerkung/sch": {
+          "blatt": "sch",
+          "spalte": "G"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/sch": {
+          "blatt": "sch",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "O"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "sch": {
+          "blatt": "sch",
+          "spalte": "D"
+        },
+        "sch/fehler": {
+          "blatt": "sch",
+          "spalte": "C"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "5": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "L",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "sch": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K5 {lauf}L W",
+        "steg": "ST K5 {lauf}L",
+        "tor135": "T1_3_5 K5 {lauf}L ALC",
+        "tor245": "T2_4_5 K5 {lauf}L ALC",
+        "tor5": "T5 K5 {lauf}L ALC",
+        "sch": "SCH K5 {lauf}L",
+        "zeit": "EZ K5 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "ef",
+          "spalte": "J"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "2H/A": {
+          "blatt": "ef",
+          "spalte": "M"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2R/A": {
+          "blatt": "ef",
+          "spalte": "AB"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "3H/B": {
+          "blatt": "ef",
+          "spalte": "N"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "3R/B": {
+          "blatt": "ef",
+          "spalte": "Y"
+        },
+        "4H/A": {
+          "blatt": "ef",
+          "spalte": "Q"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "4R/A": {
+          "blatt": "ef",
+          "spalte": "X"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "S1": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "bemerkung/sch": {
+          "blatt": "sch",
+          "spalte": "G"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/sch": {
+          "blatt": "sch",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "sch": {
+          "blatt": "sch",
+          "spalte": "D"
+        },
+        "sch/fehler": {
+          "blatt": "sch",
+          "spalte": "C"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "6": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "N",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "sch": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K6 {lauf}L W",
+        "steg": "ST K6 {lauf}L",
+        "tor135": "T1_3_5 K6 {lauf}L ALC",
+        "tor245": "T2_4_5 K6 {lauf}L ALC",
+        "tor5": "T5 K6 {lauf}L ALC",
+        "sch": "SCH K6 {lauf}L",
+        "zeit": "EZ K6 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "ef",
+          "spalte": "J"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "2H/A": {
+          "blatt": "ef",
+          "spalte": "M"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2R/A": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "3H/B": {
+          "blatt": "ef",
+          "spalte": "N"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "4H/A": {
+          "blatt": "ef",
+          "spalte": "Q"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "4R/A": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "S1": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "bemerkung/sch": {
+          "blatt": "sch",
+          "spalte": "G"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/sch": {
+          "blatt": "sch",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "sch": {
+          "blatt": "sch",
+          "spalte": "D"
+        },
+        "sch/fehler": {
+          "blatt": "sch",
+          "spalte": "C"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    },
+    "7": {
+      "startnummern": {
+        "blatt": "Eingabe",
+        "spalte": "P",
+        "ersteZeile": 80
+      },
+      "zeilen": {
+        "ef": {
+          "ersteZeile": 7,
+          "nummer": "C"
+        },
+        "steg": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor135": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor245": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "tor5": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "sch": {
+          "ersteZeile": 10,
+          "nummer": "B"
+        },
+        "zeit": {
+          "ersteZeile": 7,
+          "nummer": "B"
+        }
+      },
+      "blaetter": {
+        "ef": "EF K7 {lauf}L W",
+        "steg": "ST K7 {lauf}L",
+        "tor135": "T1_3_5 K7 {lauf}L ALC",
+        "tor245": "T2_4_5 K7 {lauf}L ALC",
+        "tor5": "T5 K7 {lauf}L ALC",
+        "sch": "SCH K7 {lauf}L",
+        "zeit": "EZ K7 {lauf}L"
+      },
+      "ziele": {
+        "1H/A": {
+          "blatt": "tor135",
+          "spalte": "D"
+        },
+        "1H/B": {
+          "blatt": "tor135",
+          "spalte": "E"
+        },
+        "1R#2/A": {
+          "blatt": "tor135",
+          "spalte": "O"
+        },
+        "1R#2/B": {
+          "blatt": "tor135",
+          "spalte": "P"
+        },
+        "1R/A": {
+          "blatt": "tor135",
+          "spalte": "L"
+        },
+        "1R/B": {
+          "blatt": "tor135",
+          "spalte": "M"
+        },
+        "2H/A": {
+          "blatt": "tor245",
+          "spalte": "D"
+        },
+        "2H/B": {
+          "blatt": "tor245",
+          "spalte": "E"
+        },
+        "2R/A": {
+          "blatt": "ef",
+          "spalte": "AB"
+        },
+        "2R/B": {
+          "blatt": "tor245",
+          "spalte": "K"
+        },
+        "3H/A": {
+          "blatt": "tor135",
+          "spalte": "F"
+        },
+        "3H/B": {
+          "blatt": "tor135",
+          "spalte": "G"
+        },
+        "3R/A": {
+          "blatt": "tor135",
+          "spalte": "J"
+        },
+        "3R/B": {
+          "blatt": "tor135",
+          "spalte": "K"
+        },
+        "4H/A": {
+          "blatt": "tor245",
+          "spalte": "F"
+        },
+        "4H/B": {
+          "blatt": "tor245",
+          "spalte": "G"
+        },
+        "4R/A": {
+          "blatt": "ef",
+          "spalte": "X"
+        },
+        "4R/B": {
+          "blatt": "tor245",
+          "spalte": "J"
+        },
+        "H/A": {
+          "blatt": "tor135",
+          "spalte": "H"
+        },
+        "H/B": {
+          "blatt": "tor245",
+          "spalte": "H"
+        },
+        "R/A": {
+          "blatt": "tor135",
+          "spalte": "I"
+        },
+        "R/B": {
+          "blatt": "tor245",
+          "spalte": "I"
+        },
+        "S1": {
+          "blatt": "tor245",
+          "spalte": "L"
+        },
+        "S2": {
+          "blatt": "tor135",
+          "spalte": "N"
+        },
+        "Start/A": {
+          "blatt": "tor135",
+          "spalte": "C"
+        },
+        "Start/B": {
+          "blatt": "tor245",
+          "spalte": "C"
+        },
+        "Ziel/A": {
+          "blatt": "tor135",
+          "spalte": "Q"
+        },
+        "Ziel/B": {
+          "blatt": "tor245",
+          "spalte": "M"
+        },
+        "bemerkung/sch": {
+          "blatt": "sch",
+          "spalte": "G"
+        },
+        "bemerkung/steg": {
+          "blatt": "steg",
+          "spalte": "H"
+        },
+        "bemerkung/tor5": {
+          "blatt": "tor5",
+          "spalte": "F"
+        },
+        "disq/sch": {
+          "blatt": "sch",
+          "spalte": "F"
+        },
+        "disq/steg": {
+          "blatt": "steg",
+          "spalte": "G"
+        },
+        "disq/tor135": {
+          "blatt": "tor135",
+          "spalte": "R"
+        },
+        "disq/tor245": {
+          "blatt": "tor245",
+          "spalte": "N"
+        },
+        "disq/tor5": {
+          "blatt": "tor5",
+          "spalte": "E"
+        },
+        "sch": {
+          "blatt": "sch",
+          "spalte": "D"
+        },
+        "sch/fehler": {
+          "blatt": "sch",
+          "spalte": "C"
+        },
+        "steg/ab": {
+          "blatt": "steg",
+          "spalte": "D"
+        },
+        "steg/ab/fehler": {
+          "blatt": "steg",
+          "spalte": "C"
+        },
+        "steg/an": {
+          "blatt": "steg",
+          "spalte": "F"
+        },
+        "steg/an/fehler": {
+          "blatt": "steg",
+          "spalte": "E"
+        },
+        "tor5": {
+          "blatt": "tor5",
+          "spalte": "D"
+        },
+        "tor5/fehler": {
+          "blatt": "tor5",
+          "spalte": "C"
+        },
+        "zeit": {
+          "blatt": "zeit",
+          "spalten": [
+            "F",
+            "G",
+            "H"
+          ],
+          "punkte": "I"
+        }
+      }
+    }
+  }
+}
