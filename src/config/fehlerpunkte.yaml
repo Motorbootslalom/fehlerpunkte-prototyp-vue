@@ -13,7 +13,7 @@ disqualifikationen:
   - { code: D, text: "Wiederholtes Anfahren ab 4. Versuch" }
   - { code: E, text: "Sitzen auf dem Schlauch (auch in gebückter Haltung)" }
   - { code: F, text: "Stehen im Boot (außer zum Ein- und Aussteigen und Anreißen des Motors)" }
-  - { code: G, text: "Überfahren einer Boje oder des Mann-über-Bord" }
+  - { code: G, text: "Überfahren/Abreissen einer Boje oder des Mann-über-Bord" }
   - { code: H, text: "\"Bending\" Herausslehen über Bootsbreite hinaus (außer bei MüB und An/Ablegen)" }
   - { code: I, text: "Anlegen mit Backboardseite (Anlegen auf der falschen Seite)" }
   - { code: J, text: "Auslassen eines Tores/falscher Parcours/Anlegen auf der falschen Seite" }
