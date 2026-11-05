@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getBogenTexte } from '../config/active'
 import { bogenPayload } from '../lib/qr'
 import type { Bogen, SheetDef } from '../types'
 import QrTag from './QrTag.vue'
@@ -11,6 +12,8 @@ const props = defineProps<{
   wkr: string
 }>()
 const emit = defineEmits<{ (e: 'wkr', name: string): void }>()
+// Bögen werden bei einem Sprachwechsel neu aufgebaut (Key in App.vue).
+const texte = getBogenTexte()
 </script>
 
 <template>
@@ -22,17 +25,21 @@ const emit = defineEmits<{ (e: 'wkr', name: string): void }>()
     <div class="header-body">
       <div class="header-left">
         <div class="hl-cell hl-title">{{ def.title }}</div>
-        <div class="hl-cell">Klasse {{ bogen.klasse }}</div>
-        <div v-if="def.showLauf !== false" class="hl-cell">{{ bogen.lauf }}. Lauf</div>
+        <div class="hl-cell">{{ texte.klasse(bogen.klasse) }}</div>
+        <div v-if="def.showLauf !== false" class="hl-cell">{{ texte.lauf(bogen.lauf) }}</div>
       </div>
       <label class="wkr-box">
-        <span class="wkr-label">WKR:</span>
-        <input
-          class="wkr-input"
-          :value="wkr"
-          placeholder="Name Wettkampfrichter*in"
-          @input="emit('wkr', ($event.target as HTMLInputElement).value)"
-        />
+        <span class="wkr-label">{{ texte.wkr }}</span>
+        <span class="wkr-field">
+          <input
+            class="wkr-input"
+            :value="wkr"
+            :placeholder="texte.wkrPlatzhalter"
+            @input="emit('wkr', ($event.target as HTMLInputElement).value)"
+          />
+          <!-- Im Druck sähe der Platzhalter wie ein eingetragener Name aus. -->
+          <span class="wkr-caption">{{ texte.wkrPlatzhalter }}</span>
+        </span>
       </label>
     </div>
   </div>

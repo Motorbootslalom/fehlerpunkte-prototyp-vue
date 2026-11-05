@@ -57,11 +57,14 @@ const groupRowIndices = computed(() =>
       </table>
     </div>
 
-    <div v-if="def.legendNote" class="legend-note">{{ def.legendNote }}</div>
+    <div v-if="def.legendNoteSpalten" class="legend-note legend-note--2">
+      <div v-for="(spalte, i) in def.legendNoteSpalten" :key="i">{{ spalte }}</div>
+    </div>
+    <div v-else-if="def.legendNote" class="legend-note">{{ def.legendNote }}</div>
 
     <div v-if="def.disqTable && def.disqTable.length > 0" class="legend-block">
-      <div class="legend-title">Disqualifikation:</div>
-      <table class="legend-disq">
+      <div class="legend-title">{{ def.disqTableTitle ?? 'Disqualifikation:' }}</div>
+      <table :class="['legend-disq', { 'legend-disq--2': def.disqZweispaltig }]">
         <tbody>
           <tr v-for="d in def.disqTable" :key="d.code">
             <td class="lc-code">{{ d.code }}</td>

@@ -118,15 +118,25 @@ Framework und ohne Layout-Duplizierung.
 
 Die Parcoursbilder liegen als **SVG** (Bildschirm/Browser-Druck) und **PNG**
 (für die react-pdf-Insel, die kein SVG einbetten kann) vor.
+`public/parcours/alcatraz_Parcours` ist eine Kopie aus dem Repository
+`Motorbootslalom/Parcours` (`parcours.svg`, per `make` nach `dist/alcatraz_Parcours`
+exportiert). Änderungen, auch an IDs, gehören dorthin.
 
 ## Konfiguration (Positionen & Fehlerpunkte)
 
-Listen, Spalten und Fehlerpunkte sind **datengetrieben** und liegen in zwei
+Listen, Spalten und Fehlerpunkte sind **datengetrieben** und liegen als
 YAML-Dateien unter `public/config/` (werden zur Laufzeit geladen - Änderung
-wirkt nach dem Neuladen der Seite, ohne Neubau):
+wirkt nach dem Neuladen der Seite, ohne Neubau). Gepflegt werden sie unter
+`src/config/`:
 
-- **`fehlerpunkte.yaml`** - Disqualifikationen und Fehler-Kataloge. Kommen aus
-  der **Ausschreibung** und sind i. d. R. für alle gleich.
+- **`regelwerke.yaml`** - Liste der Regelwerke (Menü-Reihenfolge, der erste ist
+  der Standard).
+- **`regelwerke/<id>.yaml`** - je **Regelwerk und Version** (z. B. `dm-2026`,
+  `uim-2026`) die Disqualifikationen, Fehler-Kataloge, Klassen und Texte aus der
+  **Ausschreibung**. Neue Version: Datei kopieren, `id` und `version` anpassen, in
+  `regelwerke.yaml` eintragen. Mit `sprachen: [de, en]` lassen sich die Listen
+  zusätzlich englisch oder zweisprachig ausgeben; `npm run config:check` meldet
+  dann jede fehlende Übersetzung.
 - **`positionen.yaml`** - die **orts-/personenabhängigen Positionen** (welche
   Liste, welche Spalten in welcher Reihenfolge, welches Bild/Drehung). Positionen
   binden Kataloge und wiederverwendbare **Hinweise** per Verweis (ID) ein.
@@ -137,14 +147,21 @@ wirkt nach dem Neuladen der Seite, ohne Neubau):
 
 Wichtige Felder einer Position: `spalten` (Reihenfolge/Typen), `katalog`
 (Verweis auf einen Fehler-Katalog), `hinweis` (Verweis auf einen Hinweistext),
-`disq: alle | keine | [A, B, …]` (nicht relevante Disqualifikationen ausblenden),
-`bild` + `bildDrehung: 0 | 90 | -90 | 180`.
+`disq: alle | keine | <Bereich>` (welche Disqualifikationen auf der Liste stehen;
+die Buchstaben nennen im Regelwerk ihre `bereiche`: `vorsteg`, `steg`, `parcours`,
+`mueb`; bei querliegendem Bild steht die Liste zweispaltig),
+`bild` + `bildDrehung: 0 | 90 | -90 | 180` + `bildBreite` (bei ±90° gedrehtem Bild,
+in mm).
 
 **Globale Bojen-Kürzel:** Die Seiten-/Richtungskürzel stehen zentral unter
 `bezeichnungen` (Token-Map, z. B. `seiteA: R`, `seiteB: L`). In `sub` und in den
 Hinweisen werden die Tokens (`hin`, `rueck`, `seiteA`, `seiteB`) als ganze Wörter
 ersetzt - so stellt man von Rechts/Links auf Land/See (`L`/`S`) oder Hafen/Kai
 (`H`/`K`) an EINER Stelle um; die Spaltenköpfe und der Hinweis ziehen automatisch nach.
+
+**Legende als A4-Blatt:** „Nur Legende drucken / Als PDF“ in der Bedienleiste gibt
+alle Fehlercodes, Strafen und Disqualifikationen des gewählten Regelwerks auf einem
+Blatt aus.
 
 Die gebündelten Kopien unter `src/config/` dienen als Fallback (offline / falls
 die Laufzeit-Datei fehlt oder fehlerhaft ist). Beide Prototypen (Eingabe und

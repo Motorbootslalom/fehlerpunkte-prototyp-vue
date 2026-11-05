@@ -1,5 +1,10 @@
-import type { CellKind, Column, DisqDef, ErrorDef, ErrorGroup, SheetDef, TrennerDesign } from '../types'
-import type { RawConfig, RawKatalog, RawPosition, RawSpalte } from './schema'
+import { CLASS_IDS } from '../types'
+import type { CellKind, Column, DisqDef, ErrorDef, ErrorGroup, SheetDef, Sprache, TrennerDesign } from '../types'
+import type { RawConfig, RawDisq, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
+import { bogenTexte, uebersetzt, uebersetztBlock, type BogenTexte } from './sprache'
+
+/** Übersetzt einen Text in die Sprache der Konfiguration. */
+type Uebersetzer = (de: string, en?: string) => string
 
 // Wandelt die geparste (zusammengeführte) YAML-Konfiguration in die interne
 // Darstellung um. Positionen binden Fehler-Kataloge und Hinweise per Verweis ein.
@@ -25,7 +30,38 @@ export interface BeschriftungScheme {
   raeumlich: boolean
 }
 
+/** Kenndaten eines Regelwerks (Menü, Listen, A4-Legende). */
+export interface RegelwerkInfo {
+  id: string
+  /** Anzeige mit Version, z. B. "DM 2026". */
+  label: string
+  /** Angebotene Sprachen der Listen, z. B. [de] oder [de, en]. */
+  sprachen: string[]
+  /** Klassen dieses Regelwerks. */
+  klassen: string[]
+}
+
+/** Inhalt der A4-Legende: alle Codes und Strafen eines Regelwerks. */
+export interface LegendeModel {
+  /** Überschriften in der gewählten Sprache. */
+  texte: { titel: string; fehlercodes: string; ohneCode: string; disq: string }
+  /** Dokument, aus dem die Werte stammen. */
+  quelle?: string
+  /** Fehlercodes je Katalog (in YAML-Reihenfolge). */
+  gruppen: ErrorGroup[]
+  /** Fehler ohne Code (Punkte werden direkt eingetragen). */
+  direkt: Array<{ titel: string; text: string; punkte: number }>
+  disq: DisqDef[]
+  /** Hinweis zu den Fehlercodes (z. B. „kombinierbar“). */
+  fehlerHinweis?: string
+  hinweise: string[]
+}
+
 export interface ResolvedConfig {
+  regelwerk: RegelwerkInfo
+  legende: LegendeModel
+  /** Feste Texte auf den Listen in der gewählten Sprache. */
+  bogenTexte: BogenTexte
   positions: SheetDef[]
   /** Aufbauten (Setups); der erste ist der Standard. */
   aufbauten: ResolvedAufbau[]
@@ -62,14 +98,20 @@ function resolveTokens(text: string, tokens: Record<string, string>): string {
   return text.replace(re, (m) => tokens[m] ?? m)
 }
 
-function katalogRows(kat: RawKatalog | undefined): ErrorDef[] | undefined {
-  return kat?.fehler.map((f) => ({ code: String(f.code), text: f.text, punkte: f.punkte }))
+function katalogRows(kat: RawKatalog | undefined, t: Uebersetzer): ErrorDef[] | undefined {
+  return kat?.fehler.map((f) => ({ code: String(f.code), text: t(f.text, f.en), punkte: f.punkte }))
+}
+
+function katalogTitel(kat: RawKatalog, t: Uebersetzer): string | undefined {
+  return kat.titel === undefined ? undefined : t(kat.titel, kat.titelEn)
 }
 
 function toColumn(
   sp: RawSpalte,
   tokens: Record<string, string>,
   kataloge: Record<string, RawKatalog>,
+  t: Uebersetzer,
+  texte: Record<string, string>,
 ): Column {
   // Innen/Außen-Modus: aktiv, sobald das Schema innen/aussen-Tokens liefert.
   // Für eine Spalte mit `innen`-Markierung (Tore 1-4) werden die Bojen-Seiten
@@ -85,11 +127,11 @@ function toColumn(
   }
   return {
     key: sp.key ?? '',
-    label: sp.label ?? '',
+    label: t(sp.label ?? '', texte[sp.label ?? '']),
     kind: TYP_TO_KIND[sp.typ as Exclude<RawSpalte['typ'], 'trenner'>] ?? 'text',
     sub: sp.sub?.map((x) => resolveTokens(x, subTokens)),
     pointsCol: sp.punkteSpalte,
-    errorTable: sp.katalog ? katalogRows(kataloge[sp.katalog]) : undefined,
+    errorTable: sp.katalog ? katalogRows(kataloge[sp.katalog], t) : undefined,
     grow: sp.breite,
     trenner: sp.trenner,
     subTrenner: sp.subTrenner,
@@ -107,6 +149,8 @@ function buildColumns(
   spalten: RawSpalte[],
   tokens: Record<string, string>,
   kataloge: Record<string, RawKatalog>,
+  t: Uebersetzer,
+  texte: Record<string, string>,
   posSubTrenner?: TrennerDesign,
 ): Column[] {
   const cols: Column[] = []
@@ -116,7 +160,7 @@ function buildColumns(
       pending = sp.design ?? 'fett'
       continue
     }
-    const col = toColumn(sp, tokens, kataloge)
+    const col = toColumn(sp, tokens, kataloge, t, texte)
     if (pending) {
       col.trenner = pending
       pending = undefined
@@ -129,17 +173,68 @@ function buildColumns(
   return cols
 }
 
-function resolveDisq(pos: RawPosition, all: DisqDef[]): DisqDef[] | undefined {
+/** Disqualifikationen einer Position: alle, keine oder die eines Bereichs. */
+function resolveDisq(pos: RawPosition, all: RawDisq[], t: Uebersetzer): DisqDef[] | undefined {
   if (!pos.disq || pos.disq === 'keine') return undefined
-  if (pos.disq === 'alle') return all
-  const set = new Set(pos.disq.map((c) => String(c)))
-  return all.filter((d) => set.has(d.code))
+  const bereich = pos.disq
+  const liste = bereich === 'alle' ? all : all.filter((d) => !d.bereiche || d.bereiche.includes(bereich))
+  return liste.map((d) => ({ code: String(d.code), text: t(d.text, d.en) }))
 }
 
-export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): ResolvedConfig {
+/** Kenndaten eines Regelwerks; fehlende Angaben bekommen neutrale Standardwerte. */
+export function regelwerkInfo(rw: RawRegelwerk): RegelwerkInfo {
+  return {
+    id: rw.id ?? 'standard',
+    label: [rw.name ?? rw.id ?? 'Standard', rw.version].filter((x) => x !== undefined).join(' '),
+    sprachen: rw.sprachen ?? ['de'],
+    klassen: rw.klassen ? rw.klassen.map(String) : [...CLASS_IDS],
+  }
+}
+
+function buildLegende(raw: RawConfig, sprache: Sprache): LegendeModel {
+  const t: Uebersetzer = (de, en) => uebersetzt(sprache, de, en)
+  const einheit = t(raw.einheit ?? 'Punkte', raw.einheitEn)
+  return {
+    texte: {
+      titel: t('Legende: Fehlerpunkte und Disqualifikationen', 'Legend: penalties and disqualifications'),
+      fehlercodes: `${t('Fehlercodes', 'Penalty codes')} (${einheit})`,
+      ohneCode: t('Ohne Code (Strafe direkt eintragen)', 'Without code (enter the penalty directly)'),
+      disq: t('Disqualifikation', 'Disqualification'),
+    },
+    quelle: raw.quelle === undefined ? undefined : uebersetzt(sprache === 'de' ? 'de' : 'en', raw.quelle, raw.quelleEn),
+    // Der Katalog-Titel steht auf den Listen teils mit Doppelpunkt, als
+    // Überschrift auf der Legende ohne.
+    gruppen: Object.values(raw.kataloge ?? {}).map((k) => ({
+      title: katalogTitel({ ...k, titel: k.titel?.replace(/:\s*$/, ''), titelEn: k.titelEn?.replace(/:\s*$/, '') }, t),
+      rows: katalogRows(k, t) ?? [],
+    })),
+    direkt: (raw.direktpunkte ?? []).map((d) => ({
+      titel: t(d.titel, d.titelEn),
+      text: t(d.text, d.en),
+      punkte: d.punkte,
+    })),
+    disq: (raw.disqualifikationen ?? []).map((d) => ({ code: String(d.code), text: t(d.text, d.en) })),
+    fehlerHinweis: raw.fehlerHinweis && uebersetztBlock(sprache, raw.fehlerHinweis, raw.fehlerHinweisEn),
+    hinweise: (raw.legendeHinweise ?? []).map((h) =>
+      typeof h === 'string' ? h : uebersetztBlock(sprache, h.text, h.en),
+    ),
+  }
+}
+
+export function buildConfig(
+  raw: RawConfig,
+  opts?: { raeumlich?: boolean; sprache?: Sprache; schema?: string },
+): ResolvedConfig {
+  const regelwerk = regelwerkInfo(raw)
+  // Englisch nur, wenn das Regelwerk es anbietet (die Wahl bleibt im Zustand
+  // erhalten und greift wieder, sobald zurückgewechselt wird).
+  const sprache: Sprache = regelwerk.sprachen.includes('en') ? (opts?.sprache ?? 'de') : 'de'
+  const t: Uebersetzer = (de, en) => uebersetzt(sprache, de, en)
+  const englisch = raw.englisch ?? {}
+  const englischTexte = englisch.texte ?? {}
   const allDisqs: DisqDef[] = (raw.disqualifikationen ?? []).map((d) => ({
     code: String(d.code),
-    text: d.text,
+    text: t(d.text, d.en),
   }))
   const kataloge = raw.kataloge ?? {}
   const hinweise = raw.hinweise ?? {}
@@ -147,7 +242,10 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
   const raeumlich = opts?.raeumlich ?? false
 
   const positions: SheetDef[] = (raw.positionen ?? []).map((pos) => {
-    const disqTable = resolveDisq(pos, allDisqs)
+    const disqTable = resolveDisq(pos, raw.disqualifikationen ?? [], t)
+    // Spalten, die es im gewählten Regelwerk nicht gibt (z. B. einzelne Knoten).
+    const ohne = raw.ohneSpalten?.[pos.id] ?? []
+    const spalten = pos.spalten.filter((sp) => !sp.key || !ohne.includes(sp.key))
     const kat = pos.katalog ? kataloge[pos.katalog] : undefined
     // Räumliches Schema (Pfeile) + Position von hinten betrachtet → Bojen-Seiten
     // spiegeln (Rechts erscheint dann links im Bild). Nur die Anzeige-Kürzel
@@ -160,39 +258,56 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
     const noteRaw = pos.hinweis ? (hinweise[pos.hinweis] ?? pos.hinweis) : undefined
     // Nach dem Ersetzen leere Zeilen entfernen (z. B. wenn der iahinweis-Token
     // außerhalb des Innen/Außen-Schemas leer ist).
-    const legendNote = noteRaw
-      ? resolveTokens(noteRaw, posTokens)
-          .split('\n')
-          .filter((l) => l.trim() !== '')
-          .join('\n')
-      : undefined
+    const noteZeilen = (text: string, tk: Record<string, string>) =>
+      resolveTokens(text, tk)
+        .split('\n')
+        .filter((l) => l.trim() !== '')
+    // Der englische Hinweis nutzt dieselben Kürzel, nur die Langnamen sind englisch.
+    const schemaId = opts?.schema ?? raw.beschriftungen?.[0]?.id ?? ''
+    const noteEn = pos.hinweis ? englisch.hinweise?.[pos.hinweis] : undefined
+    const noteDe = noteRaw && (sprache !== 'en' || !noteEn) ? noteZeilen(noteRaw, posTokens) : []
+    const noteEnZeilen =
+      noteEn && sprache !== 'de' ? noteZeilen(noteEn, { ...posTokens, ...englisch.bezeichnungen?.[schemaId] }) : []
     // Spalten-eigene Kataloge (in Reihenfolge, ohne Dubletten) → Legende zeigt
     // die Blöcke nebeneinander (z. B. Steg Ablegen / Anlegen).
     const groupIds: string[] = []
-    for (const sp of pos.spalten) {
+    for (const sp of spalten) {
       if (sp.katalog && kataloge[sp.katalog] && !groupIds.includes(sp.katalog)) groupIds.push(sp.katalog)
     }
     const errorGroups: ErrorGroup[] | undefined =
       groupIds.length > 0
-        ? groupIds.map((id) => ({ title: kataloge[id].titel, rows: katalogRows(kataloge[id]) ?? [] }))
+        ? groupIds.map((id) => ({ title: katalogTitel(kataloge[id], t), rows: katalogRows(kataloge[id], t) ?? [] }))
         : undefined
+    // Listen mit Fehlercodes: Hinweis aus dem Regelwerk (z. B. „kombinierbar“).
+    const hatCodes = !!kat || groupIds.length > 0
+    const hinweisDe = hatCodes && raw.fehlerHinweis && sprache !== 'en' ? [raw.fehlerHinweis] : []
+    const hinweisEn = hatCodes && raw.fehlerHinweisEn && sprache !== 'de' ? [raw.fehlerHinweisEn] : []
+    const noteLinks = [...noteDe, ...hinweisDe].join('\n')
+    const noteRechts = [...noteEnZeilen, ...hinweisEn].join('\n')
+    const legendNote = [noteLinks, noteRechts].filter(Boolean).join('\n')
     return {
       typeId: pos.id,
-      title: pos.titel,
+      title: t(pos.titel, englischTexte[pos.titel]),
+      titelDe: pos.titel,
+      // Menüs gehören zur Bedienleiste und bleiben deutsch.
       menuLabel: pos.menue ?? pos.titel,
       orientation: pos.ausrichtung === 'quer' ? 'landscape' : 'portrait',
       showLauf: pos.lauf !== false,
       klassen: pos.klassen?.map((k) => String(k)),
-      columns: buildColumns(pos.spalten, posTokens, kataloge, pos.subTrenner),
+      columns: buildColumns(spalten, posTokens, kataloge, t, englischTexte, pos.subTrenner),
       sumColumnKey: pos.summeSpalte,
-      errorTable: katalogRows(kat),
-      errorTableTitle: kat?.titel,
+      errorTable: katalogRows(kat, t),
+      errorTableTitle: kat && katalogTitel(kat, t),
       errorGroups,
       disqTable,
+      disqTableTitle: `${t('Disqualifikation', 'Disqualification')}${raw.id ? ` (${regelwerk.label})` : ''}:`,
+      disqZweispaltig: !!pos.bild && Math.abs(pos.bildDrehung ?? 0) !== 90,
       showDisqTable: !!disqTable && disqTable.length > 0,
-      legendNote,
+      legendNote: legendNote || undefined,
+      legendNoteSpalten: noteLinks && noteRechts ? [noteLinks, noteRechts] : undefined,
       courseImageDir: pos.bild,
       bildDrehung: pos.bildDrehung,
+      bildBreite: pos.bildBreite,
     }
   })
 
@@ -215,7 +330,13 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
       const liste = instanzen.get(id) ?? []
       if (!liste.some((d) => d.typeId === nid)) {
         const basis = positions.find((p) => p.typeId === id)!
-        liste.push({ ...basis, typeId: nid, title: `${basis.title} (${n})`, menuLabel: `${basis.menuLabel} (${n})` })
+        liste.push({
+          ...basis,
+          typeId: nid,
+          title: `${basis.title} (${n})`,
+          titelDe: `${basis.titelDe} (${n})`,
+          menuLabel: `${basis.menuLabel} (${n})`,
+        })
         instanzen.set(id, liste)
       }
       return nid
@@ -248,5 +369,14 @@ export function buildConfig(raw: RawConfig, opts?: { raeumlich?: boolean }): Res
     schritte: (raw.laufzettel?.schritte ?? []).map((x) => String(x)),
   }
 
-  return { positions: allePositionen, aufbauten, allDisqs, beschriftungen, laufzettel }
+  return {
+    regelwerk,
+    legende: buildLegende(raw, sprache),
+    bogenTexte: bogenTexte(sprache, raw.klassenNamen),
+    positions: allePositionen,
+    aufbauten,
+    allDisqs,
+    beschriftungen,
+    laufzettel,
+  }
 }

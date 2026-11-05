@@ -1,6 +1,6 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
-import { getSheetDef } from '../config/active'
+import { getBogenTexte, getSheetDef } from '../config/active'
 import { cellKey, columnsForClass, scoreRow } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
@@ -266,12 +266,12 @@ function SheetPage({
       <View style={s.signatureRow}>
         {pageCount > 1 && (
           <Text style={s.pageIndicator}>
-            Seite {pageIndex + 1} / {pageCount}
+            {getBogenTexte().seite(pageIndex + 1, pageCount)}
           </Text>
         )}
         <View style={s.signature}>
           <View style={s.sigLine} />
-          <Text style={s.sigLabel}>Unterschrift WKR</Text>
+          <Text style={s.sigLabel}>{getBogenTexte().unterschrift}</Text>
         </View>
       </View>
     </Page>
@@ -291,14 +291,14 @@ function Header({ state, bogen, def }: { state: AppState; bogen: Bogen; def: She
         <View style={s.headerLeft}>
           <Text style={[s.hlCell, s.hlTitle]}>{def.title}</Text>
           <Text style={[s.hlCell, def.showLauf === false ? { borderBottomWidth: 0 } : {}]}>
-            Klasse {bogen.klasse}
+            {getBogenTexte().klasse(bogen.klasse)}
           </Text>
           {def.showLauf !== false && (
-            <Text style={[s.hlCell, { borderBottomWidth: 0 }]}>{bogen.lauf}. Lauf</Text>
+            <Text style={[s.hlCell, { borderBottomWidth: 0 }]}>{getBogenTexte().lauf(bogen.lauf)}</Text>
           )}
         </View>
         <View style={s.wkrBox}>
-          <Text style={s.wkrLabel}>WKR: {state.wkr[bogen.id] ?? ''}</Text>
+          <Text style={s.wkrLabel}>{getBogenTexte().wkr} {state.wkr[bogen.id] ?? ''}</Text>
         </View>
       </View>
     </View>
@@ -308,7 +308,7 @@ function Header({ state, bogen, def }: { state: AppState; bogen: Bogen; def: She
 function HeaderRows({ def }: { def: SheetDef }) {
   return (
     <View style={s.row}>
-      <Text style={[s.cell, s.headCell, { width: NR_WIDTH }]}>Nr.</Text>
+      <Text style={[s.cell, s.headCell, { width: NR_WIDTH }]}>{getBogenTexte().nr}</Text>
       {def.columns.map((col) => {
         const flex = colFlex(col.kind, col.grow)
         const sep = trennerStyle(col.trenner)
@@ -474,7 +474,7 @@ function Legend({ def, descWidth }: { def: SheetDef; descWidth?: number }) {
 
       {def.disqTable && def.disqTable.length > 0 && (
         <View>
-          <Text style={s.legendTitle}>Disqualifikation:</Text>
+          <Text style={s.legendTitle}>{def.disqTableTitle ?? 'Disqualifikation:'}</Text>
           {def.disqTable.map((d) => (
             <View key={d.code} style={s.legendRow}>
               <Text style={s.lcCode}>{d.code}</Text>

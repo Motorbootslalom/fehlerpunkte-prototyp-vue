@@ -27,8 +27,29 @@ describe('normalizeCodeCell', () => {
     expect(normalizeCodeCell('3 z', AB, DISQ)).toBe('3') // Z nicht in DISQ
   })
 
-  it('behält Mehrfachnennungen von Codes', () => {
-    expect(normalizeCodeCell('3 3 4', AB, DISQ)).toBe('3, 3, 4')
+  it('fasst Mehrfachnennungen zu „2x3“ zusammen', () => {
+    expect(normalizeCodeCell('3 3 4', AB, DISQ)).toBe('2x3, 4')
+    expect(normalizeCodeCell('3, 3, 3', AB, DISQ)).toBe('3x3')
+    expect(normalizeCodeCell('2x3, 3', AB, DISQ)).toBe('3x3')
+  })
+
+  it('versteht „2x3“ in jeder Schreibweise und sortiert nach Code', () => {
+    for (const eingabe of ['2x3', '2X3', '2 x 3', '2×3']) expect(normalizeCodeCell(eingabe, AB, DISQ)).toBe('2x3')
+    expect(normalizeCodeCell('5 2x3 k', AB, DISQ)).toBe('2x3, 5, K')
+    expect(normalizeCodeCell('1x3', AB, DISQ)).toBe('3')
+  })
+
+  it('verwirft Faktoren mit ungültigem Code oder ohne Anzahl', () => {
+    expect(normalizeCodeCell('2x99', AB, DISQ)).toBe('')
+    expect(normalizeCodeCell('0x3', AB, DISQ)).toBe('')
+  })
+
+  it('verwechselt den Faktor nicht mit dem Disq-Buchstaben X', () => {
+    expect(normalizeCodeCell('2x3', AB, DISQ)).not.toContain('X')
+    expect(normalizeCodeCell('2x', AB, DISQ)).toBe('')
+    expect(normalizeCodeCell('x3', AB, DISQ)).toBe('')
+    expect(normalizeCodeCell('x', AB, DISQ)).toBe('X') // allein: „Nicht gestartet“
+    expect(normalizeCodeCell('3 x', AB, DISQ)).toBe('3, X')
   })
 
   it('leert sauber', () => {

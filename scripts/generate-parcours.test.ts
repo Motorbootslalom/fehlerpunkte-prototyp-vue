@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import { load as yamlLoad } from 'js-yaml'
 import { describe, it, expect } from 'vitest'
 import { deriveDimSet, applyDimming, DIM_UNIVERSE, DIM_OPACITY } from './generate-parcours.ts'
 
@@ -22,12 +24,12 @@ describe('deriveDimSet', () => {
   })
 
   it('vereint `abblenden` mit der aus `hebt` abgeleiteten Menge', () => {
-    // Tore 2/4/5 hell → 1/3 gedimmt; zusätzlich SpeedbojeKlasse7 aus `abblenden`.
+    // Tore 2/4/5 hell → 1/3 gedimmt; zusätzlich Speedboje_unten aus `abblenden`.
     const pos = {
-      abblenden: ['SpeedbojeKlasse7'],
+      abblenden: ['Speedboje_unten'],
       spalten: [{ hebt: 'Tor2' }, { hebt: 'Tor4' }, { hebt: 'Tor5' }],
     }
-    expect(deriveDimSet(pos).sort()).toEqual(['SpeedbojeKlasse7', 'Tor1', 'Tor3'])
+    expect(deriveDimSet(pos).sort()).toEqual(['Speedboje_unten', 'Tor1', 'Tor3'])
   })
 
   it('gibt nichts zurück, wenn weder `hebt` noch `abblenden` gesetzt sind', () => {
@@ -60,5 +62,77 @@ describe('applyDimming', () => {
   it('akzeptiert eine eigene Deckkraft', () => {
     const { svg: out } = applyDimming(svg, ['Tor1'], 0.5)
     expect(out).toContain('id="Tor1" opacity="0.5"')
+  })
+})
+
+describe('Berlin-Bilder (positionen.yaml)', () => {
+  const { positionen } = yamlLoad(readFileSync('src/config/positionen.yaml', 'utf8')) as {
+    positionen: Array<{ id: string; abblenden?: string[]; spalten?: Array<{ hebt?: string }> }>
+  }
+  const dim = (id: string) => deriveDimSet(positionen.find((p) => p.id === id)!)
+  // Die gelben Bojen des Start/Ziel-Tors: die Gruppe und ihre beiden Bojen.
+  const GELB = ['StartZiel', 'StartZiel_oben', 'StartZiel_unten']
+
+  it('Start/Ziel: gelbe Bojen und Zeitnahme bleiben sichtbar, alle Tore nicht', () => {
+    for (const id of [...GELB, 'Zeitnahme']) expect(dim('bstartziel')).not.toContain(id)
+    expect(dim('bstartziel')).toEqual(expect.arrayContaining(['Tor1', 'Tor2', 'Tor3', 'Tor4', 'Tor5']))
+  })
+
+  it('Rechts und Links blenden das Start/Ziel-Tor genau einmal ab', () => {
+    for (const id of ['brechts', 'blinks']) {
+      expect(dim(id).filter((x) => GELB.includes(x))).toEqual(['StartZiel'])
+    }
+  })
+})
+
+describe('IDs in den Quell-SVGs', () => {
+  const ORDNER = 'public/parcours/alcatraz_Parcours'
+  const svgs = readdirSync(ORDNER).filter((f) => f.endsWith('.svg'))
+  const { positionen } = yamlLoad(readFileSync('src/config/positionen.yaml', 'utf8')) as {
+    positionen: Array<{ bildGenerator?: boolean; abblenden?: string[]; spalten?: Array<{ hebt?: string }> }>
+  }
+
+  it('jede ID aus positionen.yaml gibt es in allen SVGs', () => {
+    const ids = new Set(
+      positionen
+        .filter((p) => p.bildGenerator)
+        .flatMap((p) => [...(p.abblenden ?? []), ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
+        .filter(Boolean),
+    )
+    expect(ids.size).toBeGreaterThan(0)
+    for (const file of svgs) {
+      const svg = readFileSync(`${ORDNER}/${file}`, 'utf8')
+      for (const id of ids) expect(svg, `${file}: ${id}`).toContain(`id="${id}"`)
+    }
+  })
+
+  it('die Zeitnahme bleibt zur Orientierung auf jeder Liste sichtbar', () => {
+    const zeitnahme = ['Zeitnahme', 'Zeit_oben', 'Zeit_unten', 'Zeit_oben_Flagge', 'Zeit_unten_Flagge']
+    for (const pos of positionen.filter((p) => p.bildGenerator)) {
+      for (const id of zeitnahme) expect(deriveDimSet(pos)).not.toContain(id)
+    }
+  })
+
+  it('die irreführenden alten IDs sind überall ersetzt', () => {
+    for (const file of svgs) {
+      const svg = readFileSync(`${ORDNER}/${file}`, 'utf8')
+      for (const alt of [
+        'Tor1_innen-7',
+        'Tor1_aussen-3',
+        'Start+Ziel',
+        'SpeedbojeKlasse7',
+        'g3068',
+        'text3034',
+        'text3038',
+        'text3042',
+        'text3046',
+        'text3050',
+        'text3090',
+        'g3100',
+        'g3111',
+      ]) {
+        expect(svg, `${file}: ${alt}`).not.toContain(`id="${alt}"`)
+      }
+    }
   })
 })

@@ -1,31 +1,85 @@
-// Roh-Struktur der YAML-Konfiguration. Sie ist auf zwei Dateien verteilt:
-//   • fehlerpunkte.yaml - Disqualifikationen + Fehler-Kataloge (aus der
-//     Ausschreibung, i. d. R. für alle gleich)
-//   • positionen.yaml   - Hinweise + Positionen (orts-/personenabhängig),
+// Roh-Struktur der YAML-Konfiguration. Sie ist auf mehrere Dateien verteilt:
+//   • regelwerke.yaml        - Liste der verfügbaren Regelwerke (Menü-Reihenfolge)
+//   • regelwerke/<id>.yaml   - je Regelwerk und Version: Disqualifikationen +
+//     Fehler-Kataloge (aus der Ausschreibung), z. B. dm-2026, uim-2026
+//   • positionen.yaml        - Hinweise + Positionen (orts-/personenabhängig),
 //     die Kataloge und Hinweise per Verweis (ID) einbinden
-// Aus der zusammengeführten Struktur erzeugt build.ts die interne Darstellung.
+// Aus dem gewählten Regelwerk und den Positionen erzeugt build.ts die interne
+// Darstellung.
 
 export interface RawDisq {
   code: string
   text: string
+  /** Englischer Text (Pflicht, wenn das Regelwerk `sprachen: [de, en]` nennt). */
+  en?: string
+  /**
+   * Auf welchen Listen der Buchstabe steht (Position → `disq: <Bereich>`), z. B.
+   * [steg] oder [parcours, mueb]. Fehlt die Angabe, gilt er überall.
+   */
+  bereiche?: string[]
 }
 
 export interface RawFehler {
   code: string | number
   text: string
+  en?: string
   punkte: number
 }
 
 /** Benannter Fehler-Katalog (z. B. "mueb", "steg", "tor5"). */
 export interface RawKatalog {
   titel?: string
+  titelEn?: string
   fehler: RawFehler[]
 }
 
-/** fehlerpunkte.yaml */
-export interface RawFehlerpunkte {
+/** Fehler ohne Code: Punkte werden direkt eingetragen (Bojen, Knoten). */
+export interface RawDirektpunkt {
+  titel: string
+  titelEn?: string
+  text: string
+  en?: string
+  punkte: number
+}
+
+/** Hinweis auf der A4-Legende: nur deutsch oder mit englischem Text. */
+export type RawLegendeHinweis = string | { text: string; en?: string }
+
+/** regelwerke/<id>.yaml: ein Regelwerk in einer Version. */
+export interface RawRegelwerk {
+  /** Eindeutig, entspricht dem Dateinamen (z. B. "dm-2026"). */
+  id?: string
+  /** Anzeigename ohne Version (z. B. "DM"). */
+  name?: string
+  version?: string | number
+  /** Angebotene Sprachen der Listen: [de] (Standard) oder [de, en]. */
+  sprachen?: string[]
+  /** Dokument, aus dem die Werte stammen. */
+  quelle?: string
+  quelleEn?: string
+  /** Einheit der Strafen auf der A4-Legende: Punkte | Sekunden. */
+  einheit?: string
+  einheitEn?: string
+  /** Klassen dieses Regelwerks (fehlt = alle). */
+  klassen?: Array<string | number>
+  /** Abweichende Klassennamen auf den Listen, z. B. { E: Dolphin }. */
+  klassenNamen?: Record<string, string>
+  /** Steht auf jeder Liste mit Fehlercodes und auf der A4-Legende. */
+  fehlerHinweis?: string
+  fehlerHinweisEn?: string
+  /** Zusätzliche Hinweise nur auf der A4-Legende. */
+  legendeHinweise?: RawLegendeHinweis[]
+  /** Spalten, die es in diesem Regelwerk nicht gibt: Position → Spalten-Keys. */
+  ohneSpalten?: Record<string, string[]>
   disqualifikationen?: RawDisq[]
   kataloge?: Record<string, RawKatalog>
+  direktpunkte?: RawDirektpunkt[]
+}
+
+/** regelwerke.yaml */
+export interface RawRegelwerkListe {
+  /** Regelwerk-IDs in Menü-Reihenfolge; der erste ist der Standard. */
+  regelwerke?: string[]
 }
 
 import type { TrennerDesign } from '../types'
@@ -62,7 +116,7 @@ export interface RawSpalte {
   hebt?: string
   /**
    * Nur 'code': eigener Fehler-Katalog dieser Spalte (Verweis auf
-   * fehlerpunkte.kataloge.<id>). Ohne Angabe gilt der positionsweite `katalog`.
+   * kataloge.<id> im Regelwerk). Ohne Angabe gilt der positionsweite `katalog`.
    * Damit lassen die Spalten Steg AB/AN je nur ihre eigenen Codes zu.
    */
   katalog?: string
@@ -112,11 +166,13 @@ export interface RawPosition {
    * Element-IDs im Parcoursbild, die abgeblendet (opacity reduziert) werden.
    * Fallback/Ergänzung zur spaltenbasierten `hebt`-Hervorhebung: Ohne `hebt` in
    * den Spalten steuert allein diese Liste, was gedimmt wird; mit `hebt` kann
-   * sie zusätzliche Elemente (z. B. SpeedbojeKlasse7) abblenden.
+   * sie zusätzliche Elemente (z. B. Speedboje_unten) abblenden.
    */
   abblenden?: string[]
   /** Bild-Drehung in Grad: 0 | 90 | -90 | 180. */
   bildDrehung?: number
+  /** Nur bei ±90° gedrehtem Bild: Breite des Bildes neben der Legende in mm (Standard 40). */
+  bildBreite?: number
   /**
    * Diese Position wird von der Gegenseite betrachtet (z. B. Alcatraz von
    * hinten). Bei räumlichen Schemata (Pfeile) werden die Bojen-Seiten dann
@@ -126,10 +182,14 @@ export interface RawPosition {
   pfeileSpiegeln?: boolean
   /** Verweis auf hinweise.<id> (oder direkter Text, falls kein Treffer). */
   hinweis?: string
-  /** Verweis auf fehlerpunkte.kataloge.<id> (Fehlercodes → Punkte). */
+  /** Verweis auf kataloge.<id> im Regelwerk (Fehlercodes → Punkte). */
   katalog?: string
-  /** Welche Disqualifikationen: 'alle', 'keine' oder Liste von Codes. */
-  disq?: 'alle' | 'keine' | string[]
+  /**
+   * Welche Disqualifikationen des Regelwerks gelten: 'alle', 'keine' oder ein
+   * Bereich (z. B. 'steg', 'mueb'). Die Buchstaben selbst stehen nur im
+   * Regelwerk, weil sie sich je Regelwerk unterscheiden.
+   */
+  disq?: string
   /**
    * Für welche Klassen diese Position (das ganze Blatt) genutzt wird, z. B.
    * Mann-über-Bord [4, 5, 6, 7]. Fehlt die Angabe → alle Klassen. Beim Erzeugen
@@ -182,8 +242,20 @@ export interface RawLaufzettel {
   schritte?: string[]
 }
 
+/** Englische Texte der Positionen (für Regelwerke mit Englisch). */
+export interface RawEnglisch {
+  /** Deutscher Titel/Spaltenname → englischer Text. */
+  texte?: Record<string, string>
+  /** Hinweis-ID → englischer Hinweistext (mit denselben Tokens). */
+  hinweise?: Record<string, string>
+  /** Bezeichnungs-Schema → englische Tokens (Langnamen der Bojen-Seiten). */
+  bezeichnungen?: Record<string, Record<string, string>>
+}
+
 /** positionen.yaml */
 export interface RawPositionen {
+  /** Englische Texte (für Regelwerke mit `sprachen: [de, en]`). */
+  englisch?: RawEnglisch
   /**
    * Globale Bojen-Kürzel als Token-Map, z. B. { hin: "H", rueck: "Z",
    * seiteA: "R", seiteB: "L" }. In Spalten-`sub` und Hinweisen werden diese
@@ -207,5 +279,5 @@ export interface RawPositionen {
   positionen: RawPosition[]
 }
 
-/** Zusammengeführte Roh-Konfiguration (beide Dateien). */
-export interface RawConfig extends RawFehlerpunkte, RawPositionen {}
+/** Zusammengeführte Roh-Konfiguration (ein Regelwerk + Positionen). */
+export interface RawConfig extends RawRegelwerk, RawPositionen {}

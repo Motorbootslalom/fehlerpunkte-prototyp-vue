@@ -23,12 +23,15 @@
 #                Schalter zeigt `bild` auf ein festes fertiges Bild.
 #   bildQuelle   Quell-Ordner für den Generator (Default: alcatraz_Parcours).
 #   abblenden    [Tor2, Tor4, …] Element-IDs, die abgeblendet werden. Fallback zu
-#                `hebt` bzw. Ergänzung (z. B. zusätzlich SpeedbojeKlasse7).
+#                `hebt` bzw. Ergänzung (z. B. zusätzlich Speedboje_unten).
 #   bildDrehung  0 | 90 | -90 | 180  (Bild um so viel Grad drehen).
+#   bildBreite   Nur bei ±90°: Breite des Bildes neben der Legende in mm (Standard 40).
+#                Die Höhe folgt daraus; eine längere Legende macht den Rahmen höher.
 #   pfeileSpiegeln  true = Position von hinten betrachtet (Pfeil-Schema spiegeln).
 #   hinweis      Verweis auf hinweise.<id> (unten) - oder direkter Freitext.
-#   katalog      Verweis auf fehlerpunkte.kataloge.<id> (positionsweite Fehler).
-#   disq         alle | keine | [A, B, G, …]  (nicht relevante ausblenden).
+#   katalog      Verweis auf kataloge.<id> im Regelwerk (positionsweite Fehler).
+#   disq         alle | keine | <Bereich>: welche Disqualifikationen des Regelwerks
+#                gelten (vorsteg, steg, parcours, mueb; siehe regelwerke/*.yaml).
 #   klassen      [4,5,6,7] = Blatt nur für diese Klassen (fehlt = alle).
 #   summeSpalte  key der Spalte (typ: summe), die die Zeilen-Σ zeigt.
 #   subTrenner   Standard-Design der Linien ZWISCHEN den sub-Spalten aller
@@ -134,6 +137,92 @@ hinweise:
   knoten: "Fehler: 5 pro fehlerhafter Knoten"
   parcours: "Es ist nur der eigentliche Fahrweg zu beobachten - keine Bojenberührungen!"
 
+# ---- Englische Texte (für Regelwerke mit `sprachen: [de, en]`) -----
+# Begriffe aus dem UIM Circuit Rulebook, Regel 960 (racecourse, gate, pontoon,
+# man-over-board, Knoten laut Pkt. 4.3.1). Keine UIM-Vorlage haben: Vorsteg,
+# Bemerkung, Land/Wasser, Schotstek und die Abkürzung MOB.
+# Die Bojen-Kürzel (H/R, R/L ...) bleiben in allen Sprachen gleich, damit die
+# Listen zur Auswertung passen; die Hinweise erklären sie auf Englisch. Menüs
+# gehören zur Bedienleiste und bleiben deutsch.
+englisch:
+  hinweise:
+    blickrichtung: |-
+      Buoy designation (unique):
+      1st character = direction: hin = outward, rueck = return
+      2nd character = side: seiteA = seiteAlang, seiteB = seiteBlang
+      iahinweis
+      Start = touching the entry gate buoys · Finish = touching the exit gate buoys
+      Penalty: per touched buoy (also outside the manoeuvre) = 5
+    knoten: "Penalty: 5 per improperly done knot"
+    parcours: "Only the actual racecourse is to be observed - no buoy touches!"
+  # Langnamen der Bojen-Seiten je Bezeichnungs-Schema (siehe beschriftungen).
+  bezeichnungen:
+    rl: { seiteAlang: "Right", seiteBlang: "Left" }
+    ls: { seiteAlang: "Land", seiteBlang: "Sea" }
+    sl: { seiteAlang: "Sea", seiteBlang: "Land" }
+    kh: { seiteAlang: "Quay", seiteBlang: "Harbour" }
+    pfeile: { seiteAlang: "Right", seiteBlang: "Left" }
+    ia:
+      seiteAlang: "Right"
+      seiteBlang: "Left"
+      iahinweis: "Gates 1-4: I = inner, A = outer (instead of R/L; gate 5/start/finish remain R/L)"
+  # Titel und Spaltennamen. Gleiche Schreibweise wie im Deutschen (Start, Disq.,
+  # Σ ...) ergibt zweisprachig keine Dopplung.
+  texte:
+    "Zeit": "Time"
+    "Zeit 1": "Time 1"
+    "Zeit 2": "Time 2"
+    "Zeit 3": "Time 3"
+    "Steg": "Pontoon"
+    "Vorsteg": "Pontoon entry"
+    "Tor 1": "Gate 1"
+    "Tor 2": "Gate 2"
+    "Tor 3": "Gate 3"
+    "Tor 4": "Gate 4"
+    "Tor 5": "Gate 5"
+    "Tor 5 + Parcours": "Gate 5 + racecourse"
+    "Tor 5 tief": "Gate 5 deep"
+    "Tor 1 / 3 / 5": "Gate 1 / 3 / 5"
+    "Tor 2 / 4 / 5": "Gate 2 / 4 / 5"
+    "Mann-über-Bord": "Man-over-board"
+    "MüB": "MOB"
+    "MüB Fehler": "MOB penalty"
+    "MüB-Pkt.": "MOB pen."
+    "MüB Punkte": "MOB pen."
+    "Parcours": "Racecourse"
+    "Parallelslalom": "Parallel slalom"
+    "Start": "Start"
+    "Ziel": "Finish"
+    "Start/Ziel": "Start/Finish"
+    "Rechts": "Right"
+    "Links": "Left"
+    "Land 1": "Land 1"
+    "Land 2": "Land 2"
+    "Wasser 1": "Water 1"
+    "Wasser 2": "Water 2"
+    "Boje 1": "Buoy 1"
+    "Boje 2": "Buoy 2"
+    "Boje 3": "Buoy 3"
+    "Boje 4": "Buoy 4"
+    "Boje 5": "Buoy 5"
+    "Speed 1": "Speed 1"
+    "Speed 2": "Speed 2"
+    "Fehler": "Penalty"
+    "Fehler AB": "Penalty AB"
+    "Fehler AN": "Penalty AN"
+    "F-Pkt. AB": "Pen. AB"
+    "F-Pkt. AN": "Pen. AN"
+    "Fehlerpunkte": "Penalties"
+    "Bemerkung": "Remarks"
+    "Disq.": "Disq."
+    "Σ": "Σ"
+    "Knoten": "Knots"
+    "Kreuzknoten": "Reef knot"
+    "Palstek": "Bowline"
+    "Schotstek": "Sheet bend"
+    "Webleinstek": "Clove-hitch"
+    "Klampe": "Half-hitch"
+
 # ---- Laufzettel (je Klasse/Lauf) ----------------------------------
 # Unter den Checkboxen je gedruckter Seite folgen diese Arbeitsschritte der
 # Auswertung, jeweils mit eigener Checkbox (Reihenfolge wie hier).
@@ -183,7 +272,7 @@ positionen:
     titel: "Steg"
     menue: "Steg (Ablegen / Anlegen)"
     ausrichtung: hoch
-    disq: [A, C, D, E, F, H, I, K, L, X]  # nur die relevanten Disqualifikationen
+    disq: steg
     # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
     # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
     spalten:
@@ -201,7 +290,7 @@ positionen:
     menue: "Vorsteg"
     schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
-    disq: [A, K, X]  # nur die relevanten Disqualifikationen
+    disq: vorsteg
     # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
     # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
     spalten:
@@ -213,7 +302,7 @@ positionen:
     menue: "Tor 5 (Einfahrt)"
     ausrichtung: hoch
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     katalog: tor5
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
@@ -227,7 +316,7 @@ positionen:
     ausrichtung: hoch
     bild: alcatraz_Parcours
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     katalog: tor5
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
@@ -241,15 +330,16 @@ positionen:
     ausrichtung: hoch
     bild: mueb
     bildGenerator: true    # aus alcatraz_Parcours erzeugt
-    # Beobachtet wird nur die Schikane (MüB): alle Tore, Start/Ziel, Zeitnahme,
-    # Speedboje und die übrigen Nummern/Flaggen werden abgeblendet. Sichtbar
-    # bleiben der Fahrweg und die „6“ der Schikane (text3034).
-    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, Start+Ziel, Zeitnahme, SpeedbojeKlasse7,
-                text3038, text3042, text3046, text3050, g3068, text3090, g3100, g3111]
+    # Beobachtet wird nur die Schikane (MüB): alle Tore, Start/Ziel, die Speedbojen
+    # und die übrigen Nummern werden abgeblendet. Sichtbar bleiben der Fahrweg, die
+    # Zeitnahme (zur Orientierung) und die „6“ der Schikane.
+    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, StartZiel, Speedboje_unten, Speedboje_oben,
+                Nummer_Tor1, Nummer_Tor2, Nummer_Tor3, Nummer_Tor4, Nummer_Tor5]
     bildDrehung: 90
+    bildBreite: 50         # die lange MüB-Legende gibt den Platz ohnehin her
     klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: mueb
     katalog: mueb
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
@@ -263,7 +353,7 @@ positionen:
     menue: "Parcours einfach (nur Fahrweg)"
     ausrichtung: hoch
     bild: alcatraz_Parcours
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: parcours
     spalten:
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
@@ -275,7 +365,7 @@ positionen:
     schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
     bild: alcatraz_Parcours
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: parcours
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
@@ -311,11 +401,11 @@ positionen:
     # Beobachtet wird nur die seiteA-Hälfte (untere Boje). Neben Tor 2/4 (aus
     # `hebt` abgeleitet) werden daher die OBEREN Bojen von Tor 5 / Start-Ziel, die
     # Schikane (MüB) und die obere Speedboje (7) abgeblendet.
-    abblenden: [Tor5_oben, Tor1_innen-7, Schikane, g3068]
+    abblenden: [Tor5_oben, StartZiel_oben, Schikane, Speedboje_oben]
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteA"] }
@@ -343,11 +433,11 @@ positionen:
     # Wie gate135, aber ohne Start/Ziel: neben Tor 2/4 (aus `hebt`) werden die
     # OBERE Boje von Tor 5, BEIDE Start-/Ziel-Bojen, die Schikane (MüB) und die
     # obere Speedboje (7) abgeblendet.
-    abblenden: [Tor5_oben, Start+Ziel, Schikane, g3068]
+    abblenden: [Tor5_oben, StartZiel, Schikane, Speedboje_oben]
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteB, hebt: Tor1 }
@@ -372,11 +462,11 @@ positionen:
     # Beobachtet wird nur die seiteB-Hälfte (obere Boje). Neben Tor 1/3 (aus
     # `hebt`) werden die UNTEREN Bojen von Tor 5 / Start-Ziel, die Schikane (MüB)
     # und die untere Speedboje (8) abgeblendet.
-    abblenden: [Tor5_unten, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    abblenden: [Tor5_unten, StartZiel_unten, Schikane, Speedboje_unten]
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -402,11 +492,11 @@ positionen:
     # Wie gate245, aber ohne Start/Ziel: neben Tor 1/3 (aus `hebt`) werden die
     # UNTERE Boje von Tor 5, BEIDE Start-/Ziel-Bojen, die Schikane (MüB) und die
     # untere Speedboje (8) abgeblendet.
-    abblenden: [Tor5_unten, Start+Ziel, Schikane, SpeedbojeKlasse7]
+    abblenden: [Tor5_unten, StartZiel, Schikane, Speedboje_unten]
     bildDrehung: 90
     pfeileSpiegeln: true   # Alcatraz = Blick von hinten (Pfeile spiegeln)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor2 }
@@ -428,10 +518,10 @@ positionen:
     subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
     bild: alcatraz_I
     bildGenerator: true    # teilt sich das Bild mit gate135 (gleiche Abblendung)
-    abblenden: [Tor5_oben, Tor1_innen-7, Schikane, g3068]
+    abblenden: [Tor5_oben, StartZiel_oben, Schikane, Speedboje_oben]
     bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -455,10 +545,10 @@ positionen:
     subTrenner: gepunktet   # gepunktete Linie zwischen den Bojen jedes Tores
     bild: alcatraz_II
     bildGenerator: true    # teilt sich das Bild mit gate245 (gleiche Abblendung)
-    abblenden: [Tor5_unten, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    abblenden: [Tor5_unten, StartZiel_unten, Schikane, Speedboje_unten]
     bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -476,7 +566,7 @@ positionen:
   - id: parallelparcours
     titel: "Parallelslalom"
     menue: "Parallelslalom (nur Fahrweg)"
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["seiteB seiteA"] }
       - { key: b1a, label: "Boje 1", typ: boje }
@@ -498,9 +588,13 @@ positionen:
     titel: "Start/Ziel"
     menue: "Start/Ziel (Zeitnahme + Start-/Zieltor-Bojen)"
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: berlin_startziel
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Beobachtet werden das Start/Ziel-Tor (gelbe Bojen) und die Zeitnahme (schwarze
+    # Bojen): alle Tore, die Schikane und die Speedbojen werden abgeblendet.
+    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, Schikane, Speedboje_unten, Speedboje_oben]
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
       - { key: zeit1, label: "Zeit 1", typ: zeit }
@@ -515,17 +609,21 @@ positionen:
     titel: "Rechts"
     menue: "Rechts (Tor 1 / 3 + Mann-über-Bord)"
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: berlin_rechts
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Tor 1/3 bleiben hell (`hebt`), die Schikane (MüB) auch. Tor 2/4/5 folgen aus
+    # `hebt`, zusätzlich werden Start/Ziel und die Speedbojen abgeblendet.
+    abblenden: [StartZiel, Speedboje_unten, Speedboje_oben]
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: mueb
     katalog: mueb
     hinweis: blickrichtung
     spalten:
-      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA", "hin seiteB"], hebt: Tor1 }
+      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA", "hin seiteB"], hebt: Tor3 }
+      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], hebt: Tor3 }
       # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], klassen: ["E", 1, 2, 3, 5, 6, 7] }
+      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], klassen: ["E", 1, 2, 3, 5, 6, 7], hebt: Tor1 }
       # Mann-über-Bord erst ab Klasse 4.
       - { key: mueb, label: "MüB", typ: code, punkteSpalte: mp, breite: 1, klassen: [4, 5, 6, 7] }
       - { key: mp, label: "MüB-Pkt.", typ: summe, klassen: [4, 5, 6, 7] }
@@ -536,16 +634,20 @@ positionen:
     titel: "Links"
     menue: "Links (Tor 2 / 4 / 5 + Speedbojen)"
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: berlin_links
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt
+    # Tor 2/4/5 bleiben hell (`hebt`), die Speedbojen auch. Tor 1/3 folgen aus
+    # `hebt`, zusätzlich werden Start/Ziel und die Schikane abgeblendet.
+    abblenden: [StartZiel, Schikane]
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     hinweis: blickrichtung
     spalten:
-      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"] }
-      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"], hebt: Tor2 }
+      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"], hebt: Tor4 }
+      - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "rueck seiteA"], hebt: Tor5 }
+      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], hebt: Tor4 }
+      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], hebt: Tor2 }
       # Speed nur je Klasse: Klasse 5/6 eine Boje, Klasse 7 zwei, darunter keine.
       - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
       - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
@@ -563,10 +665,10 @@ positionen:
     # Land-Seite beobachtet seiteB. Tor 1-3: je die seiteB-Boje (aus `innen`
     # abgeleitet). Start/Ziel seiteB = untere Boje. Tor 4/5, Schikane und
     # Speedbojen gehören nicht zu dieser Position → abgeblendet.
-    abblenden: [Tor1_innen, Tor2_aussen, Tor3_innen, Tor4, Tor5, Tor1_innen-7, Schikane, g3068, SpeedbojeKlasse7]
+    abblenden: [Tor1_innen, Tor2_aussen, Tor3_innen, Tor4, Tor5, StartZiel_oben, Schikane, Speedboje_oben, Speedboje_unten]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     # hinweis: blickrichtung
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
@@ -590,12 +692,12 @@ positionen:
     bild: bawue_Land_2
     bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
     # Land-Seite, hinterer Kursteil: Tor 4 (seiteB = innen) + Tor 5 = untere Boje
-    # + untere Speedboje (SpeedbojeKlasse7). Tore 1-3, Start/Ziel, Schikane und die
-    # obere Speedboje (g3068) abgeblendet.
-    abblenden: [Tor1, Tor2, Tor3, Tor4_aussen, Tor5_oben, Tor1_innen-7, Tor1_aussen-3, Schikane, g3068]
+    # + untere Speedboje (Speedboje_unten). Tore 1-3, Start/Ziel, Schikane und die
+    # obere Speedboje (Speedboje_oben) abgeblendet.
+    abblenden: [Tor1, Tor2, Tor3, Tor4_aussen, Tor5_oben, StartZiel_oben, StartZiel_unten, Schikane, Speedboje_oben]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     # hinweis: blickrichtung
     katalog: tor5
     spalten:
@@ -620,10 +722,10 @@ positionen:
     # Wasser-Seite beobachtet seiteA (Gegenseite zu Land 1). Tor 1-3: je die
     # seiteA-Boje. Start/Ziel seiteA = obere Boje. Schikane (MüB) wird hier
     # beobachtet → bleibt hell. Tor 4/5 + Speedbojen abgeblendet.
-    abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, Tor1_aussen-3, g3068, SpeedbojeKlasse7]
+    abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, StartZiel_unten, Speedboje_oben, Speedboje_unten]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: mueb
     # hinweis: blickrichtung
     katalog: mueb
     spalten:
@@ -651,12 +753,12 @@ positionen:
     bild: bawue_wasser_2
     bildGenerator: true    # aus alcatraz_Parcours erzeugt (ENTWURF, Seiten prüfen)
     # Wasser-Seite, hinterer Kursteil: Tor 4 (seiteA = außen) + Tor 5 = obere Boje
-    # + nur die obere Speedboje (g3068). Tore 1-3, Start/Ziel, Schikane und die
-    # untere Speedboje (SpeedbojeKlasse7) abgeblendet.
-    abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, Tor1_innen-7, Tor1_aussen-3, Schikane, SpeedbojeKlasse7]
+    # + nur die obere Speedboje (Speedboje_oben). Tore 1-3, Start/Ziel, Schikane und die
+    # untere Speedboje (Speedboje_unten) abgeblendet.
+    abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, StartZiel_oben, StartZiel_unten, Schikane, Speedboje_unten]
     # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
     summeSpalte: sum
-    disq: [A, B, C, D, E, F, G, H, J, K, L, X]  # nur die relevanten Disqualifikationen}
+    disq: parcours
     # hinweis: blickrichtung
     katalog: tor5
     spalten:

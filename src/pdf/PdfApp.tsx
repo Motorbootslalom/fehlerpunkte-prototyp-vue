@@ -56,7 +56,7 @@ export function PdfApp() {
   const name =
     exportBaseName(
       state.eventName,
-      describeBoegen(state.boegen, (t) => getSheetDef(t).title),
+      describeBoegen(state.boegen, (t) => getSheetDef(t).titelDe),
       new Date(),
     ) + '.pdf'
 

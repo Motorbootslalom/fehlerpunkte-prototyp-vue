@@ -13,3 +13,6 @@ export const pageCounts = reactive<Record<string, number>>({})
 
 /** Laufzettel in der Vorschau zeigen. */
 export const showLaufzettel = ref(false)
+
+/** A4-Legende (Codes und Strafen des Regelwerks) in der Vorschau zeigen. */
+export const showLegende = ref(false)

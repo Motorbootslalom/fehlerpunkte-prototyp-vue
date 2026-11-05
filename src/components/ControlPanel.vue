@@ -4,9 +4,12 @@ import {
   getAufbau,
   getAufbauten,
   getBeschriftungen,
+  getRegelwerk,
+  getRegelwerke,
   getSheetDef,
   positionAllowsClass,
 } from '../config/active'
+import { SPRACHEN } from '../config/sprache'
 import { extendNumbers, formatNumbers, parseNumbers, shrinkNumbers } from '../lib/demo'
 import { exportSheetsToPdf } from '../lib/exportPdf'
 import { exportPdfmake } from '../lib/exportPdfmake'
@@ -28,9 +31,9 @@ import {
   type QuickLauf,
 } from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
-import { showLaufzettel } from '../state/laufzettel'
+import { showLaufzettel, showLegende } from '../state/laufzettel'
 import { useStore } from '../state/store'
-import { CLASS_IDS, type ClassId, type Lauf, type SheetTypeId } from '../types'
+import type { ClassId, Lauf, SheetTypeId, Sprache } from '../types'
 
 const { state, dispatch } = useStore()
 
@@ -52,9 +55,19 @@ const order = computed(() => getAufbau(state.aufbau).order)
 // Wählbar (Menüs, „Eine Position · alle Klassen“): der Aufbau plus alle
 // Positionen mit `schnellauswahl: true` aus der YAML.
 const menuOrder = computed(() => [...order.value, ...getAufbau(state.aufbau).zusatz])
-const buttonLabels = computed(() => positionButtonLabels(menuOrder.value.map(getSheetDef)))
+const buttonLabels = computed(() =>
+  positionButtonLabels(menuOrder.value.map(getSheetDef).map((d) => ({ ...d, title: d.titelDe }))),
+)
 const beschriftungen = computed(() => getBeschriftungen())
 const aufbauten = computed(() => getAufbauten())
+const regelwerke = getRegelwerke()
+// Klassen des gewählten Regelwerks (die aktive Konfiguration ist nicht reaktiv,
+// state.regelwerk zeigt den Wechsel an).
+const klassen = computed(() => (state.regelwerk, getRegelwerk().klassen as ClassId[]))
+// Sprachwahl nur, wenn das Regelwerk Englisch anbietet (z. B. UIM).
+const hatEnglisch = computed(() => (state.regelwerk, getRegelwerk().sprachen.includes('en')))
+const klassenFolge = computed(() => state.classOrder.filter((c) => klassen.value.includes(c)))
+const addKlasse = computed(() => (klassen.value.includes(addClass.value) ? addClass.value : klassen.value[0]))
 const addType = computed(() =>
   menuOrder.value.includes(addTypeRaw.value) ? addTypeRaw.value : (menuOrder.value[0] ?? ''),
 )
@@ -100,7 +113,7 @@ function allClassesAllPositions() {
 }
 
 // Aus der Klassen-Reihenfolge entfernte Klassen (↻ hängt sie wieder an).
-const fehlendeKlassen = computed(() => missingClasses(state.classOrder))
+const fehlendeKlassen = computed(() => missingClasses(state.classOrder).filter((c) => klassen.value.includes(c)))
 function restoreClasses() {
   dispatch({ type: 'SET_CLASS_ORDER', classOrder: withMissingClasses(state.classOrder) })
 }
@@ -115,25 +128,34 @@ function setClassOrder(e: Event) {
 
 // Beschreibung aus der aktuellen Bogen-Auswahl (Position/Klasse/Lauf, nur
 // eindeutige Teile) - für den Export-Dateinamen.
-const describe = () => describeBoegen(state.boegen, (t) => getSheetDef(t).title)
+const describe = () => describeBoegen(state.boegen, (t) => getSheetDef(t).titelDe)
 const namePreview = computed(() => exportBaseName(state.eventName, describe()))
 const currentName = () => exportBaseName(state.eventName, describe(), new Date())
 
-// Nur die Laufzettel drucken: Die Bögen bleiben in der Vorschau (sie liefern die
-// Seitenzahlen), die Druck-CSS blendet sie über die body-Klasse aus.
-async function printLaufzettel() {
-  showLaufzettel.value = true
+// Nur einen Teil drucken: Die Bögen bleiben in der Vorschau, die Druck-CSS blendet
+// sie über die body-Klasse aus.
+async function printNur(bodyKlasse: string, beschreibung: string) {
   await nextTick()
   // Laufzettel messen nach dem Einblenden, ob sie zweispaltig werden - das
   // Neu-Rendern abwarten, bevor der Druckdialog das Layout einfriert.
   await new Promise((r) => setTimeout(r))
-  document.body.classList.add('print-laufzettel')
+  document.body.classList.add(bodyKlasse)
   const done = () => {
-    document.body.classList.remove('print-laufzettel')
+    document.body.classList.remove(bodyKlasse)
     window.removeEventListener('afterprint', done)
   }
   window.addEventListener('afterprint', done)
-  printWithFilename(exportBaseName(state.eventName, 'Laufzettel', new Date()))
+  printWithFilename(exportBaseName(state.eventName, beschreibung, new Date()))
+}
+
+function printLaufzettel() {
+  showLaufzettel.value = true
+  return printNur('print-laufzettel', 'Laufzettel')
+}
+
+function printLegende() {
+  showLegende.value = true
+  return printNur('print-legende', `Legende ${getRegelwerk().label}`)
 }
 
 async function downloadPdf() {
@@ -193,6 +215,26 @@ const commitDate = __GIT_COMMIT_DATE__
 
     <section>
       <label class="field">
+        <span>Regelwerk</span>
+        <select
+          :value="state.regelwerk"
+          title="Regelwerk mit Version: bestimmt Fehlercodes, Punkte, Disqualifikationen und Klassen"
+          @change="dispatch({ type: 'SET_REGELWERK', regelwerk: ($event.target as HTMLSelectElement).value })"
+        >
+          <option v-for="r in regelwerke" :key="r.id" :value="r.id">{{ r.label }}</option>
+        </select>
+      </label>
+      <label v-if="hatEnglisch" class="field" style="margin-top: 8px">
+        <span>Sprache der Listen</span>
+        <select
+          :value="state.sprache"
+          title="Sprache von Listen, Fehlertexten und Legende; die Bedienleiste bleibt deutsch"
+          @change="dispatch({ type: 'SET_SPRACHE', sprache: ($event.target as HTMLSelectElement).value as Sprache })"
+        >
+          <option v-for="s in SPRACHEN" :key="s.id" :value="s.id">{{ s.name }}</option>
+        </select>
+      </label>
+      <label class="field" style="margin-top: 8px">
         <span>Aufbau (Setup)</span>
         <select
           :value="state.aufbau"
@@ -346,6 +388,27 @@ const commitDate = __GIT_COMMIT_DATE__
         Seitenzahlen kommen aus der Vorschau - „Zeilen / Seite“ vorher einstellen.
       </p>
 
+      <h3 class="cp-subhead">Legende</h3>
+      <label class="cp-check">
+        <input
+          type="checkbox"
+          :checked="showLegende"
+          @change="showLegende = ($event.target as HTMLInputElement).checked"
+        />
+        Legende in der Vorschau zeigen
+      </label>
+      <div class="btn-row" style="margin-top: 8px">
+        <button
+          title="Druckt nur die Legende (A4) - die Bögen werden dabei ausgelassen"
+          @click="printLegende"
+        >
+          🖨 Nur Legende drucken / Als PDF
+        </button>
+      </div>
+      <p class="hint">
+        Alle Fehlercodes, Strafen und Disqualifikationen des gewählten Regelwerks auf einem A4-Blatt.
+      </p>
+
       <h3 class="cp-subhead">Vektor-PDF-Wege zum Vergleich</h3>
       <div class="btn-row">
         <button :disabled="busyPm" title="Echtes Vektor-PDF via pdfmake (deklaratives Layout)" @click="downloadPdfmake">
@@ -447,7 +510,7 @@ const commitDate = __GIT_COMMIT_DATE__
             <span class="qp-label">Eine Klasse · alle Listen · {{ laufLabel(qpLauf) }}:</span>
             <div class="qp-btns">
               <button
-                v-for="c in state.classOrder"
+                v-for="c in klassenFolge"
                 :key="c"
                 :title="`Alle Listentypen für Klasse ${c} (${laufLabel(qpLauf)})`"
                 @click="classAllPositions(c)"
@@ -485,7 +548,7 @@ const commitDate = __GIT_COMMIT_DATE__
               dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { klasse: ($event.target as HTMLSelectElement).value as ClassId } })
             "
           >
-            <option v-for="c in CLASS_IDS" :key="c" :value="c">Kl. {{ c }}</option>
+            <option v-for="c in klassen" :key="c" :value="c">Kl. {{ c }}</option>
           </select>
           <select
             :value="b.lauf"
@@ -515,13 +578,13 @@ const commitDate = __GIT_COMMIT_DATE__
         <select :value="addType" @change="addTypeRaw = ($event.target as HTMLSelectElement).value">
           <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
         </select>
-        <select :value="addClass" @change="addClass = ($event.target as HTMLSelectElement).value as ClassId">
-          <option v-for="c in CLASS_IDS" :key="c" :value="c">Kl. {{ c }}</option>
+        <select :value="addKlasse" @change="addClass = ($event.target as HTMLSelectElement).value as ClassId">
+          <option v-for="c in klassen" :key="c" :value="c">Kl. {{ c }}</option>
         </select>
         <select :value="addLauf" @change="addLauf = Number(($event.target as HTMLSelectElement).value) as Lauf">
           <option v-for="l in LAEUFE" :key="l" :value="l">{{ l }}. Lauf</option>
         </select>
-        <button @click="dispatch({ type: 'ADD_BOGEN', typeId: addType, klasse: addClass, lauf: addLauf })">
+        <button @click="dispatch({ type: 'ADD_BOGEN', typeId: addType, klasse: addKlasse, lauf: addLauf })">
           + Bogen
         </button>
       </div>
@@ -531,7 +594,7 @@ const commitDate = __GIT_COMMIT_DATE__
       <details>
         <summary><h2 style="display: inline">Startnummern</h2></summary>
         <p class="hint">Demo-Nummern (keine echten Daten) - frei editierbar, kommagetrennt.</p>
-        <div v-for="c in CLASS_IDS" :key="c" class="field field-nums">
+        <div v-for="c in klassen" :key="c" class="field field-nums">
           <span>Klasse {{ c }}</span>
           <input
             :value="formatNumbers(state.numbers[c] ?? [])"

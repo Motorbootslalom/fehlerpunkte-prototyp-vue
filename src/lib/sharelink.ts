@@ -1,9 +1,10 @@
-import { CLASS_IDS, type AppState, type ClassId, type Lauf } from '../types'
+import { isSprache } from '../config/sprache'
+import { CLASS_IDS, type AppState, type ClassId, type Lauf, type Sprache } from '../types'
 import { parseClassOrder } from './quickpick'
 
 // Teilbare Konfiguration in der URL (Feature „Einstellungs-Link"):
-// Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite samt „Teilen
-// ab", die Startnummern je Klasse, die Klassen-Reihenfolge der Schnellauswahl
+// Regelwerk, Sprache, Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite samt
+// „Teilen ab", die Startnummern je Klasse, die Klassen-Reihenfolge der Schnellauswahl
 // und die Bogen-Auswahl (Liste × Klasse × Lauf) werden kompakt in den
 // URL-Parameter `c` kodiert. NICHT enthalten sind eingetragene Werte
 // (Punkte/Zeiten) oder WKR-Namen - der Link stellt nur die Zusammenstellung
@@ -18,6 +19,10 @@ const PARAM = 'c'
 /** Kompakte, teilbare Konfiguration (ohne eingetragene Werte). */
 export interface ShareConfig {
   eventName: string
+  /** Regelwerk mit Version; fehlt in älteren Links. */
+  regelwerk?: string
+  /** Sprache der Listen; fehlt in älteren Links. */
+  sprache?: Sprache
   aufbau: string
   beschriftung: string
   /** Leerzeilen/Seitenaufteilung; fehlen in Links ohne diese Angaben (z. B. aus dem Verzahnungstool). */
@@ -78,6 +83,8 @@ function boegenFromWire(items: unknown): ShareConfig['boegen'] {
 export function toShareConfig(state: AppState): ShareConfig {
   return {
     eventName: state.eventName,
+    regelwerk: state.regelwerk,
+    sprache: state.sprache,
     aufbau: state.aufbau,
     beschriftung: state.beschriftung,
     emptyRows: state.emptyRows,
@@ -105,6 +112,8 @@ function b64urlDecode(s: string): string {
 export function encodeShareConfig(cfg: ShareConfig): string {
   const wire = {
     e: cfg.eventName,
+    ...(cfg.regelwerk ? { w: cfg.regelwerk } : {}),
+    ...(cfg.sprache ? { s: cfg.sprache } : {}),
     a: cfg.aufbau,
     b: cfg.beschriftung,
     r: cfg.emptyRows,
@@ -125,6 +134,8 @@ export function decodeShareConfig(param: string): ShareConfig | null {
     if (!wire || typeof wire !== 'object') return null
     return {
       eventName: typeof wire.e === 'string' ? wire.e : '',
+      ...(typeof wire.w === 'string' && wire.w ? { regelwerk: wire.w } : {}),
+      ...(isSprache(wire.s) ? { sprache: wire.s } : {}),
       aufbau: typeof wire.a === 'string' ? wire.a : '',
       beschriftung: typeof wire.b === 'string' ? wire.b : '',
       ...(typeof wire.r === 'number' ? { emptyRows: wire.r } : {}),

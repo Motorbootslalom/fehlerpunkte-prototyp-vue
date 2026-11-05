@@ -6,6 +6,7 @@
 //
 // Die Bibliotheken werden erst beim Klick dynamisch geladen.
 
+import { getBogenTexte } from '../config/active'
 import type { AppState } from '../types'
 import { qrModules } from './qr'
 import { buildAllPages, type SheetModelPage } from './sheetModel'
@@ -51,7 +52,7 @@ function drawLegend(doc: any, pg: SheetModelPage, startY: number, marginX: numbe
   }
   if (def.legendNote) line(def.legendNote, false, true)
   if (def.disqTable && def.disqTable.length > 0) {
-    line('Disqualifikation:', true)
+    line(def.disqTableTitle ?? 'Disqualifikation:', true)
     for (const d of def.disqTable) line(`${d.code}  ${d.text}`)
   }
   doc.setFont('helvetica', 'normal')
@@ -61,6 +62,7 @@ function drawLegend(doc: any, pg: SheetModelPage, startY: number, marginX: numbe
 export async function exportJsPdfVector(fileName: string, state: AppState): Promise<void> {
   const pages = buildAllPages(state)
   if (pages.length === 0) return
+  const texte = getBogenTexte()
 
   const [{ jsPDF }, autoTableMod] = await Promise.all([import('jspdf'), import('jspdf-autotable')])
   const autoTable = (autoTableMod as unknown as { default: any }).default
@@ -81,7 +83,7 @@ export async function exportJsPdfVector(fileName: string, state: AppState): Prom
       doc.text(pg.eventName, marginX, 10)
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)
-      const sub = `${pg.title} · Klasse ${pg.klasse}` + (pg.showLauf ? ` · ${pg.lauf}. Lauf` : '')
+      const sub = `${pg.title} · ${texte.klasse(pg.klasse)}` + (pg.showLauf ? ` · ${texte.lauf(pg.lauf)}` : '')
       doc.text(sub, marginX, 16)
       drawQr(doc, pg.qrPayload, pageW - marginX - 16, 4, 16)
     }
@@ -89,7 +91,7 @@ export async function exportJsPdfVector(fileName: string, state: AppState): Prom
     autoTable(doc, {
       startY: headerBottom,
       margin: { top: headerBottom, left: marginX, right: marginX },
-      head: [['Nr.', ...pg.leaves.map((l) => l.label)]],
+      head: [[texte.nr, ...pg.leaves.map((l) => l.label)]],
       body: pg.rows.map((r) => [r.nr, ...r.cells.map((c) => c.display)]),
       styles: { fontSize: 6, cellPadding: 0.8, lineWidth: 0.1, lineColor: [150, 150, 150], textColor: 20 },
       headStyles: { fillColor: [229, 229, 229], textColor: 20, fontStyle: 'bold' },
@@ -108,8 +110,8 @@ export async function exportJsPdfVector(fileName: string, state: AppState): Prom
     // Unterschrift + ggf. Seitenangabe; darüber Platz zum Unterschreiben.
     y += 9
     doc.setFontSize(7)
-    if (pg.pageCount > 1) doc.text(`Seite ${pg.pageIndex + 1} / ${pg.pageCount}`, marginX, y)
-    doc.text('________________________  Unterschrift WKR', pageW - marginX - 70, y)
+    if (pg.pageCount > 1) doc.text(texte.seite(pg.pageIndex + 1, pg.pageCount), marginX, y)
+    doc.text(`________________________  ${texte.unterschrift}`, pageW - marginX - 70, y)
   })
 
   doc.save(fileName)

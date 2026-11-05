@@ -1,11 +1,16 @@
 import { CLASS_IDS, type AppState, type Bogen, type ClassId } from '../types'
 import {
   applyBeschriftung,
+  applyRegelwerk,
+  applySprache,
   defaultAufbauId,
   defaultBeschriftungId,
+  defaultRegelwerkId,
   getAufbau,
   positionAllowsClass,
+  resolveRegelwerkId,
 } from '../config/active'
+import { isSprache } from '../config/sprache'
 import { allDemoNumbers } from '../lib/demo'
 import { normalizeClassOrder } from '../lib/quickpick'
 import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
@@ -37,6 +42,8 @@ export function defaultState(): AppState {
   const aufbau = defaultAufbauId()
   return {
     eventName: '30. Möwepokal 2026',
+    regelwerk: defaultRegelwerkId(),
+    sprache: 'de',
     aufbau,
     beschriftung: defaultBeschriftungId(),
     emptyRows: 3,
@@ -69,13 +76,15 @@ export function buildInitialState(): AppState {
   // Fehlt in älteren Ständen bzw. defensiv bereinigen.
   state = { ...state, classOrder: normalizeClassOrder(state.classOrder) }
 
-  // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand: Aufbau,
-  // Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.
+  // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand:
+  // Regelwerk, Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.
   const shared = readShareConfig()
   if (shared) {
     state = {
       ...state,
       eventName: shared.eventName || state.eventName,
+      regelwerk: shared.regelwerk || state.regelwerk,
+      sprache: shared.sprache ?? state.sprache,
       aufbau: shared.aufbau || state.aufbau,
       beschriftung: shared.beschriftung || state.beschriftung,
       // Fehlen Leerzeilen/Seitenaufteilung im Link (z. B. Link aus dem
@@ -97,8 +106,16 @@ export function buildInitialState(): AppState {
     }
   }
 
-  // Persistiertes/geteiltes Bezeichnungs-Schema auf die geladene Konfiguration
-  // anwenden, damit die Bojen-Kürzel zum Zustand passen.
+  // Persistiertes/geteiltes Regelwerk und Bezeichnungs-Schema auf die geladene
+  // Konfiguration anwenden, damit Kataloge und Bojen-Kürzel zum Zustand passen.
+  // Unbekanntes Regelwerk (z. B. alter Link) → Standard.
+  state = {
+    ...state,
+    regelwerk: resolveRegelwerkId(state.regelwerk),
+    sprache: isSprache(state.sprache) ? state.sprache : 'de',
+  }
+  applyRegelwerk(state.regelwerk)
+  applySprache(state.sprache)
   if (state.beschriftung) applyBeschriftung(state.beschriftung)
   return state
 }

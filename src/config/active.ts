@@ -1,30 +1,68 @@
 import { load as yamlLoad } from 'js-yaml'
-import type { DisqDef, SheetDef } from '../types'
-import { buildConfig, type BeschriftungScheme, type ResolvedAufbau, type ResolvedConfig } from './build'
-import type { RawConfig, RawFehlerpunkte, RawPositionen } from './schema'
+import type { DisqDef, SheetDef, Sprache } from '../types'
+import {
+  buildConfig,
+  regelwerkInfo,
+  type BeschriftungScheme,
+  type LegendeModel,
+  type RegelwerkInfo,
+  type ResolvedAufbau,
+  type ResolvedConfig,
+} from './build'
+import type { RawConfig, RawPositionen, RawRegelwerk, RawRegelwerkListe } from './schema'
+import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
-// Dateien public/config/*.yaml (zur Laufzeit geladen) überschreiben sie.
-import bundledFehler from './fehlerpunkte.yaml?raw'
+// Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
+import bundledListe from './regelwerke.yaml?raw'
 import bundledPositionen from './positionen.yaml?raw'
+
+const bundledRegelwerke = import.meta.glob('./regelwerke/*.yaml', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>
 
 // Aktive Konfiguration. Wird beim Start via initConfig gesetzt (Laufzeit-YAML);
 // solange nicht gesetzt, lazy aus den gebündelten YAMLs geladen (z. B. Tests).
 let active: ResolvedConfig | null = null
-// Zusammengeführte Roh-Konfiguration - nötig, um bei einem Wechsel des
-// Bezeichnungs-Schemas mit anderen Tokens neu zu bauen.
-let rawActive: RawConfig | null = null
+// Roh-Konfiguration: nötig, um bei einem Wechsel von Regelwerk, Sprache oder
+// Bezeichnungs-Schema neu zu bauen.
+let rawRegelwerke: RawRegelwerk[] = []
+let rawPositionen: RawPositionen = { positionen: [] }
+let auswahl: { regelwerk?: string; sprache?: Sprache; beschriftung?: string } = {}
 
-/** Führt die beiden YAML-Dateien zusammen und baut die Konfiguration. */
-export function mergeAndBuild(fehlerText: string, positionenText: string): ResolvedConfig {
-  const f = (yamlLoad(fehlerText) as RawFehlerpunkte) ?? {}
-  const p = (yamlLoad(positionenText) as RawPositionen) ?? { positionen: [] }
-  const raw: RawConfig = { ...f, ...p }
-  rawActive = raw
-  return buildConfig(raw)
+/** Baut die Konfiguration aus den Rohdaten und der aktuellen Auswahl. */
+function neuBauen(): ResolvedConfig {
+  const regelwerk = rawRegelwerke.find((r) => r.id === auswahl.regelwerk) ?? rawRegelwerke[0] ?? {}
+  const scheme = rawPositionen.beschriftungen?.find((b) => b.id === auswahl.beschriftung)
+  const raw: RawConfig = {
+    ...regelwerk,
+    ...rawPositionen,
+    bezeichnungen: { ...(rawPositionen.bezeichnungen ?? {}), ...(scheme?.tokens ?? {}) },
+  }
+  return buildConfig(raw, { raeumlich: scheme?.raeumlich, sprache: auswahl.sprache, schema: scheme?.id })
+}
+
+/**
+ * Parst die YAML-Texte und baut die Konfiguration. Das erste Regelwerk ist der
+ * Standard; die Auswahl beginnt wieder bei den Standardwerten.
+ */
+export function mergeAndBuild(regelwerkTexte: string | string[], positionenText: string): ResolvedConfig {
+  const texte = Array.isArray(regelwerkTexte) ? regelwerkTexte : [regelwerkTexte]
+  rawRegelwerke = texte.map((t) => (yamlLoad(t) as RawRegelwerk) ?? {})
+  rawPositionen = (yamlLoad(positionenText) as RawPositionen) ?? { positionen: [] }
+  auswahl = {}
+  return neuBauen()
+}
+
+/** Regelwerk-IDs in Menü-Reihenfolge aus dem Text von regelwerke.yaml. */
+export function regelwerkIds(listeText: string): string[] {
+  return ((yamlLoad(listeText) as RawRegelwerkListe) ?? {}).regelwerke ?? []
 }
 
 export function bundledConfig(): ResolvedConfig {
-  return mergeAndBuild(bundledFehler, bundledPositionen)
+  const texte = regelwerkIds(bundledListe).map((id) => bundledRegelwerke[`./regelwerke/${id}.yaml`] ?? '')
+  return mergeAndBuild(texte, bundledPositionen)
 }
 
 export function initConfig(cfg: ResolvedConfig): void {
@@ -46,8 +84,12 @@ export function getPositions(): SheetDef[] {
   return cfg().positions
 }
 
-/** Gilt diese Position (das ganze Blatt) für diese Klasse? (z. B. MüB ab Kl. 4) */
+/**
+ * Gilt diese Position (das ganze Blatt) für diese Klasse? Die Klasse muss es im
+ * Regelwerk geben und die Position muss für sie gelten (z. B. MüB ab Kl. 4).
+ */
 export function positionAllowsClass(typeId: string, klasse: string): boolean {
+  if (!cfg().regelwerk.klassen.includes(klasse)) return false
   const d = cfg().positions.find((p) => p.typeId === typeId)
   return !d?.klassen || d.klassen.length === 0 || d.klassen.includes(klasse)
 }
@@ -75,6 +117,59 @@ export function getLaufzettelConfig(): ResolvedConfig['laufzettel'] {
   return cfg().laufzettel
 }
 
+/** Verfügbare Regelwerke in Menü-Reihenfolge. */
+export function getRegelwerke(): RegelwerkInfo[] {
+  cfg() // sicherstellen, dass die Rohdaten geladen sind
+  return rawRegelwerke.map(regelwerkInfo)
+}
+
+/** Das aktive Regelwerk. */
+export function getRegelwerk(): RegelwerkInfo {
+  return cfg().regelwerk
+}
+
+/** Inhalt der A4-Legende des aktiven Regelwerks. */
+export function getLegende(): LegendeModel {
+  return cfg().legende
+}
+
+/** Feste Texte auf den Listen in der gewählten Sprache. */
+export function getBogenTexte(): BogenTexte {
+  return cfg().bogenTexte
+}
+
+/** ID des Standard-Regelwerks (erstes in regelwerke.yaml). */
+export function defaultRegelwerkId(): string {
+  return getRegelwerke()[0]?.id ?? ''
+}
+
+/** Die ID, falls es das Regelwerk gibt, sonst der Standard (z. B. alter Link). */
+export function resolveRegelwerkId(id: string): string {
+  return getRegelwerke().some((r) => r.id === id) ? id : defaultRegelwerkId()
+}
+
+/**
+ * Stellt das Regelwerk um: baut die Konfiguration mit dessen Katalogen und
+ * Disqualifikationen neu. Wirkt sofort auf alle folgenden getSheetDef-Aufrufe
+ * (Neu-Render nötig).
+ */
+export function applyRegelwerk(id: string): void {
+  cfg() // sicherstellen, dass die Rohdaten geladen sind
+  if (!rawRegelwerke.some((r) => r.id === id)) return
+  auswahl = { ...auswahl, regelwerk: id }
+  active = neuBauen()
+}
+
+/**
+ * Stellt die Sprache der Listen um (wirkt nur, wenn das Regelwerk Englisch
+ * anbietet). Wirkt sofort auf alle folgenden getSheetDef-Aufrufe (Neu-Render nötig).
+ */
+export function applySprache(sprache: Sprache): void {
+  cfg() // sicherstellen, dass die Rohdaten geladen sind
+  auswahl = { ...auswahl, sprache }
+  active = neuBauen()
+}
+
 /** Verfügbare Bezeichnungs-Schemata (Bojen-Kürzel), für die Umschaltung. */
 export function getBeschriftungen(): BeschriftungScheme[] {
   return cfg().beschriftungen
@@ -91,13 +186,8 @@ export function defaultBeschriftungId(): string {
  * Wirkt sofort auf alle folgenden getSheetDef-Aufrufe (Neu-Render nötig).
  */
 export function applyBeschriftung(id: string): void {
-  cfg() // sicherstellen, dass rawActive gesetzt ist
-  if (!rawActive) return
-  const scheme = (rawActive.beschriftungen ?? []).find((b) => b.id === id)
-  if (!scheme) return
-  const merged: RawConfig = {
-    ...rawActive,
-    bezeichnungen: { ...(rawActive.bezeichnungen ?? {}), ...(scheme.tokens ?? {}) },
-  }
-  active = buildConfig(merged, { raeumlich: scheme.raeumlich })
+  cfg() // sicherstellen, dass die Rohdaten geladen sind
+  if (!rawPositionen.beschriftungen?.some((b) => b.id === id)) return
+  auswahl = { ...auswahl, beschriftung: id }
+  active = neuBauen()
 }

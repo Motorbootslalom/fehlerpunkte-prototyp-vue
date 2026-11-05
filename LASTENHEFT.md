@@ -54,8 +54,8 @@ Jeder Bogen ist eine A4-Seite (Knoten: Querformat) und besteht aus:
 
 > **Konfigurierbar:** Positionen, Spaltenreihenfolge und Fehlerpunkte sind
 > datengetrieben (YAML, siehe §12a). Fehlerpunkte/Disqualifikationen kommen aus
-> der Ausschreibung (`fehlerpunkte.yaml`, für alle gleich); die Positionen sind
-> orts-/personenabhängig (`positionen.yaml`).
+> der Ausschreibung (`regelwerke/<id>.yaml`, je Regelwerk und Version); die
+> Positionen sind orts-/personenabhängig (`positionen.yaml`).
 
 **Aufbauten (Setups)** bündeln die bei einem Wettkampf genutzten Positionen. Beim
 Start wird ein Aufbau gewählt:
@@ -110,8 +110,13 @@ Statt für jede Tor-Position ein eigenes Bild von Hand zu malen (früher
 `alcatraz_I` für Tore 1/3/5, `alcatraz_II` für 2/4/5), wird aus **einer** sauberen
 Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt**.
 
-- Jedes Bild-Element hat eine stabile `id` (`Tor1`…`Tor5`, `Start+Ziel`,
-  `SpeedbojeKlasse7`, `Schikane`, `Zeitnahme`), über alle Klassen identisch.
+- **Master der Parcoursbilder** ist `Motorbootslalom/Parcours/parcours.svg`. Ihr
+  `make` (`split.py`) exportiert nach `dist/alcatraz_Parcours`; SVG und PNG von dort
+  werden nach `public/parcours/alcatraz_Parcours` kopiert. Änderungen, auch an IDs,
+  gehören in den Master, nicht in die Kopie.
+- Jedes Bild-Element hat eine stabile `id` (`Tor1`…`Tor5`, `StartZiel`,
+  `Speedboje_oben`, `Speedboje_unten`, `Schikane`, `Zeitnahme`), über alle Klassen
+  identisch.
 - In `positionen.yaml` markiert das Spalten-Feld `hebt: Tor1` die im Bild
   **hervorzuhebenden** Tore. Die übrigen Tore werden mit reduzierter Deckkraft
   (opacity) abgeblendet; **Fahrweg, Start/Ziel, Zeitnahme usw. bleiben immer voll
@@ -120,8 +125,8 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
 - Alternativ/ergänzend blendet eine Positions-Liste `abblenden: [Tor2, Tor4]`
   gezielt Elemente ab (Fallback, falls keine Spalte `hebt` nutzt).
 - **Einzelne Bojen** sind ebenso ansprechbar wie ganze Tore: Tor 5 (`Tor5_oben` /
-  `Tor5_unten`), die beiden Start/Ziel-Bojen (`Tor1_innen-7` oben / `Tor1_aussen-3`
-  unten) und die beiden Speedbojen (`g3068` oben / `SpeedbojeKlasse7` unten).
+  `Tor5_unten`), die beiden Start/Ziel-Bojen (`StartZiel_oben` oben / `StartZiel_unten`
+  unten) und die beiden Speedbojen (`Speedboje_oben` oben / `Speedboje_unten` unten).
   Damit zeigt jede Position genau die **beobachtete Hälfte**: bei Alcatraz z. B.
   Tore 1/3/5 nur die untere Boje von Tor 5 und Start/Ziel, bei Baden-Württemberg
   je Land-/Wasser-Seite die passende Einzelboje jedes Tores.
@@ -145,26 +150,38 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
   Fehlertabelle summiert und in die zugehörige Punkte-/Σ-Spalte geschrieben.
   Beispiele: MüB „13, 17“ → 10 · Tor 5 „1“ → 20 · Steg AN „9, 12“ → 20.
 - **Steg getrennt (Ablegen/Anlegen):** „Fehler AB“ und „Fehler AN“ haben je einen
-  eigenen Katalog und lassen **nur ihre eigenen Codes** zu (Ablegen 3-5, Anlegen
+  eigenen Katalog und lassen **nur ihre eigenen Codes** zu (Ablegen 3-6, Anlegen
   7-12); die Legende zeigt beide Blöcke sauber getrennt nebeneinander.
+- **Kombinierbar:** Getrennte Punkte der Ausschreibung sind je ein Code und lassen
+  sich kombinieren (MüB „14, 18“ → 10), eine gemeinsame Zeile ist ein Code (MüB 15
+  → 5). Mehrfachnennungen zählen mehrfach und stehen als „2x6“ (2. und 3. Versuch: → 10;
+  auch „6, 6“ wird so geschrieben). Das X zwischen zwei Zahlen ist der Faktor, allein
+  bleibt es der Disq-Buchstabe. Die
+  Legende weist darauf hin.
 - **Disqualifikation in einer Fehler-Spalte:** ein Disq-Buchstabe in einer
   Fehlercode-Spalte zählt als Disqualifikation an dieser Stelle (wie in den
   Bojenspalten) und wird in die Disq-Spalte übernommen.
 - **Σ** = Summe aller Bojen-, Code- und Punktebeiträge einer Zeile, laufend
   aktualisiert.
 
-Fehlertabellen (aus den Alt-Listen übernommen):
+Fehlertabellen der DM 2026 (die UIM 2026 weicht ab, siehe
+`regelwerke/uim-2026.yaml`):
 
 - **Tor 5:** 1 = nicht mit gesamter Länge eingefahren (20) · 2 = Durchreißen der
-  Schaltung / erst ab Klasse 5 (5).
-- **Ablegen (Steg):** 3, 4, 5 = je 5.
-- **Anlegen (Steg):** 7, 8, 10, 11 = je 5 · 9, 12 = je 10.
+  Schaltung / erst ab Klasse 4 (5) · 20 = 2. und 3. Versuch (5).
+- **Ablegen (Steg):** 3, 4, 5, 6 = je 5.
+- **Anlegen (Steg):** 7, 8, 10, 11, 23 = je 5 · 9, 12 = je 10.
 - **Mann-über-Bord:** 13-19 = je 5.
 - **Knoten:** 5 pro fehlerhafter Knoten.
 
+Alle Codes, Strafen und Disqualifikationen eines Regelwerks lassen sich als
+**A4-Legende** drucken bzw. als PDF speichern („Nur Legende drucken / Als PDF“).
+
 ## 6. Disqualifikation
 
-- Es gibt eine geltungsweite Code-Tabelle **A-L, X** (auf jedem Bogen als Legende).
+- Jedes Regelwerk hat eine eigene Code-Tabelle, je Punkt der Ausschreibung ein
+  Buchstabe (DM 2026: **A-N, P-R, X**; das O entfällt wegen der Verwechslung mit
+  der 0). Auf jedem Bogen stehen als Legende die Buchstaben seines Bereichs.
 - Disqualifikation kann eingetragen werden
   - in der eigenen **Disq.-Spalte** der Zeile **oder**
   - **direkt in einer Tor-/Bojenspalte** (Buchstabe statt Zahl). So ist die
@@ -172,7 +189,7 @@ Fehlertabellen (aus den Alt-Listen übernommen):
 - Für die Ergebnisseite (nicht Teil des Prototyps) stehen damit **Ort und Grund**
   der Disqualifikation strukturiert bereit.
 - **Eingabehilfe:** Disq-Eingaben werden automatisch groß geschrieben; es sind
-  **nur Codes zulässig, die in der Legende stehen** (A-L, X). Mehrere Codes mit
+  **nur Codes zulässig, die in der Legende stehen**. Mehrere Codes mit
   Komma und/oder Leerzeichen; die Anzeige normalisiert einheitlich auf „A, B".
 
 ## 7. Zeiteingabe
@@ -301,17 +318,28 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 ## 12a. Konfiguration (Positionen & Fehlerpunkte)
 
 - **Trennung der Belange:** Fehlerpunkte/Disqualifikationen (aus der
-  **Ausschreibung**, i. d. R. für alle gleich) sind getrennt von den
+  **Ausschreibung**, je Regelwerk und Version) sind getrennt von den
   **orts-/personenabhängigen Positionen** (z. B. wenige WKR oder Plätze nur von
   einer Seite einsehbar).
-- **Zwei YAML-Dateien** - gepflegt **ausschließlich** unter `src/config/` (einzige
+- **Mehrere Regelwerke und Versionen:** In der Bedienleiste wird das Regelwerk
+  gewählt (z. B. DM 2026, UIM 2026); die Wahl steckt auch im Einstellungs-Link.
+  Es bestimmt Fehlercodes, Punkte, Disqualifikationen und Klassen. Bögen von
+  Klassen, die das neue Regelwerk nicht kennt, entfallen beim Wechsel.
+- **Sprachen:** Ein Regelwerk mit `sprachen: [de, en]` bietet die Listen deutsch,
+  englisch oder zweisprachig an. Die englischen Texte stehen im Regelwerk (`en`) und
+  in `positionen.yaml` (`englisch`); `config:check` meldet fehlende Übersetzungen.
+  Bojen-Kürzel, Bedienleiste, Laufzettel und Dateinamen bleiben deutsch.
+- **YAML-Dateien** - gepflegt **ausschließlich** unter `src/config/` (einzige
   Quelle). Von dort werden sie zweifach genutzt: fest ins JS-Bundle kompiliert
   (Fallback, immer verfügbar) und per `npm run config:sync` (Teil von `dev`/`build`)
   nach `public/config/` kopiert, von wo sie zur Laufzeit per fetch geladen werden
   (Override; ohne Neubau austauschbar, z. B. im Deploy). `public/config/` ist reine
   Ausgabe, liegt nicht in Git und wird automatisch erzeugt.
-  - `fehlerpunkte.yaml` - `disqualifikationen` (beliebig viele, mit Buchstaben) und
-    benannte `kataloge` (Fehler mit Zahlen → Punkte).
+  - `regelwerke.yaml` - Liste der Regelwerke (der erste ist der Standard).
+  - `regelwerke/<id>.yaml` - `disqualifikationen` (beliebig viele, mit Buchstaben
+    und `bereiche`), benannte `kataloge` (Fehler mit Zahlen → Punkte), `direktpunkte`
+    und `klassen`. Jedes Regelwerk muss alle Kataloge anbieten, die die Positionen
+    nennen.
   - `positionen.yaml` - wiederverwendbare `hinweise`, die `positionen`
     (Spalten/Reihenfolge, `katalog`- und `hinweis`-Verweis, `bild`,
     `bildDrehung: 0|90|-90|180`) und die `aufbauten` (Setups).
@@ -321,11 +349,16 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
   **Parallelslalom** (Beispiel). Bei einem Wettkampf wird ein Aufbau gewählt; er
   enthält alle Listen (auch Zeit/Knoten). Gemeinsame Listen werden geteilt, nur
   die Tor-Positionen unterscheiden sich je Aufbau.
-- **Disqualifikationen pro Position ausblendbar** via `disq: alle | keine | [A,…]`.
+- **Disqualifikationen pro Position** via `disq: alle | keine | <Bereich>`: Die
+  Buchstaben nennen im Regelwerk ihre `bereiche` (`vorsteg`, `steg`, `parcours`,
+  `mueb`), die Position nur ihren Bereich. So stehen MüB-Buchstaben nur auf Listen
+  mit Mann-über-Bord.
 - **Klassenabhängigkeit** (`klassen: [...]` an Spalte oder Position; fehlt = alle,
   siehe §4a): z. B. Speed 1 `[5,6,7]`, Speed 2 `[7]`, Mann-über-Bord `[4,5,6,7]`.
 - **Bild** je Position (`bild`, `bildDrehung: 0|90|-90|180`). Um ±90° gedrehte
-  Bilder erscheinen hochkant neben der Legende, sonst quer darunter. (Frontal-Tore
+  Bilder erscheinen hochkant neben der Legende, sonst quer darunter. Hochkant füllt
+  das Bild die Rahmenbreite (`bildBreite`, Standard 40 mm) und setzt die
+  Mindesthöhe; es schrumpft also nicht mit einer kurzen Legende. (Frontal-Tore
   nutzen die Alcatraz-Bilder um -90° = Alcatraz 90° + 180°-Blickwende.)
 - **Bildgenerator (§4b):** `bild` kann auf ein festes fertiges Bild zeigen ODER
   mit `bildGenerator: true` beim Build automatisch aus einer Quelle

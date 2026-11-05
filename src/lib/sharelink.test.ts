@@ -5,6 +5,8 @@ import type { AppState } from '../types'
 function stateFixture(): AppState {
   return {
     eventName: '30. Möwepokal 2026',
+    regelwerk: 'uim-2026',
+    sprache: 'de+en',
     aufbau: 'bawue',
     beschriftung: 'ls',
     emptyRows: 5,
@@ -29,6 +31,8 @@ describe('sharelink', () => {
     const round = decodeShareConfig(encodeShareConfig(cfg))
     expect(round).toEqual<ShareConfig>({
       eventName: '30. Möwepokal 2026',
+      regelwerk: 'uim-2026',
+      sprache: 'de+en',
       aufbau: 'bawue',
       beschriftung: 'ls',
       emptyRows: 5,

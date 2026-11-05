@@ -11,6 +11,7 @@
   --ink: #111;
   --line: #000;
   --shade: #dcdcdc;
+  --shade-hl: #e4dfc0; /* 5er-Zeile im Fadenkreuz */
   --panel-bg: #1f2530;
   --panel-fg: #e9edf3;
   --accent: #2f6df6;
@@ -469,8 +470,24 @@ body {
   font-size: 12pt;
 }
 
-.wkr-input {
+.wkr-field {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bezeichnung unter der Linie: nur im Druck, am Bildschirm zeigt der Platzhalter
+   dasselbe im Eingabefeld. */
+.wkr-caption {
+  display: none;
+  font-size: 7.5pt;
+  color: #444;
+  padding: 1px 2px 0;
+}
+
+.wkr-input {
+  width: 100%;
   border: none;
   border-bottom: 1px dotted #999;
   font-size: 12pt;
@@ -634,6 +651,13 @@ body {
   background: #fff8d8 !important;
 }
 
+/* Auch im Fadenkreuz bleibt jede 5. Zeile erkennbar: gedämpftes, graustichiges Gelb,
+   klar verschieden vom Fadenkreuz und vom aktiven Feld. */
+.sheet-table .row-shaded td.hl-row,
+.sheet-table .row-shaded td.hl-col {
+  background: var(--shade-hl) !important;
+}
+
 /* Automatisch aus den Tor-Zellen übernommener Disq-Wert: am Bildschirm dezent. */
 .disq-input.disq-auto {
   color: #888;
@@ -692,6 +716,26 @@ body {
   vertical-align: top;
 }
 
+/* Zweispaltig: spaltenweise von oben nach unten, also weiter alphabetisch. */
+.legend-disq--2,
+.legend-disq--2 tbody {
+  display: block;
+}
+
+.legend-disq--2 tbody {
+  column-count: 2;
+  column-gap: 12px;
+}
+
+.legend-disq--2 tr {
+  display: flex;
+  break-inside: avoid;
+}
+
+.legend-disq--2 .lc-code {
+  flex: none;
+}
+
 .lc-code {
   font-weight: 700;
   width: 22px;
@@ -734,6 +778,13 @@ body {
   text-align: left; /* Blickrichtungsblock linksbündig */
 }
 
+/* Zweisprachig: links deutsch, rechts englisch (spart Höhe). */
+.legend-note--2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
 .course {
   margin: 8px 0;
   border: 1.5px dashed #7a86c9;
@@ -743,9 +794,10 @@ body {
 
 .course img {
   max-width: 100%;
-  /* 70 statt 78 mm: gleicht den größeren Unterschriftsplatz (+7 mm, siehe
-     .sheet-signature-row) aus - Bögen mit Bild werden insgesamt nicht höher. */
-  max-height: 70mm;
+  /* 62 statt 78 mm: gleicht den größeren Unterschriftsplatz (+7 mm, siehe
+     .sheet-signature-row) und die zusätzlichen Disqualifikationen der DM 2026 aus -
+     Bögen mit Bild werden insgesamt nicht höher. */
+  max-height: 62mm;
 }
 
 /* Zeile am Fuß: mittige Seitenzahl (mehrseitiger Druck) + rechte Unterschrift.
@@ -790,7 +842,7 @@ body {
 /* Positionen mit gedrehtem Bild: Legende links, Parcoursbild rechts daneben */
 .sheet--rotated .sheet-footer {
   display: grid;
-  grid-template-columns: 1fr 50mm;
+  grid-template-columns: 1fr var(--bild-breite, 40mm);
   grid-template-areas:
     'legend course'
     'sig sig';
@@ -802,14 +854,16 @@ body {
 }
 
 /* Das Alcatraz-Parcoursbild liegt horizontal vor und wird - wie in den
-   Original-Listen - um 90° gedreht (Hochformat). Das Inline-SVG (siehe
-   SheetView) füllt die Box formatfüllend, ohne höher als die Legende zu werden
-   (die Zelle ist per Grid genauso hoch wie der Beschreibungsblock). */
+   Original-Listen - um 90° gedreht (Hochformat, Verhältnis 100:237). Das Inline-SVG
+   (siehe CourseImage) füllt die Rahmenbreite: Die Mindesthöhe kommt vom Bild, nicht
+   von der Legende, damit es auch bei kurzer Legende erkennbar bleibt. Eine längere
+   Legende macht den Rahmen höher. 11 px = Rahmenlinien + Innenabstand des SVG. */
 .sheet--rotated .course {
   grid-area: course;
   margin: 0;
   position: relative;
   overflow: hidden;
+  min-height: calc((var(--bild-breite, 40mm) - 11px) * 2.37 + 11px);
 }
 
 .course-svg {
@@ -913,6 +967,110 @@ body {
   height: 100%;
   max-height: none;
   object-fit: contain;
+}
+
+/* ============================================================
+   LEGENDE (A4 hoch): alle Codes und Strafen eines Regelwerks
+   ============================================================ */
+
+.legende-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lg-head {
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 1.5mm;
+  margin-bottom: 2.5mm;
+}
+
+.lg-head h1 {
+  margin: 0;
+  font-size: 14pt;
+}
+
+.lg-event {
+  margin: 0.5mm 0 0;
+  font-size: 10.5pt;
+  font-weight: 700;
+}
+
+.lg-quelle {
+  margin: 0.5mm 0 0;
+  font-size: 8.5pt;
+  color: #444;
+}
+
+.lg-section {
+  margin-bottom: 2.5mm;
+}
+
+.lg-section h2 {
+  margin: 0 0 1mm;
+  font-size: 10.5pt;
+}
+
+/* Fehlerblöcke paarweise nebeneinander (Ablegen | Anlegen, Tor 5 | MüB). */
+.lg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5mm 5mm;
+  align-items: start;
+}
+
+.lg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  line-height: 1.2;
+}
+
+.lg-table caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 0.5mm;
+}
+
+.lg-table td {
+  border-top: 0.5pt solid #999;
+  padding: 0.4mm 1mm;
+  vertical-align: top;
+}
+
+.lg-table tr:last-child td {
+  border-bottom: 0.5pt solid #999;
+}
+
+.lg-code {
+  width: 8mm;
+  font-weight: 700;
+  text-align: center;
+}
+
+.lg-pts {
+  width: 8mm;
+  font-weight: 700;
+  text-align: right;
+}
+
+.lg-titel {
+  width: 18mm;
+  font-weight: 700;
+}
+
+.lg-hinweis {
+  margin: 1mm 0 0;
+  font-size: 8.5pt;
+  font-style: italic;
+  white-space: pre-line; /* zweisprachig untereinander */
+}
+
+.lg-hinweise {
+  margin: 0;
+  padding-left: 4mm;
+  font-size: 8.5pt;
+  white-space: pre-line;
 }
 
 /* ============================================================
@@ -1120,14 +1278,43 @@ body {
     display: none !important;
   }
 
+  /* Legende nur über „Nur Legende drucken“ (body.print-legende) - dann umgekehrt
+     ohne die Bögen. */
+  .legende-stack {
+    display: none !important;
+  }
+
+  body.print-legende .legende-stack {
+    display: block !important;
+  }
+
+  body.print-legende .sheet:not(.legende-sheet),
+  body.print-legende .empty {
+    display: none !important;
+  }
+
   .cell-input:focus {
     background: transparent;
+  }
+
+  .wkr-input::placeholder {
+    color: transparent;
+  }
+
+  .wkr-caption {
+    display: block;
   }
 
   /* Orientierungs-Hervorhebung nicht mitdrucken; Auto-Disq schwarz drucken. */
   .sheet-table td.hl-row,
   .sheet-table td.hl-col {
     background: transparent !important;
+  }
+
+  /* Die 5er-Zeile behält im Druck ihr Grau, auch wenn der Cursor darin steht. */
+  .sheet-table .row-shaded td.hl-row,
+  .sheet-table .row-shaded td.hl-col {
+    background: var(--shade) !important;
   }
 
   .disq-input.disq-auto {

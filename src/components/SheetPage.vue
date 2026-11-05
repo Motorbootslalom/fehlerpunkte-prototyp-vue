@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { getBogenTexte } from '../config/active'
 import { gridNavKeyDown } from '../lib/gridnav'
 import { normalizeCodeCell } from '../lib/codes'
 import { PRINT_MARGIN_MM, overflowRows, pageHeightMm as pageHeightOf } from '../lib/paging'
@@ -42,6 +43,8 @@ const props = defineProps<{
 
 const { state, dispatch } = useStore()
 const cell = useCell(props.bogen.id)
+// Bögen werden bei einem Sprachwechsel neu aufgebaut (Key in App.vue).
+const texte = getBogenTexte()
 
 // Fadenkreuz: aktuell fokussierte Zeile/Spalte (Orientierungs-Hervorhebung).
 const focus = ref<{ row: number; col: number } | null>(null)
@@ -266,6 +269,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
   <div
     ref="sheetEl"
     :class="`sheet sheet--${def.orientation}${gedreht && !state.descriptionOnBack ? ' sheet--rotated' : ''}`"
+    :style="def.bildBreite ? { '--bild-breite': `${def.bildBreite}mm` } : undefined"
   >
     <template v-if="tooManyRows > 0">
       <p class="sheet-overflow-note">
@@ -295,7 +299,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
           </th>
         </tr>
         <tr>
-          <th class="col-nr" :rowspan="twoRow ? 2 : 1">Nr.</th>
+          <th class="col-nr" :rowspan="twoRow ? 2 : 1">{{ texte.nr }}</th>
           <template v-for="col in cols" :key="col.key">
             <th
               v-if="col.sub && col.sub.length > 0"
@@ -332,18 +336,15 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
                 <svg class="back-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 21V4M5 11l7-7 7 7" />
                 </svg>
-                <span>
-                  Beschreibung (Fehlerpunkte, Disqualifikationen, Parcours) steht auf der Rückseite -
-                  zum Lesen das Blatt nach oben klappen.
-                </span>
+                <span>{{ texte.rueckseite }}</span>
               </div>
               <div class="sheet-signature-row">
                 <span v-if="pageCount > 1" class="page-indicator">
-                  Seite {{ pageIndex + 1 }} / {{ pageCount }}
+                  {{ texte.seite(pageIndex + 1, pageCount) }}
                 </span>
                 <div class="signature">
                   <span class="sig-line" />
-                  <span class="sig-label">Unterschrift WKR</span>
+                  <span class="sig-label">{{ texte.unterschrift }}</span>
                 </div>
               </div>
             </div>

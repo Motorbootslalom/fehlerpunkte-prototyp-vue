@@ -8,6 +8,7 @@
 // Die schwere Bibliothek wird erst beim Klick dynamisch geladen.
 
 import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces'
+import { getBogenTexte } from '../config/active'
 import type { AppState } from '../types'
 import { buildAllPages, type SheetModelPage } from './sheetModel'
 
@@ -43,7 +44,7 @@ function legendContent(pg: SheetModelPage): Content[] {
   if (def.legendNote) out.push({ text: def.legendNote, italics: true, fontSize: 6, margin: [0, 2, 0, 0] })
 
   if (def.disqTable && def.disqTable.length > 0) {
-    out.push({ text: 'Disqualifikation:', bold: true, fontSize: 6, margin: [0, 2, 0, 0] })
+    out.push({ text: def.disqTableTitle ?? 'Disqualifikation:', bold: true, fontSize: 6, margin: [0, 2, 0, 0] })
     out.push({
       text: def.disqTable.map((d) => `${d.code}  ${d.text}`).join('\n'),
       fontSize: 6,
@@ -53,12 +54,13 @@ function legendContent(pg: SheetModelPage): Content[] {
 }
 
 function pageContent(pg: SheetModelPage): Content[] {
+  const texte = getBogenTexte()
   // Kopf: Veranstaltung + Vektor-QR, darunter Listentyp/Klasse/Lauf.
   const subTitle =
-    `${pg.title} · Klasse ${pg.klasse}` + (pg.showLauf ? ` · ${pg.lauf}. Lauf` : '')
+    `${pg.title} · ${texte.klasse(pg.klasse)}` + (pg.showLauf ? ` · ${texte.lauf(pg.lauf)}` : '')
 
   const headerRow: TableCell[] = [
-    { text: 'Nr.', style: 'th' },
+    { text: texte.nr, style: 'th' },
     ...pg.leaves.map((l) => ({ text: l.label, style: 'th' })),
   ]
   const bodyRows: TableCell[][] = pg.rows.map((r) => [
@@ -90,9 +92,9 @@ function pageContent(pg: SheetModelPage): Content[] {
     {
       columns: [
         pg.pageCount > 1
-          ? { text: `Seite ${pg.pageIndex + 1} / ${pg.pageCount}`, fontSize: 7, alignment: 'center' }
+          ? { text: texte.seite(pg.pageIndex + 1, pg.pageCount), fontSize: 7, alignment: 'center' }
           : { text: '' },
-        { text: '________________________\nUnterschrift WKR', fontSize: 7, alignment: 'right', width: 160 },
+        { text: `________________________\n${texte.unterschrift}`, fontSize: 7, alignment: 'right', width: 160 },
       ],
       // Oberer Rand = Platz zum Unterschreiben über der Linie.
       margin: [0, 24, 0, 0],

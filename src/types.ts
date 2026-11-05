@@ -13,6 +13,9 @@ export const CLASS_IDS: ClassId[] = ['E', '1', '2', '3', '4', '5', '6', '7']
 
 export type Lauf = 1 | 2 | 3
 
+/** Sprache der Listen und Fehlertexte: deutsch, englisch oder beides. */
+export type Sprache = 'de' | 'en' | 'de+en'
+
 /**
  * Kennung einer Position/Liste. Frei konfigurierbar (siehe config/positionen.yaml),
  * daher ein String und keine feste Aufzählung.
@@ -92,6 +95,8 @@ export interface SheetDef {
   typeId: SheetTypeId
   /** Kurzname (erscheint links im Kopf), z. B. "Mann-über-Bord". */
   title: string
+  /** Kurzname auf Deutsch: für Bedienleiste, Laufzettel und Dateinamen. */
+  titelDe: string
   /** Ausführlicher Name für Auswahl-Menüs. */
   menuLabel: string
   orientation: 'portrait' | 'landscape'
@@ -117,14 +122,25 @@ export interface SheetDef {
   errorGroups?: ErrorGroup[]
   /** Für diese Position gültige Disqualifikationen (bereits gefiltert). */
   disqTable?: DisqDef[]
+  /** Überschrift über der disqTable-Legende, mit Regelwerk und Version. */
+  disqTableTitle?: string
+  /** Disq-Legende zweispaltig: bei querliegendem Bild, das darunter Höhe braucht. */
+  disqZweispaltig?: boolean
   /** Zeigt die Disqualifikations-Tabelle in der Legende (= disqTable vorhanden). */
   showDisqTable?: boolean
   /** Zusätzliche Hinweiszeile in der Legende. */
   legendNote?: string
+  /**
+   * Zweisprachig: derselbe Hinweis getrennt nach [deutsch, englisch], damit die
+   * Legende beide nebeneinander zeigt. Die Vektor-PDF-Wege nutzen `legendNote`.
+   */
+  legendNoteSpalten?: [string, string]
   /** Bildordner unter public/parcours (z. B. alcatraz_Parcours). */
   courseImageDir?: string
   /** Bild-Drehung in Grad: 0 | 90 | -90 | 180. */
   bildDrehung?: number
+  /** Breite des gedrehten Bildes neben der Legende in mm (Standard siehe CSS). */
+  bildBreite?: number
 }
 
 /** Ein Bogen = konkrete Instanz eines Listentyps für Klasse + Lauf. */
@@ -140,6 +156,10 @@ export type SheetValues = Record<string, Record<string, string>>
 
 export interface AppState {
   eventName: string
+  /** Gewähltes Regelwerk mit Version, z. B. "dm-2026" oder "uim-2026". */
+  regelwerk: string
+  /** Sprache der Listen; wirkt nur, wenn das Regelwerk Englisch anbietet. */
+  sprache: Sprache
   /** Gewählter Aufbau (Setup), z. B. "alcatraz" oder "frontal". */
   aufbau: string
   /** Gewähltes Bezeichnungs-Schema (Bojen-Kürzel), z. B. "rl" oder "ls". */

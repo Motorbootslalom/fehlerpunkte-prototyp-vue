@@ -1,3 +1,4 @@
+import { codeEntries, parseCodeEntry } from './codes'
 import type { Column, ErrorDef, SheetDef } from '../types'
 
 // Berechnet die Zeilen-Ergebnisse eines Bogens aus den Zellwerten.
@@ -57,11 +58,10 @@ const LETTER = /^[A-Za-z]$/
 function errorPoints(table: ErrorDef[] | undefined, raw: string): number {
   if (!table) return 0
   let total = 0
-  for (const token of raw.split(/[\s,;/]+/)) {
-    const t = token.trim()
-    if (t === '') continue
-    const found = table.find((e) => e.code === t)
-    if (found) total += found.punkte
+  for (const entry of codeEntries(raw)) {
+    const parsed = parseCodeEntry(entry)
+    const found = parsed && table.find((e) => e.code === parsed.code)
+    if (parsed && found) total += parsed.anzahl * found.punkte
   }
   return total
 }
@@ -91,8 +91,8 @@ export function scoreRow(
       if (col.pointsCol) computedCols[col.pointsCol] = (computedCols[col.pointsCol] ?? 0) + pts
       // Ein Disq-Buchstabe in einer Fehler-Spalte markiert die Disqualifikation
       // an dieser Stelle (wie in den Bojen-Zellen).
-      for (const token of raw.split(/[\s,;/]+/)) {
-        const c = token.trim().toUpperCase()
+      for (const entry of codeEntries(raw)) {
+        const c = entry.toUpperCase()
         if (LETTER.test(c)) disqs.push({ where: col.label, code: c })
       }
     } else if (col.kind === 'points') {

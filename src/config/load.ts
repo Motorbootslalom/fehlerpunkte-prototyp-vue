@@ -1,19 +1,32 @@
-import { bundledConfig, mergeAndBuild } from './active'
+import { load as yamlLoad } from 'js-yaml'
+import { bundledConfig, mergeAndBuild, regelwerkIds } from './active'
 import type { ResolvedConfig } from './build'
+import type { RawRegelwerk } from './schema'
 
-// Lädt die Konfiguration zur Laufzeit aus public/config/*.yaml:
-//   • fehlerpunkte.yaml - Disqualifikationen + Fehler-Kataloge (Ausschreibung)
-//   • positionen.yaml   - Hinweise + Positionen (orts-/personenabhängig)
+// Lädt die Konfiguration zur Laufzeit aus public/config/:
+//   • regelwerke.yaml      - Liste der Regelwerke (Menü-Reihenfolge)
+//   • regelwerke/<id>.yaml - Disqualifikationen + Fehler-Kataloge (Ausschreibung)
+//   • positionen.yaml      - Hinweise + Positionen (orts-/personenabhängig)
 // Schlägt das fehl, wird die gebündelte Standard-Konfiguration verwendet.
+
+async function text(url: string): Promise<string> {
+  const res = await fetch(url, { cache: 'no-cache' })
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`)
+  return res.text()
+}
 
 export async function loadConfig(baseUrl: string): Promise<ResolvedConfig> {
   try {
-    const [fehler, positionen] = await Promise.all([
-      fetch(`${baseUrl}config/fehlerpunkte.yaml`, { cache: 'no-cache' }),
-      fetch(`${baseUrl}config/positionen.yaml`, { cache: 'no-cache' }),
+    const ids = regelwerkIds(await text(`${baseUrl}config/regelwerke.yaml`))
+    const [positionen, ...regelwerke] = await Promise.all([
+      text(`${baseUrl}config/positionen.yaml`),
+      ...ids.map((id) => text(`${baseUrl}config/regelwerke/${id}.yaml`)),
     ])
-    if (fehler.ok && positionen.ok) {
-      const cfg = mergeAndBuild(await fehler.text(), await positionen.text())
+    // Server mit SPA-Fallback liefern für fehlende Dateien HTML mit Status 200.
+    // Das darf nicht als leeres Regelwerk durchgehen (Listen ohne Legende).
+    const gueltig = ids.length > 0 && ids.every((id, i) => (yamlLoad(regelwerke[i]) as RawRegelwerk)?.id === id)
+    if (gueltig) {
+      const cfg = mergeAndBuild(regelwerke, positionen)
       if (cfg.positions.length > 0) return cfg
     }
   } catch {

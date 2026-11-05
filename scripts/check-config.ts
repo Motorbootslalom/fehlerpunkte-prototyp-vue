@@ -7,7 +7,7 @@
 // public/config wird aus src/config generiert (npm run config:sync) und liegt
 // nicht in Git - daher hier nicht geprüft.
 // Exit-Code 1, sobald ein Fehler (nicht: Warnung) auftritt - für CI/Hooks.
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { validateConfigTexts, type ConfigIssue } from '../src/config/validate.ts'
@@ -46,16 +46,6 @@ function formatIssues(text: string, file: string): ConfigIssue[] {
   return out
 }
 
-interface Pair {
-  label: string
-  fehler: string
-  positionen: string
-}
-
-const PAIRS: Pair[] = [
-  { label: 'src/config (Quelle)', fehler: 'src/config/fehlerpunkte.yaml', positionen: 'src/config/positionen.yaml' },
-]
-
 function printIssues(issues: ConfigIssue[]): void {
   for (const it of issues) {
     const tag = it.severity === 'error' ? red('FEHLER ') : yellow('Hinweis')
@@ -68,27 +58,33 @@ let warnCount = 0
 
 console.log(bold('\n▶ Konfigurations-Check\n'))
 
-for (const pair of PAIRS) {
-  const fehler = read(pair.fehler)
-  const positionen = read(pair.positionen)
-  console.log(bold(pair.label))
-  if (fehler === null || positionen === null) {
-    console.log(`  ${dim('übersprungen - Datei fehlt')}\n`)
-    continue
-  }
-  const issues = [
-    ...validateConfigTexts(fehler, positionen),
-    ...formatIssues(fehler, pair.fehler),
-    ...formatIssues(positionen, pair.positionen),
-  ]
-  const errs = issues.filter((i) => i.severity === 'error')
-  const warns = issues.filter((i) => i.severity === 'warning')
-  errorCount += errs.length
-  warnCount += warns.length
-  if (issues.length === 0) console.log(`  ${green('✔ keine Befunde')}`)
-  else printIssues([...errs, ...warns])
-  console.log()
+const liste = read('src/config/regelwerke.yaml')
+const positionen = read('src/config/positionen.yaml')
+console.log(bold('src/config (Quelle)'))
+if (liste === null || positionen === null) {
+  console.log(red('  regelwerke.yaml oder positionen.yaml fehlt\n'))
+  process.exit(1)
 }
+
+const regelwerke: Record<string, string> = {}
+for (const f of readdirSync(resolve(root, 'src/config/regelwerke'))) {
+  if (!f.endsWith('.yaml')) continue
+  regelwerke[f.replace(/\.yaml$/, '')] = read(`src/config/regelwerke/${f}`) ?? ''
+}
+
+const issues = [
+  ...validateConfigTexts({ liste, regelwerke, positionen }),
+  ...formatIssues(liste, 'src/config/regelwerke.yaml'),
+  ...formatIssues(positionen, 'src/config/positionen.yaml'),
+  ...Object.entries(regelwerke).flatMap(([id, text]) => formatIssues(text, `src/config/regelwerke/${id}.yaml`)),
+]
+const errs = issues.filter((i) => i.severity === 'error')
+const warns = issues.filter((i) => i.severity === 'warning')
+errorCount += errs.length
+warnCount += warns.length
+if (issues.length === 0) console.log(`  ${green('✔ keine Befunde')}`)
+else printIssues([...errs, ...warns])
+console.log()
 
 // ---- Zusammenfassung --------------------------------------------------------
 const summary = `${errorCount} Fehler, ${warnCount} Hinweis(e)`

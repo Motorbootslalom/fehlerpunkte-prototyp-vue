@@ -1,6 +1,6 @@
 import { inject, reactive, watch, type App, type InjectionKey } from 'vue'
-import type { AppState, Bogen, ClassId, Lauf, SheetTypeId } from '../types'
-import { applyBeschriftung } from '../config/active'
+import type { AppState, Bogen, ClassId, Lauf, SheetTypeId, Sprache } from '../types'
+import { applyBeschriftung, applyRegelwerk, applySprache, positionAllowsClass } from '../config/active'
 import { normalizeClassOrder } from '../lib/quickpick'
 import { cellKey } from '../lib/scoring'
 import { syncUrlToState } from '../lib/sharelink'
@@ -9,6 +9,8 @@ import { buildInitialState, defaultBoegen, defaultState, uid } from './initState
 
 export type Action =
   | { type: 'SET_EVENT'; eventName: string }
+  | { type: 'SET_REGELWERK'; regelwerk: string }
+  | { type: 'SET_SPRACHE'; sprache: Sprache }
   | { type: 'SET_AUFBAU'; aufbau: string }
   | { type: 'SET_BESCHRIFTUNG'; beschriftung: string }
   | { type: 'SET_EMPTY_ROWS'; emptyRows: number }
@@ -37,6 +39,21 @@ export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_EVENT':
       return { ...state, eventName: action.eventName }
+
+    case 'SET_REGELWERK':
+      // Kataloge und Disqualifikationen neu bauen (Seiteneffekt), dann State
+      // ändern → Neu-Render. Bögen von Klassen, die das neue Regelwerk nicht
+      // kennt (z. B. UIM ohne Klasse 6/7), entfallen.
+      applyRegelwerk(action.regelwerk)
+      return {
+        ...state,
+        regelwerk: action.regelwerk,
+        boegen: state.boegen.filter((b) => positionAllowsClass(b.typeId, b.klasse)),
+      }
+
+    case 'SET_SPRACHE':
+      applySprache(action.sprache)
+      return { ...state, sprache: action.sprache }
 
     case 'SET_AUFBAU':
       // Aufbau wechseln = neue Bogen-Grundausstattung dieses Setups (Klasse 3).
@@ -129,9 +146,15 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'MARK_INITIALIZED':
       return { ...state, initialized: true }
 
-    case 'RESET_ALL':
+    case 'RESET_ALL': {
       clearState()
-      return defaultState()
+      const fresh = defaultState()
+      // Die Konfiguration passend zum Zustand zurückstellen.
+      applyRegelwerk(fresh.regelwerk)
+      applySprache(fresh.sprache)
+      if (fresh.beschriftung) applyBeschriftung(fresh.beschriftung)
+      return fresh
+    }
 
     default:
       return state

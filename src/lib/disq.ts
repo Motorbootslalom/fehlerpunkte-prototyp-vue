@@ -27,7 +27,11 @@ export function sanitizeDisq(raw: string, allowed: Set<string>): string {
  * gültige Codes/Disqualifikationen erfolgt beim Verlassen (normalizeCodeCell).
  */
 export function sanitizeCodeInput(raw: string): string {
-  return raw.toUpperCase().replace(/[^0-9A-Z ,;/]/g, '')
+  return raw
+    .replace(/×/g, 'x')
+    .toUpperCase()
+    .replace(/[^0-9A-Z ,;/]/g, '')
+    .replace(/(\d)X(\d)/g, '$1x$2') // Faktor „2x6“ klein, X allein ist die Disqualifikation
 }
 
 /**

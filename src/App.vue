@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getAufbau, getLaufzettelConfig, getSheetDef } from './config/active'
+import { getAufbau, getLaufzettelConfig, getLegende, getSheetDef } from './config/active'
 import { buildLaufzettel } from './lib/laufzettel'
-import { pageCounts, showLaufzettel } from './state/laufzettel'
+import { pageCounts, showLaufzettel, showLegende } from './state/laufzettel'
 import { useStore } from './state/store'
 import ControlPanel from './components/ControlPanel.vue'
 import LaufzettelPage from './components/LaufzettelPage.vue'
+import LegendePage from './components/LegendePage.vue'
 import SheetView from './components/SheetView.vue'
 
 const { state } = useStore()
@@ -15,18 +16,27 @@ const laufzettel = computed(() =>
   buildLaufzettel(
     state.boegen,
     getAufbau(state.aufbau).order,
-    (t) => getSheetDef(t).title,
+    (t) => getSheetDef(t).titelDe,
     (id) => pageCounts[id] ?? 1,
   ),
 )
 // Arbeitsschritte der Auswertung (positionen.yaml → laufzettel).
 const lzConfig = getLaufzettelConfig()
+
+// Die aktive Konfiguration ist nicht reaktiv: Der Zustand zeigt an, wann sie sich
+// geändert hat. Legende und Bögen werden dann neu aufgebaut.
+const configKey = computed(() => `${state.regelwerk}:${state.sprache}:${state.beschriftung}`)
+const legende = computed(() => (configKey.value, getLegende()))
 </script>
 
 <template>
   <div class="app">
     <ControlPanel />
     <main class="sheets">
+      <!-- A4-Legende; gedruckt nur über „Nur Legende drucken“. -->
+      <section v-if="showLegende" class="legende-stack">
+        <LegendePage :legende="legende" :event-name="state.eventName" />
+      </section>
       <p v-if="state.boegen.length === 0" class="empty">
         Keine Bögen ausgewählt - links einen Bogen hinzufügen.
       </p>
@@ -42,7 +52,7 @@ const lzConfig = getLaufzettelConfig()
             :schritte="lzConfig.schritte"
           />
         </section>
-        <SheetView v-for="b in state.boegen" :key="b.id" :bogen="b" />
+        <SheetView v-for="b in state.boegen" :key="`${b.id}:${configKey}`" :bogen="b" />
       </template>
     </main>
   </div>

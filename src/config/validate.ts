@@ -3,11 +3,15 @@ import type {
   RawAufbau,
   RawBeschriftung,
   RawConfig,
+  RawDirektpunkt,
   RawDisq,
-  RawFehlerpunkte,
+  RawEnglisch,
   RawKatalog,
+  RawLegendeHinweis,
   RawPosition,
   RawPositionen,
+  RawRegelwerk,
+  RawRegelwerkListe,
   RawSpalte,
 } from './schema'
 
@@ -17,6 +21,15 @@ import type {
  * RawConfig ist hierzu zuweisbar.
  */
 export type ConfigInput = {
+  sprachen?: string[]
+  einheitEn?: string
+  fehlerHinweis?: string
+  fehlerHinweisEn?: string
+  legendeHinweise?: RawLegendeHinweis[]
+  direktpunkte?: Array<Partial<RawDirektpunkt>>
+  englisch?: RawEnglisch
+  klassen?: Array<string | number>
+  ohneSpalten?: Record<string, string[]>
   disqualifikationen?: Array<Partial<RawDisq>>
   kataloge?: Record<string, Partial<RawKatalog>>
   hinweise?: Record<string, string>
@@ -26,9 +39,10 @@ export type ConfigInput = {
   positionen?: Array<Partial<RawPosition>>
 }
 
-// Semantische Prüfung der (zusammengeführten) YAML-Konfiguration. Der Parser
-// (js-yaml) fängt bereits Syntaxfehler und doppelte Mapping-Keys ab; hier geht
-// es um die fachlichen Regeln, die gültiges YAML NICHT verhindert:
+// Semantische Prüfung der YAML-Konfiguration: Die Positionen werden gegen JEDES
+// Regelwerk geprüft, denn jedes muss alles anbieten, worauf sie verweisen. Der
+// Parser (js-yaml) fängt bereits Syntaxfehler und doppelte Mapping-Keys ab; hier
+// geht es um die fachlichen Regeln, die gültiges YAML NICHT verhindert:
 //   • doppelte Definitionen (Positions-IDs, Spalten-Keys, Fehler-Codes …)
 //   • Verweise ins Leere (Aufbau → Position, Spalte → Katalog/Summenspalte …)
 // Genutzt von validate.test.ts (blockt Commit/CI) und scripts/check-config.ts.
@@ -57,6 +71,13 @@ const VALID_TYPEN = new Set<RawSpalte['typ']>([
 ])
 
 const VALID_TRENNER = new Set(['fett', 'doppelt', 'gepunktet', 'gestrichelt'])
+
+// Bleibt lokal: types.ts würde hier einen Laufzeit-Import nötig machen, und das
+// Skript check-config.ts läuft ohne Bundler.
+const VALID_KLASSEN = new Set(['E', '1', '2', '3', '4', '5', '6', '7'])
+
+/** Bereiche, denen Disqualifikationen und Positionen zugeordnet sein können. */
+const VALID_BEREICHE = new Set(['vorsteg', 'steg', 'parcours', 'mueb'])
 
 /** Werte, die in der Liste mehr als einmal vorkommen (Wert → Anzahl). */
 function duplicates<T>(items: readonly T[], keyOf: (t: T) => string | undefined): Map<string, number> {
@@ -90,7 +111,6 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
 
   const katalogIds = new Set(Object.keys(kataloge))
   const hinweisIds = new Set(Object.keys(hinweise))
-  const disqCodes = new Set(disqs.map((d) => String(d.code)))
   const positionIds = new Set<string>()
 
   // ---- Duplikate auf oberster Ebene ---------------------------------------
@@ -107,10 +127,33 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
   for (const [code, n] of duplicates(disqs, (d) => (d ? String(d.code) : undefined)))
     err('DUP_DISQ_CODE', `Disqualifikations-Code "${code}" ${n}× definiert.`, 'disqualifikationen')
 
+  // Die Eingabe akzeptiert je Zeichen einen Buchstaben (siehe lib/disq).
+  for (const d of disqs)
+    if (d && !/^[A-Z]$/.test(String(d.code)))
+      err('BAD_DISQ_CODE', `Disqualifikations-Code "${d.code}" muss ein einzelner Großbuchstabe sein.`, 'disqualifikationen')
+
   for (const [kid, kat] of Object.entries(kataloge)) {
     for (const [code, n] of duplicates(kat?.fehler ?? [], (f) => (f ? String(f.code) : undefined)))
       err('DUP_FEHLER_CODE', `Fehler-Code "${code}" ${n}× im Katalog "${kid}".`, `kataloge.${kid}`)
+    // Die Eingabe akzeptiert nur Zahlen als Fehlercode (siehe lib/codes).
+    for (const f of kat?.fehler ?? [])
+      if (f && !/^\d+$/.test(String(f.code)))
+        err('BAD_FEHLER_CODE', `Fehler-Code "${f.code}" im Katalog "${kid}" muss eine Zahl sein.`, `kataloge.${kid}`)
   }
+
+  // Eindeutige Codes über alle Kataloge halten die A4-Legende lesbar.
+  const alleFehler = Object.values(kataloge).flatMap((k) => k?.fehler ?? [])
+  for (const [code, n] of duplicates(alleFehler, (f) => (f ? String(f.code) : undefined)))
+    warn('DUP_FEHLER_CODE_KATALOGE', `Fehler-Code "${code}" steht in ${n} Katalogen.`, 'kataloge')
+
+  for (const k of raw.klassen ?? [])
+    if (!VALID_KLASSEN.has(String(k)))
+      err('BAD_KLASSE', `Unbekannte Klasse "${k}" (erlaubt: E, 1 bis 7).`, 'klassen')
+
+  for (const d of disqs)
+    for (const b of d?.bereiche ?? [])
+      if (!VALID_BEREICHE.has(b))
+        err('UNKNOWN_DISQ_BEREICH', `Disqualifikation "${d?.code}" nennt den unbekannten Bereich "${b}".`, 'disqualifikationen')
 
   // ---- Positionen im Detail ------------------------------------------------
   positionen.forEach((pos, i) => {
@@ -170,12 +213,10 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     if (pos.abblenden !== undefined && !Array.isArray(pos.abblenden))
       err('BAD_ABBLENDEN', `abblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
 
-    if (Array.isArray(pos.disq)) {
-      for (const c of pos.disq)
-        if (!disqCodes.has(String(c)))
-          err('UNKNOWN_DISQ_CODE', `Position "${pos.id}" verweist auf unbekannten Disq-Code "${c}".`, where)
-    } else if (pos.disq !== undefined && pos.disq !== 'alle' && pos.disq !== 'keine') {
-      err('BAD_DISQ', `disq in "${pos.id}" muss 'alle', 'keine' oder eine Liste von Codes sein.`, where)
+    if (pos.disq !== undefined && typeof pos.disq !== 'string') {
+      err('BAD_DISQ', `disq in "${pos.id}" muss 'alle', 'keine' oder ein Bereich sein (keine Liste von Buchstaben).`, where)
+    } else if (pos.disq !== undefined && pos.disq !== 'alle' && pos.disq !== 'keine' && !VALID_BEREICHE.has(pos.disq)) {
+      err('UNKNOWN_DISQ_BEREICH', `Position "${pos.id}" verweist auf den unbekannten Bereich "${pos.disq}".`, where)
     }
 
     spalten.forEach((sp, j) => {
@@ -215,6 +256,47 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     })
   })
 
+  // ---- Regelwerk mit Englisch: Fehlt irgendwo eine Übersetzung? -------------
+  for (const sp of raw.sprachen ?? [])
+    if (sp !== 'de' && sp !== 'en') err('BAD_SPRACHE', `Unbekannte Sprache "${sp}" (erlaubt: de, en).`, 'sprachen')
+  if (raw.sprachen?.includes('en')) {
+    const fehlt = (was: string, where: string) => err('MISSING_EN', `Englischer Text fehlt: ${was}.`, where)
+    for (const d of disqs) if (!d?.en) fehlt(`Disqualifikation "${d?.code}"`, 'disqualifikationen')
+    for (const [kid, kat] of Object.entries(kataloge)) {
+      if (kat?.titel && !kat.titelEn) fehlt(`Titel des Katalogs "${kid}"`, `kataloge.${kid}`)
+      for (const f of kat?.fehler ?? []) if (!f?.en) fehlt(`Fehler-Code "${f?.code}"`, `kataloge.${kid}`)
+    }
+    for (const d of raw.direktpunkte ?? []) if (!d?.en || !d.titelEn) fehlt(`Fehler ohne Code "${d?.titel}"`, 'direktpunkte')
+    if (raw.fehlerHinweis && !raw.fehlerHinweisEn) fehlt('fehlerHinweis', 'fehlerHinweisEn')
+    for (const h of raw.legendeHinweise ?? [])
+      if (typeof h === 'string' || !h.en) fehlt(`Hinweis "${typeof h === 'string' ? h : h.text}"`, 'legendeHinweise')
+
+    const texte = raw.englisch?.texte ?? {}
+    const hinweisTexte = raw.englisch?.hinweise ?? {}
+    positionen.forEach((pos, i) => {
+      const where = `positionen[${i}]${pos?.id ? ` (id: ${pos.id})` : ''}`
+      if (pos?.titel && !texte[pos.titel]) fehlt(`Titel "${pos.titel}" (englisch.texte)`, where)
+      if (pos?.hinweis && hinweisIds.has(pos.hinweis) && !hinweisTexte[pos.hinweis])
+        fehlt(`Hinweis "${pos.hinweis}" (englisch.hinweise)`, where)
+      for (const sp of pos?.spalten ?? [])
+        if (sp?.label && !texte[sp.label]) fehlt(`Spaltenname "${sp.label}" (englisch.texte)`, where)
+    })
+    for (const b of beschriftungen)
+      if (b?.id && !raw.englisch?.bezeichnungen?.[b.id]) fehlt(`Bezeichnungs-Schema "${b.id}" (englisch.bezeichnungen)`, 'beschriftungen')
+  }
+
+  // ---- Regelwerk: Spalten, die es hier nicht gibt --------------------------
+  for (const [pid, keys] of Object.entries(raw.ohneSpalten ?? {})) {
+    const pos = positionen.find((p) => p?.id === pid)
+    if (!pos) {
+      err('UNKNOWN_POSITION_REF', `ohneSpalten verweist auf unbekannte Position "${pid}".`, 'ohneSpalten')
+      continue
+    }
+    for (const key of keys)
+      if (!(pos.spalten ?? []).some((s) => s?.key === key))
+        err('UNKNOWN_SPALTE', `ohneSpalten: Position "${pid}" hat keine Spalte "${key}".`, 'ohneSpalten')
+  }
+
   // ---- Aufbauten: Positions-Verweise --------------------------------------
   aufbauten.forEach((a, i) => {
     const where = `aufbauten[${i}]${a?.id ? ` (id: ${a.id})` : ''}`
@@ -251,16 +333,59 @@ export function parseYaml(text: string, file: string): { data: unknown; issues: 
   }
 }
 
+/** Die YAML-Texte der Konfiguration, wie sie im Ordner src/config liegen. */
+export interface ConfigTexts {
+  /** Inhalt von regelwerke.yaml. */
+  liste: string
+  /** Inhalt von regelwerke/<id>.yaml je Datei (Schlüssel = <id>). */
+  regelwerke: Record<string, string>
+  /** Inhalt von positionen.yaml. */
+  positionen: string
+}
+
 /**
- * Parst beide YAML-Texte, führt sie zusammen und validiert sie - genau wie
+ * Parst die YAML-Texte und prüft die Positionen gegen jedes Regelwerk - wie
  * mergeAndBuild in active.ts, aber mit gesammelten Befunden statt stillem
  * Fallback. Rückgabe: alle Parse- + Validierungs-Befunde.
  */
-export function validateConfigTexts(fehlerText: string, positionenText: string): ConfigIssue[] {
-  const f = parseYaml(fehlerText, 'fehlerpunkte.yaml')
-  const p = parseYaml(positionenText, 'positionen.yaml')
-  const issues = [...f.issues, ...p.issues]
-  if (f.data === null || p.data === null) return issues // ohne gültiges YAML keine Semantik-Prüfung
-  const raw: RawConfig = { ...(f.data as RawFehlerpunkte), ...(p.data as RawPositionen) }
-  return [...issues, ...validateRawConfig(raw)]
+export function validateConfigTexts(texte: ConfigTexts): ConfigIssue[] {
+  const liste = parseYaml(texte.liste, 'regelwerke.yaml')
+  const positionen = parseYaml(texte.positionen, 'positionen.yaml')
+  const issues = [...liste.issues, ...positionen.issues]
+  if (liste.data === null || positionen.data === null) return issues
+
+  const ids = (liste.data as RawRegelwerkListe).regelwerke ?? []
+  if (ids.length === 0)
+    issues.push({ severity: 'error', code: 'NO_REGELWERK', message: 'regelwerke.yaml nennt kein Regelwerk.', where: 'regelwerke.yaml' })
+  for (const [id, n] of duplicates(ids, (x) => x))
+    issues.push({ severity: 'error', code: 'DUP_REGELWERK', message: `Regelwerk "${id}" ${n}× in der Liste.`, where: 'regelwerke.yaml' })
+  for (const id of ids)
+    if (texte.regelwerke[id] === undefined)
+      issues.push({ severity: 'error', code: 'MISSING_REGELWERK', message: `Datei regelwerke/${id}.yaml fehlt.`, where: 'regelwerke.yaml' })
+  for (const id of Object.keys(texte.regelwerke))
+    if (!ids.includes(id))
+      issues.push({ severity: 'warning', code: 'ORPHAN_REGELWERK', message: `regelwerke/${id}.yaml steht nicht in regelwerke.yaml - nicht wählbar.`, where: `regelwerke/${id}.yaml` })
+
+  // Befunde, die nur die Positionen betreffen, würden sonst je Regelwerk einmal
+  // erscheinen.
+  const gesehen = new Set<string>()
+  for (const [id, text] of Object.entries(texte.regelwerke)) {
+    const file = `regelwerke/${id}.yaml`
+    const parsed = parseYaml(text, file)
+    issues.push(...parsed.issues)
+    if (parsed.data === null) continue
+    const rw = parsed.data as RawRegelwerk
+    if (rw.id !== id)
+      issues.push({ severity: 'error', code: 'BAD_REGELWERK_ID', message: `id "${rw.id}" passt nicht zum Dateinamen "${id}".`, where: file })
+    if (!rw.name || rw.version === undefined)
+      issues.push({ severity: 'error', code: 'MISSING_REGELWERK_NAME', message: 'Regelwerk ohne "name" oder "version".', where: file })
+    const raw: RawConfig = { ...rw, ...(positionen.data as RawPositionen) }
+    for (const issue of validateRawConfig(raw)) {
+      const schluessel = `${issue.code}|${issue.where}|${issue.message}`
+      if (gesehen.has(schluessel)) continue
+      gesehen.add(schluessel)
+      issues.push({ ...issue, where: `${file}: ${issue.where}` })
+    }
+  }
+  return issues
 }
