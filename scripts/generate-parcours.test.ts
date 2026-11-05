@@ -99,13 +99,33 @@ describe('IDs in den Quell-SVGs', () => {
     const ids = new Set(
       positionen
         .filter((p) => p.bildGenerator)
-        .flatMap((p) => [...(p.abblenden ?? []), ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
+        .flatMap((p) => [...(p.abblenden ?? []), ...(p.ausblenden ?? []), ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
         .filter((id) => id && !OPTIONALE_IDS.has(id)),
     )
     expect(ids.size).toBeGreaterThan(0)
     for (const file of svgs) {
       const svg = readFileSync(`${ORDNER}/${file}`, 'utf8')
       for (const id of ids) expect(svg, `${file}: ${id}`).toContain(`id="${id}"`)
+    }
+  })
+
+  it('jede Ziffer im Bild hat eine Nummer_-ID, sonst ließe sie sich nicht ausblenden', () => {
+    for (const file of svgs) {
+      const svg = readFileSync(`${ORDNER}/${file}`, 'utf8')
+      const ziffern = [...svg.matchAll(/<text\b[^>]*\bid="([^"]*)"[^>]*>\s*<tspan\b[^>]*>\s*\d\s*<\/tspan>/g)].map((m) => m[1])
+      expect(ziffern.length, file).toBeGreaterThan(0)
+      for (const id of ziffern) expect(id, file).toMatch(/^Nummer_/)
+    }
+  })
+
+  it('Berlin Links zeigt keine Ziffern, Berlin Rechts behält sie', () => {
+    const nummern = (ordner: string, file: string) =>
+      [...readFileSync(`public/parcours/${ordner}/${file}`, 'utf8').matchAll(/id="Nummer_[^"]*"( opacity="0")?/g)]
+    for (const file of svgs) {
+      const links = nummern('berlin_links', file)
+      expect(links.length, file).toBeGreaterThan(0)
+      expect(links.every((m) => m[1]), file).toBe(true)
+      expect(nummern('berlin_rechts', file).some((m) => m[1]), file).toBe(false)
     }
   })
 

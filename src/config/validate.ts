@@ -289,6 +289,8 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     }
     if (pos.abblenden !== undefined && !Array.isArray(pos.abblenden))
       err('BAD_ABBLENDEN', `abblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
+    if (pos.ausblenden !== undefined && !Array.isArray(pos.ausblenden))
+      err('BAD_AUSBLENDEN', `ausblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
 
     if (pos.disq !== undefined && typeof pos.disq !== 'string') {
       err('BAD_DISQ', `disq in "${pos.id}" muss 'alle', 'keine' oder ein Bereich sein (keine Liste von Buchstaben).`, where)

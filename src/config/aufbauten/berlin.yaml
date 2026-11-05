@@ -74,6 +74,8 @@ positionen:
     # Tor 2/4/5 bleiben hell (`hebt`), die Speedbojen auch. Tor 1/3 folgen aus
     # `hebt`, zusätzlich werden Start/Ziel und die Schikane abgeblendet.
     abblenden: [StartZiel, Schikane]
+    # Durch die Drehung stünden die Ziffern kopfüber, deshalb fehlen sie hier.
+    ausblenden: [Nummer_Tor1, Nummer_Tor2, Nummer_Tor3, Nummer_Tor4, Nummer_Tor5, Nummer_Schikane, Nummer_Speedboje_oben, Nummer_Speedboje_unten]
     summeSpalte: sum
     disq: parcours
     hinweis: blickrichtung

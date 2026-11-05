@@ -38,6 +38,8 @@ sprachen: [en]
 #   bildQuelle   Quell-Ordner für den Generator (Default: alcatraz_Parcours).
 #   abblenden    [Tor2, Tor4, …] Element-IDs, die abgeblendet werden. Fallback zu
 #                `hebt` bzw. Ergänzung (z. B. zusätzlich Speedboje_unten).
+#   ausblenden   [Nummer_Tor1, …] Element-IDs, die ganz unsichtbar werden. Nur mit
+#                `bildGenerator`.
 #   bildDrehung  0 | 90 | -90 | 180  (Bild um so viel Grad drehen).
 #   bildNeben    true = Bild rechts neben Fehlerpunkten und Beschreibung, darunter die
 #                Disqualifikationen. Fehlt: querliegendes Bild unter der Legende.

@@ -72,8 +72,8 @@ Start wird ein Aufbau gewählt:
   + Start-/Zieltor-Bojen) · Rechts (Tor 1/3 + Mann-über-Bord) · Links (Tor 2/4/5 mit
   Einfahrt Tor 5 + Speedbojen). Das Bild steht neben der Legende, nicht beobachtete
   Elemente sind abgeblendet. Bei „Rechts“ liegt Start/Ziel links im Bild, bei „Links“
-  (um 180° gedreht) rechts, so wie der WKR den Kurs von seiner Seite sieht. Zahlen und
-  Texte im Bild stehen dadurch bei „Links“ kopfüber.
+  (um 180° gedreht) rechts, so wie der WKR den Kurs von seiner Seite sieht. Bei „Links“
+  fehlen deshalb die Ziffern im Bild, „Tempo-Runde“ steht dort kopfüber.
 - **Baden-Württemberg** (Blick von den Seiten): Zeit · Steg · Land 1 · Land 2 ·
   Wasser 1 · Wasser 2 · Knoten.
 - **Parallelslalom** (Beispiel): Zeit · Steg · Parallel-Parcours.
@@ -139,15 +139,16 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
 - Jedes Bild-Element hat eine stabile, sprechende `id` (`Tor1`…`Tor5`, `StartZiel`,
   `Speedboje_oben`, `Speedboje_unten`, `Schikane`, `Zeitnahme`, `Zeit_oben`, `Zeit_unten`,
   `Zeit_oben_Flagge`, `Zeit_unten_Flagge`, `Nummer_Tor1`…`Nummer_Tor5`,
-  `Nummer_Schikane`), über alle Klassen identisch. Nur `Speedboje_unten` fehlt in den
-  Klassen ohne Speed 2.
+  `Nummer_Schikane`, `Nummer_Speedboje_oben`, `Nummer_Speedboje_unten`), über alle Klassen
+  identisch. Nur `Speedboje_unten` und seine Nummer fehlen in den Klassen ohne Speed 2.
 - An den Positionen markiert das Spalten-Feld `hebt: Tor1` die im Bild
   **hervorzuhebenden** Tore. Die übrigen Tore werden mit reduzierter Deckkraft
   (opacity) abgeblendet. **Fahrweg und Zeitnahme bleiben zur Orientierung immer
   sichtbar**, alles andere nur, solange es nicht in `abblenden` steht. Weil `hebt` an der Spalte hängt, wandert die Hervorhebung beim
   Kopieren einer Spaltenzeile automatisch mit.
 - Alternativ/ergänzend blendet eine Positions-Liste `abblenden: [Tor2, Tor4]`
-  gezielt Elemente ab (Fallback, falls keine Spalte `hebt` nutzt).
+  gezielt Elemente ab (Fallback, falls keine Spalte `hebt` nutzt). `ausblenden` macht
+  Elemente ganz unsichtbar; das nutzt Berlin „Links“ für die Ziffern.
 - **Einzelne Bojen** sind ebenso ansprechbar wie ganze Tore: Tor 5 (`Tor5_oben` /
   `Tor5_unten`), die beiden Start/Ziel-Bojen (`StartZiel_oben` oben / `StartZiel_unten`
   unten) und die beiden Speedbojen (`Speedboje_oben` oben / `Speedboje_unten` unten).

@@ -170,6 +170,8 @@ export interface RawPosition {
    * sie zusätzliche Elemente (z. B. Speedboje_unten) abblenden.
    */
   abblenden?: string[]
+  /** Element-IDs im Parcoursbild, die ganz unsichtbar werden (z. B. Ziffern). */
+  ausblenden?: string[]
   /** Bild-Drehung in Grad: 0 | 90 | -90 | 180. */
   bildDrehung?: number
   /** Nur bei ±90° gedrehtem Bild: Breite des Bildes neben der Legende in mm (Standard 40). */

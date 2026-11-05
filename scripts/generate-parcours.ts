@@ -18,6 +18,7 @@
 //   • Positions-Feld  bild: <ordner>        → Zielordner (das die App lädt)
 //   • Spalten-Feld    hebt: <id>            → dieses Element bleibt hervorgehoben
 //   • Positions-Feld  abblenden: [<id>, …]  → Fallback/Ergänzung: explizit dimmen
+//   • Positions-Feld  ausblenden: [<id>, …] → ganz unsichtbar (z. B. Ziffern)
 import { load as yamlLoad } from 'js-yaml'
 import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
@@ -31,10 +32,14 @@ export const DIM_UNIVERSE = ['Tor1', 'Tor2', 'Tor3', 'Tor4', 'Tor5'] as const
 
 /** IDs, die nicht in jedem Klassenbild vorkommen: Die untere Speedboje zeigt der
  *  Master-Export nur dort, wo die Route um sie herumführt. */
-export const OPTIONALE_IDS = new Set(['Speedboje_unten'])
+export const OPTIONALE_IDS = new Set(['Speedboje_unten', 'Nummer_Speedboje_unten'])
 
 /** Rest-Deckkraft der abgeblendeten Elemente (0 = unsichtbar, 1 = voll). */
 export const DIM_OPACITY = 0.2
+
+/** Deckkraft ausgeblendeter Elemente. Über die Deckkraft statt `display="none"`, weil
+ *  die Elemente `display:inline` im style tragen und der das Attribut überstimmt. */
+export const AUSBLENDEN_OPACITY = 0
 
 /** Rasterungs-Faktor der PNGs (2 = doppelte Auflösung für scharfen Druck). */
 export const PNG_ZOOM = 2
@@ -48,6 +53,7 @@ interface Position {
   bildGenerator?: boolean
   bildQuelle?: string
   abblenden?: string[]
+  ausblenden?: string[]
   spalten?: Spalte[]
 }
 
@@ -102,7 +108,7 @@ function run(): void {
 
   // Nach Ziel-Ordner bündeln: mehrere Positionen (z. B. Alcatraz + Frontal)
   // teilen sich dasselbe Bild. Ihre abgeleiteten Dimm-Mengen müssen übereinstimmen.
-  const jobs = new Map<string, { source: string; dim: string[]; from: string }>()
+  const jobs = new Map<string, { source: string; dim: string[]; aus: string[]; from: string }>()
   for (const pos of positionen) {
     if (!pos?.bildGenerator) continue
     if (!pos.bild) {
@@ -110,16 +116,19 @@ function run(): void {
       continue
     }
     const source = pos.bildQuelle ?? 'alcatraz_Parcours'
-    const dim = deriveDimSet(pos).sort()
+    const aus = [...(pos.ausblenden ?? [])].sort()
+    const dim = deriveDimSet(pos)
+      .filter((id) => !aus.includes(id))
+      .sort()
     const prev = jobs.get(pos.bild)
-    if (prev && (prev.source !== source || prev.dim.join(',') !== dim.join(','))) {
+    if (prev && (prev.source !== source || prev.dim.join(',') !== dim.join(',') || prev.aus.join(',') !== aus.join(','))) {
       console.warn(
         `  ⚠ Zielbild "${pos.bild}" wird von "${prev.from}" und "${pos.id}" mit unterschiedlichen ` +
           `Vorgaben belegt (${prev.dim.join('/')} vs. ${dim.join('/')}). Es gilt "${prev.from}".`,
       )
       continue
     }
-    if (!prev) jobs.set(pos.bild, { source, dim, from: pos.id ?? '?' })
+    if (!prev) jobs.set(pos.bild, { source, dim, aus, from: pos.id ?? '?' })
   }
 
   if (jobs.size === 0) {
@@ -131,7 +140,7 @@ function run(): void {
   let svgCount = 0
   let pngCount = 0
   let unchanged = 0
-  for (const [target, { source, dim }] of jobs) {
+  for (const [target, { source, dim, aus }] of jobs) {
     const srcDir = resolve(parcoursRoot, source)
     const outDir = resolve(parcoursRoot, target)
     if (!existsSync(srcDir)) {
@@ -140,11 +149,12 @@ function run(): void {
     }
     mkdirSync(outDir, { recursive: true })
     const svgs = readdirSync(srcDir).filter((f) => f.endsWith('.svg'))
-    console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'})`)
+    console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'}${aus.length ? `; ausblenden: ${aus.join(', ')}` : ''})`)
     for (const file of svgs) {
       const srcSvg = readFileSync(resolve(srcDir, file), 'utf8')
-      const { svg, missing } = applyDimming(srcSvg, dim)
-      const fehlend = missing.filter((id) => !OPTIONALE_IDS.has(id))
+      const gedimmt = applyDimming(srcSvg, dim)
+      const { svg, missing } = applyDimming(gedimmt.svg, aus, AUSBLENDEN_OPACITY)
+      const fehlend = [...gedimmt.missing, ...missing].filter((id) => !OPTIONALE_IDS.has(id))
       if (fehlend.length > 0) console.warn(`      ⚠ ${file}: IDs nicht gefunden: ${fehlend.join(', ')}`)
       const outSvg = resolve(outDir, file)
       const outPng = resolve(outDir, file.replace(/\.svg$/, '.png'))
