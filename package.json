@@ -22,7 +22,7 @@
     "@types/js-yaml": "^4.0.9",
     "html2canvas": "^1.4.1",
     "js-yaml": "^5.2.1",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.2",
     "pdfmake": "^0.2.20",
     "qrcode-generator": "^1.5.0",
