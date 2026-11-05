@@ -1,11 +1,12 @@
 import { load as yamlLoad, YAMLException } from 'js-yaml'
+import { findeKombi, kombiReihenfolge } from './kombi.ts'
 import type {
   RawAufbau,
   RawBeschriftung,
   RawConfig,
   RawDirektpunkt,
   RawDisq,
-  RawEnglisch,
+  RawUebersetzung,
   RawKatalog,
   RawLegendeHinweis,
   RawPosition,
@@ -13,6 +14,7 @@ import type {
   RawRegelwerk,
   RawRegelwerkListe,
   RawSpalte,
+  RawUeberwachung,
 } from './schema'
 
 /**
@@ -27,7 +29,7 @@ export type ConfigInput = {
   fehlerHinweisEn?: string
   legendeHinweise?: RawLegendeHinweis[]
   direktpunkte?: Array<Partial<RawDirektpunkt>>
-  englisch?: RawEnglisch
+  uebersetzungen?: Record<string, RawUebersetzung>
   klassen?: Array<string | number>
   ohneSpalten?: Record<string, string[]>
   disqualifikationen?: Array<Partial<RawDisq>>
@@ -36,6 +38,7 @@ export type ConfigInput = {
   bezeichnungen?: Record<string, string>
   beschriftungen?: Array<Partial<RawBeschriftung>>
   aufbauten?: Array<Partial<RawAufbau>>
+  ueberwachung?: RawUeberwachung[]
   positionen?: Array<Partial<RawPosition>>
 }
 
@@ -88,6 +91,76 @@ function duplicates<T>(items: readonly T[], keyOf: (t: T) => string | undefined)
     counts.set(k, (counts.get(k) ?? 0) + 1)
   }
   return new Map([...counts].filter(([, n]) => n > 1))
+}
+
+/** Eine Boje oder Aufgabe, die in einem Aufbau keine Liste abdeckt. */
+export interface UeberwachungsLuecke {
+  aufbau: string
+  /** Die Lücke besteht nur mit zusammengelegten Listen. */
+  nurZusammengelegt: boolean
+  element: string
+  klassen: string[]
+}
+
+/** Was eine Liste für eine Klasse abdeckt: „key|sub“, „key“ und „katalog:id“. */
+function abgedeckt(positionen: Array<Partial<RawPosition>>, klasse: string): Set<string> {
+  const gilt = (klassen?: Array<string | number>) => !klassen || klassen.map(String).includes(klasse)
+  const out = new Set<string>()
+  for (const pos of positionen) {
+    if (!gilt(pos.klassen)) continue
+    for (const sp of pos.spalten ?? []) {
+      if (!sp?.key || !gilt(sp.klassen)) continue
+      // Tor 5 darf auf zwei Spalten verteilt sein (t5a, t5b).
+      const key = sp.key.replace(/^t5[ab]$/, 't5')
+      out.add(key)
+      for (const s of sp.sub ?? []) out.add(`${key}|${s}`)
+      const katalog = sp.katalog ?? pos.katalog
+      if (sp.typ === 'code' && katalog) out.add(`katalog:${katalog}`)
+    }
+  }
+  return out
+}
+
+/**
+ * Prüft je Aufbau und Klasse, ob jede Boje und jede Aufgabe aus `ueberwachung` auf einer
+ * Liste steht, auch mit zusammengelegten Positionen. Aufbauten mit `eigeneStrecke`
+ * zählen nicht.
+ */
+export function ueberwachungsLuecken(raw: ConfigInput): UeberwachungsLuecke[] {
+  const positionen = raw.positionen ?? []
+  const pruefungen = raw.ueberwachung ?? []
+  const klassenAlle = [...VALID_KLASSEN]
+  const luecken = new Map<string, UeberwachungsLuecke>()
+  for (const a of raw.aufbauten ?? []) {
+    if (a?.eigeneStrecke || !a?.id) continue
+    const normal = a.positionen ?? []
+    const kombi = findeKombi(normal, positionen)
+    const varianten: Array<[string[], boolean]> = [[normal, false]]
+    if (kombi?.ersetzt && kombi.id) varianten.push([kombiReihenfolge(normal, kombi.id, kombi.ersetzt), true])
+    for (const [ids, zusammengelegt] of varianten) {
+      const liste = ids.map((id) => positionen.find((p) => p?.id === id)).filter((p): p is Partial<RawPosition> => !!p)
+      for (const klasse of klassenAlle) {
+        const da = abgedeckt(liste, klasse)
+        for (const p of pruefungen) {
+          if (p.klassen && !p.klassen.map(String).includes(klasse)) continue
+          const fehlend = p.katalog
+            ? da.has(`katalog:${p.katalog}`) ? [] : [p.name]
+            : p.sub
+              ? p.sub.filter((s) => !da.has(`${p.key}|${s}`)).map((s) => `${p.name} (${s})`)
+              : da.has(p.key ?? '') ? [] : [p.name]
+          for (const element of fehlend) {
+            const schluessel = `${a.id}|${zusammengelegt}|${element}`
+            const eintrag = luecken.get(schluessel) ?? { aufbau: a.id, nurZusammengelegt: zusammengelegt, element, klassen: [] }
+            eintrag.klassen.push(klasse)
+            luecken.set(schluessel, eintrag)
+          }
+        }
+      }
+    }
+  }
+  // Fehlt etwas schon ohne Zusammenlegen, ist die zusammengelegte Variante nichts Neues.
+  const alle = [...luecken.values()]
+  return alle.filter((l) => !l.nurZusammengelegt || !alle.some((n) => !n.nurZusammengelegt && n.aufbau === l.aufbau && n.element === l.element))
 }
 
 /**
@@ -178,6 +251,10 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     if (pos.katalog && !katalogIds.has(pos.katalog))
       err('UNKNOWN_KATALOG', `Position "${pos.id}" verweist auf unbekannten Katalog "${pos.katalog}".`, where)
 
+    for (const id of pos.ersetzt ?? [])
+      if (!positionen.some((p) => p?.id === id))
+        err('UNKNOWN_POSITION_REF', `Position "${pos.id}" ersetzt die unbekannte Position "${id}".`, where)
+
     // Ein Hinweis darf auch direkter Freitext sein (dann Leerzeichen/Zeilen);
     // nur einzelne Wörter werden als Verweis-ID gewertet und geprüft.
     if (pos.hinweis && !/\s/.test(pos.hinweis) && !hinweisIds.has(pos.hinweis))
@@ -245,6 +322,15 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
           err('UNKNOWN_PUNKTE_SPALTE', `punkteSpalte "${sp.punkteSpalte}" (Spalte "${sp.key}") existiert nicht in "${pos.id}".`, sw)
       }
 
+      // Der Spaltenname muss zum Tor passen, sonst steht der Fehler auf dem Papier.
+      const tor = /^t([1-5])[a-c]?$/.exec(sp.key ?? '')
+      if (sp.typ === 'boje' && tor && sp.label !== `Tor ${tor[1]}`)
+        warn('FALSCHER_TORNAME', `Spalte "${sp.key}" in "${pos.id}" heißt "${sp.label}", erwartet "Tor ${tor[1]}".`, sw)
+
+      // Ohne `innen` bleibt die Spalte im Schema Innen/Außen bei R/L, der Hinweis aber nicht.
+      if (sp.typ === 'boje' && sp.key && /^t[1-4][a-c]$/.test(sp.key) && !sp.innen)
+        warn('FEHLT_INNEN', `Tor-Spalte "${sp.key}" in "${pos.id}" hat keine Angabe "innen".`, sw)
+
       if (sp.innen && sp.innen !== 'seiteA' && sp.innen !== 'seiteB')
         err('BAD_INNEN', `innen "${sp.innen}" (Spalte "${sp.key}") muss 'seiteA' oder 'seiteB' sein.`, sw)
 
@@ -271,18 +357,19 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     for (const h of raw.legendeHinweise ?? [])
       if (typeof h === 'string' || !h.en) fehlt(`Hinweis "${typeof h === 'string' ? h : h.text}"`, 'legendeHinweise')
 
-    const texte = raw.englisch?.texte ?? {}
-    const hinweisTexte = raw.englisch?.hinweise ?? {}
+    const en = raw.uebersetzungen?.en
+    const texte = en?.texte ?? {}
+    const hinweisTexte = en?.hinweise ?? {}
     positionen.forEach((pos, i) => {
       const where = `positionen[${i}]${pos?.id ? ` (id: ${pos.id})` : ''}`
-      if (pos?.titel && !texte[pos.titel]) fehlt(`Titel "${pos.titel}" (englisch.texte)`, where)
+      if (pos?.titel && !texte[pos.titel]) fehlt(`Titel "${pos.titel}" (i18n/en.yaml)`, where)
       if (pos?.hinweis && hinweisIds.has(pos.hinweis) && !hinweisTexte[pos.hinweis])
-        fehlt(`Hinweis "${pos.hinweis}" (englisch.hinweise)`, where)
+        fehlt(`Hinweis "${pos.hinweis}" (i18n/en.yaml)`, where)
       for (const sp of pos?.spalten ?? [])
-        if (sp?.label && !texte[sp.label]) fehlt(`Spaltenname "${sp.label}" (englisch.texte)`, where)
+        if (sp?.label && !texte[sp.label]) fehlt(`Spaltenname "${sp.label}" (i18n/en.yaml)`, where)
     })
     for (const b of beschriftungen)
-      if (b?.id && !raw.englisch?.bezeichnungen?.[b.id]) fehlt(`Bezeichnungs-Schema "${b.id}" (englisch.bezeichnungen)`, 'beschriftungen')
+      if (b?.id && !en?.bezeichnungen?.[b.id]) fehlt(`Bezeichnungs-Schema "${b.id}" (i18n/en.yaml)`, 'beschriftungen')
   }
 
   // ---- Regelwerk: Spalten, die es hier nicht gibt --------------------------
@@ -311,12 +398,22 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
   if (aufbauten.length > 0) {
     const used = new Set(aufbauten.flatMap((a) => a?.positionen ?? []))
     for (const p of positionen)
-      if (p?.id && !used.has(p.id) && p.schnellauswahl !== true)
+      if (p?.id && !used.has(p.id) && p.schnellauswahl !== true && !p.ersetzt?.length)
         warn(
           'ORPHAN_POSITION',
           `Position "${p.id}" steht in keinem Aufbau und hat kein "schnellauswahl: true" - sie ist nirgends wählbar.`,
           'positionen',
         )
+  }
+
+  // ---- Überwachung: Steht jede Boje und jede Aufgabe auf einer Liste? --------
+  for (const l of ueberwachungsLuecken(raw)) {
+    const alleKlassen = l.klassen.length === VALID_KLASSEN.size ? 'alle Klassen' : `Klasse ${l.klassen.join(', ')}`
+    warn(
+      'NICHT_UEBERWACHT',
+      `${l.element}: von keiner Liste abgedeckt (${alleKlassen})${l.nurZusammengelegt ? ', nur mit zusammengelegter Tor-5-Liste' : ''}.`,
+      `Aufbau ${l.aufbau}`,
+    )
   }
 
   return issues

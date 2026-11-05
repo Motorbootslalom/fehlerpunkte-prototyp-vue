@@ -10,7 +10,9 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import { validateConfigTexts, type ConfigIssue } from '../src/config/validate.ts'
+import { dump as yamlDump } from 'js-yaml'
+import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
+import { parseYaml, validateConfigTexts, type ConfigIssue } from '../src/config/validate.ts'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR
@@ -59,12 +61,37 @@ let warnCount = 0
 console.log(bold('\n▶ Konfigurations-Check\n'))
 
 const liste = read('src/config/regelwerke.yaml')
-const positionen = read('src/config/positionen.yaml')
+const aufbautenListe = read('src/config/aufbauten.yaml')
 console.log(bold('src/config (Quelle)'))
-if (liste === null || positionen === null) {
-  console.log(red('  regelwerke.yaml oder positionen.yaml fehlt\n'))
+if (liste === null || aufbautenListe === null) {
+  console.log(red('  regelwerke.yaml oder aufbauten.yaml fehlt\n'))
   process.exit(1)
 }
+
+// Positions-Dateien einzeln lesen, damit Befunde die richtige Datei nennen.
+const dateien = quellDateien(aufbautenListe)
+const positionenTexte: Record<string, string> = {}
+const dateiBefunde: ConfigIssue[] = []
+const teile: unknown[] = []
+for (const name of dateien) {
+  const file = `src/config/${name}.yaml`
+  const text = read(file)
+  if (text === null) {
+    dateiBefunde.push({ severity: 'error', code: 'MISSING_DATEI', message: 'Datei fehlt (siehe aufbauten.yaml).', where: file })
+    continue
+  }
+  positionenTexte[file] = text
+  const parsed = parseYaml(text, file)
+  dateiBefunde.push(...parsed.issues)
+  if (parsed.data !== null) teile.push(parsed.data)
+}
+for (const ordner of ['aufbauten', 'i18n']) {
+  for (const f of readdirSync(resolve(root, 'src/config', ordner))) {
+    if (f.endsWith('.yaml') && !dateien.includes(`${ordner}/${f.replace(/\.yaml$/, '')}`))
+      dateiBefunde.push({ severity: 'warning', code: 'ORPHAN_DATEI', message: 'Datei steht nicht in aufbauten.yaml - sie fehlt in der App.', where: `src/config/${ordner}/${f}` })
+  }
+}
+const positionen = yamlDump(mergePositionen(teile), { lineWidth: -1, noRefs: true })
 
 const regelwerke: Record<string, string> = {}
 for (const f of readdirSync(resolve(root, 'src/config/regelwerke'))) {
@@ -74,8 +101,10 @@ for (const f of readdirSync(resolve(root, 'src/config/regelwerke'))) {
 
 const issues = [
   ...validateConfigTexts({ liste, regelwerke, positionen }),
+  ...dateiBefunde,
   ...formatIssues(liste, 'src/config/regelwerke.yaml'),
-  ...formatIssues(positionen, 'src/config/positionen.yaml'),
+  ...formatIssues(aufbautenListe, 'src/config/aufbauten.yaml'),
+  ...Object.entries(positionenTexte).flatMap(([file, text]) => formatIssues(text, file)),
   ...Object.entries(regelwerke).flatMap(([id, text]) => formatIssues(text, `src/config/regelwerke/${id}.yaml`)),
 ]
 const errs = issues.filter((i) => i.severity === 'error')

@@ -1,7 +1,7 @@
 import { getSheetDef } from '../config/active'
 import { pageChunks } from './paging'
 import { bogenPayload } from './qr'
-import { cellKey, columnsForClass, formatDisqs, scoreRow } from './scoring'
+import { cellKey, columnsForClass, defFuerKlasse, formatDisqs, scoreRow } from './scoring'
 import { formatTimeDisplay, parseTime } from './time'
 import type { AppState, Bogen, CellKind, Column, SheetDef } from '../types'
 
@@ -75,7 +75,7 @@ function buildLeaves(columns: Column[]): ModelLeaf[] {
 
 /** Alle Druckseiten eines Bogens (bei „Zeilen/Seite“ mehrere, sonst eine). */
 export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[] {
-  const def = getSheetDef(bogen.typeId)
+  const def = defFuerKlasse(getSheetDef(bogen.typeId), bogen.klasse)
   const cols = columnsForClass(def.columns, bogen.klasse)
   const viewDef: SheetDef = { ...def, columns: cols }
   const leaves = buildLeaves(cols)

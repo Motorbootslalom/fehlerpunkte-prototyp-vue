@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import {
+  aufbauOrder,
   getAufbau,
   getAufbauten,
   getBeschriftungen,
@@ -51,7 +52,9 @@ const addTypeRaw = ref<SheetTypeId>('')
 
 // Positionen des gewählten Aufbaus (Setup) - Basis für „Kompletter Lauf“ und
 // „Eine Klasse · alle Listen“.
-const order = computed(() => getAufbau(state.aufbau).order)
+const order = computed(() => aufbauOrder(state.aufbau, state.tor5MitParcours))
+// Nur anbieten, wenn der Aufbau Tor 5 und Parcours zusammenlegen kann.
+const kannZusammenlegen = computed(() => !!getAufbau(state.aufbau).kombi)
 // Wählbar (Menüs, „Eine Position · alle Klassen“): der Aufbau plus alle
 // Positionen mit `schnellauswahl: true` aus der YAML.
 const menuOrder = computed(() => [...order.value, ...getAufbau(state.aufbau).zusatz])
@@ -243,6 +246,19 @@ const commitDate = __GIT_COMMIT_DATE__
         >
           <option v-for="a in aufbauten" :key="a.id" :value="a.id">{{ a.name }}</option>
         </select>
+      </label>
+      <label
+        v-if="kannZusammenlegen"
+        class="cp-check"
+        style="margin-top: 8px"
+        title="Eine Person überwacht die Einfahrt in Tor 5 und den Parcours auf einer Liste; die extra Parcoursliste entfällt"
+      >
+        <input
+          type="checkbox"
+          :checked="state.tor5MitParcours"
+          @change="dispatch({ type: 'SET_TOR5_MIT_PARCOURS', on: ($event.target as HTMLInputElement).checked })"
+        />
+        Tor 5 übernimmt die Parcoursüberwachung
       </label>
       <label v-if="beschriftungen.length > 0" class="field" style="margin-top: 8px">
         <span>Bezeichnung der Bojen-Seiten</span>

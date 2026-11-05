@@ -5,7 +5,7 @@
 # Seitenangaben in den Kommentaren beziehen sich auf dieses Reglement.
 #
 # Ein Regelwerk enthält alles, was aus der AUSSCHREIBUNG kommt. Die Positionen
-# (positionen.yaml) sind orts-/personenabhängig und binden die Kataloge und die
+# (aufbauten/*.yaml) sind orts-/personenabhängig und binden die Kataloge und die
 # Disqualifikationen per Verweis ein. Neue Version: Datei kopieren, `id` und
 # `version` anpassen, in regelwerke.yaml eintragen.
 #

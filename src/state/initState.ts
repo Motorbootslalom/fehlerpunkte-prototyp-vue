@@ -3,10 +3,10 @@ import {
   applyBeschriftung,
   applyRegelwerk,
   applySprache,
+  aufbauOrder,
   defaultAufbauId,
   defaultBeschriftungId,
   defaultRegelwerkId,
-  getAufbau,
   positionAllowsClass,
   resolveRegelwerkId,
 } from '../config/active'
@@ -25,8 +25,8 @@ export function uid(prefix: string): string {
 }
 
 /** Standard-Zusammenstellung: je ein Bogen pro Position des Aufbaus (Lauf 1). */
-export function defaultBoegen(aufbau: string): Bogen[] {
-  return getAufbau(aufbau).order.map((t) => {
+export function defaultBoegen(aufbau: string, tor5MitParcours = false): Bogen[] {
+  return aufbauOrder(aufbau, tor5MitParcours).map((t) => {
     // Klasse 3, außer die Position gilt nicht dafür (z. B. MüB ab Kl. 4) →
     // dann die erste gültige Klasse.
     const klasse: ClassId = positionAllowsClass(t, '3')
@@ -45,6 +45,7 @@ export function defaultState(): AppState {
     regelwerk: defaultRegelwerkId(),
     sprache: 'de',
     aufbau,
+    tor5MitParcours: false,
     beschriftung: defaultBeschriftungId(),
     emptyRows: 3,
     rowsPerPage: 0,
@@ -86,6 +87,7 @@ export function buildInitialState(): AppState {
       regelwerk: shared.regelwerk || state.regelwerk,
       sprache: shared.sprache ?? state.sprache,
       aufbau: shared.aufbau || state.aufbau,
+      tor5MitParcours: shared.tor5MitParcours ?? state.tor5MitParcours,
       beschriftung: shared.beschriftung || state.beschriftung,
       // Fehlen Leerzeilen/Seitenaufteilung im Link (z. B. Link aus dem
       // Verzahnungstool), bleiben die lokalen Einstellungen.

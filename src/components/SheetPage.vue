@@ -268,7 +268,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
 <template>
   <div
     ref="sheetEl"
-    :class="`sheet sheet--${def.orientation}${gedreht && !state.descriptionOnBack ? ' sheet--rotated' : ''}`"
+    :class="`sheet sheet--${def.orientation}${gedreht && !state.descriptionOnBack ? ' sheet--rotated' : ''}${def.bildNeben && !state.descriptionOnBack ? ' sheet--bild-neben' : ''}`"
     :style="def.bildBreite ? { '--bild-breite': `${def.bildBreite}mm` } : undefined"
   >
     <template v-if="tooManyRows > 0">

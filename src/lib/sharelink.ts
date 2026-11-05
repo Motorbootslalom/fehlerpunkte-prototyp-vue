@@ -24,6 +24,8 @@ export interface ShareConfig {
   /** Sprache der Listen; fehlt in älteren Links. */
   sprache?: Sprache
   aufbau: string
+  /** Tor 5 übernimmt die Parcoursüberwachung; fehlt in älteren Links. */
+  tor5MitParcours?: boolean
   beschriftung: string
   /** Leerzeilen/Seitenaufteilung; fehlen in Links ohne diese Angaben (z. B. aus dem Verzahnungstool). */
   emptyRows?: number
@@ -86,6 +88,7 @@ export function toShareConfig(state: AppState): ShareConfig {
     regelwerk: state.regelwerk,
     sprache: state.sprache,
     aufbau: state.aufbau,
+    tor5MitParcours: state.tor5MitParcours,
     beschriftung: state.beschriftung,
     emptyRows: state.emptyRows,
     rowsPerPage: state.rowsPerPage,
@@ -115,6 +118,7 @@ export function encodeShareConfig(cfg: ShareConfig): string {
     ...(cfg.regelwerk ? { w: cfg.regelwerk } : {}),
     ...(cfg.sprache ? { s: cfg.sprache } : {}),
     a: cfg.aufbau,
+    ...(cfg.tor5MitParcours !== undefined ? { t: cfg.tor5MitParcours } : {}),
     b: cfg.beschriftung,
     r: cfg.emptyRows,
     p: cfg.rowsPerPage,
@@ -137,6 +141,7 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       ...(typeof wire.w === 'string' && wire.w ? { regelwerk: wire.w } : {}),
       ...(isSprache(wire.s) ? { sprache: wire.s } : {}),
       aufbau: typeof wire.a === 'string' ? wire.a : '',
+      ...(typeof wire.t === 'boolean' ? { tor5MitParcours: wire.t } : {}),
       beschriftung: typeof wire.b === 'string' ? wire.b : '',
       ...(typeof wire.r === 'number' ? { emptyRows: wire.r } : {}),
       ...(typeof wire.p === 'number' ? { rowsPerPage: wire.p } : {}),

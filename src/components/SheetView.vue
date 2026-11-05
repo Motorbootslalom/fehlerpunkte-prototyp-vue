@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue'
 import { getSheetDef } from '../config/active'
 import { pageChunks, pageHeightMm, rowsThatFit } from '../lib/paging'
+import { defFuerKlasse } from '../lib/scoring'
 import { pageCounts } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import type { Bogen } from '../types'
@@ -17,7 +18,7 @@ import SheetPage from './SheetPage.vue'
 const props = defineProps<{ bogen: Bogen }>()
 const { state } = useStore()
 
-const def = computed(() => getSheetDef(props.bogen.typeId))
+const def = computed(() => defFuerKlasse(getSheetDef(props.bogen.typeId), props.bogen.klasse))
 
 // Gemessene Höhe von Kopf/Fuß und Zeilenhöhe (von der ersten Seite). Nur echte
 // Änderungen übernehmen - Rundungsrauschen soll die Aufteilung nicht hin- und

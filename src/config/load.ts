@@ -6,7 +6,8 @@ import type { RawRegelwerk } from './schema'
 // Lädt die Konfiguration zur Laufzeit aus public/config/:
 //   • regelwerke.yaml      - Liste der Regelwerke (Menü-Reihenfolge)
 //   • regelwerke/<id>.yaml - Disqualifikationen + Fehler-Kataloge (Ausschreibung)
-//   • positionen.yaml      - Hinweise + Positionen (orts-/personenabhängig)
+//   • positionen.yaml      - Hinweise + Positionen (orts-/personenabhängig), vom
+//     Build aus src/config/aufbauten/*.yaml u. a. zusammengeführt
 // Schlägt das fehl, wird die gebündelte Standard-Konfiguration verwendet.
 
 async function text(url: string): Promise<string> {

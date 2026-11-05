@@ -14,7 +14,7 @@ import {
   resolveRegelwerkId,
 } from './active'
 import { loadConfig } from './load'
-import { cellKey, scoreRow } from '../lib/scoring'
+import { cellKey, defFuerKlasse, scoreRow } from '../lib/scoring'
 import { reducer } from '../state/store'
 import { defaultState } from '../state/initState'
 
@@ -280,5 +280,63 @@ describe('Sprachen', () => {
     expect(buchstaben('mueb')).toEqual(['D', 'E', 'F', 'J', 'Q', 'X'])
     const def = getSheetDef('mueb')
     expect(def.columns.find((c) => c.kind === 'disq')?.label).toBe('Disq.') // SheetPage erkennt die Spalte daran
+  })
+})
+
+describe('Legende je Klasse', () => {
+  const codes = (id: string, klasse: string) => defFuerKlasse(getSheetDef(id), klasse)
+
+  it('Berlin Rechts zeigt die MüB-Punkte erst ab Klasse 4', () => {
+    const ohne = codes('brechts', '3')
+    expect(ohne.errorTable).toBeUndefined()
+    expect(ohne.legendNote).not.toContain('kombinierbar')
+    expect(ohne.legendNote).toContain('Bojen-Bezeichnung') // die Beschreibung bleibt
+    expect(ohne.disqTable?.map((d) => d.code)).not.toContain('L')
+    expect(ohne.disqTable?.map((d) => d.code)).not.toContain('Q')
+
+    const mit = codes('brechts', '4')
+    expect(mit.errorTable?.map((e) => e.code)).toContain('13')
+    expect(mit.legendNote).toContain('kombinierbar')
+    expect(mit.disqTable?.map((d) => d.code)).toEqual(expect.arrayContaining(['L', 'Q']))
+  })
+
+  it('gilt auch für Baden-Württemberg, und zweisprachig', () => {
+    expect(codes('bawuewasser1', '2').errorTable).toBeUndefined()
+    expect(codes('bawuewasser1', '4').errorTable).toBeDefined()
+    applyRegelwerk('uim-2026')
+    applySprache('de+en')
+    expect(codes('brechts', '3').legendNoteSpalten?.[1]).toContain('Buoy designation')
+    expect(codes('brechts', '3').legendNote).not.toContain('combined')
+  })
+
+  it('Listen, deren Fehler-Spalte immer da ist, bleiben unverändert', () => {
+    for (const klasse of ['E', '3', '7']) {
+      expect(codes('steg', klasse).errorGroups).toHaveLength(2)
+      expect(codes('tor5', klasse).errorTable).toBeDefined()
+    }
+  })
+})
+
+describe('Tor 5 mit Parcoursüberwachung', () => {
+  it('die DM26-Liste summiert Start/Ziel und Fehlercodes in Σ', () => {
+    const def = getSheetDef('tor5puems')
+    const werte: Record<string, string> = { [cellKey('1', 'start', 0)]: '5', [cellKey('1', 'fehler')]: '1' }
+    const r = scoreRow(def, '1', (k) => werte[k] ?? '')
+    expect(r.sum).toBe(25)
+    expect(r.computedCols).toEqual({}) // keine eigene Punkte-Spalte: Σ zeigt die Gesamtsumme
+    expect(def.sumColumnKey).toBe('sum')
+    for (const id of ['tor5pue', 'tor5puems']) {
+      const keys = getSheetDef(id).columns.map((c) => c.key)
+      expect(keys.slice(-3)).toEqual(['disq', 'sum', 'bemerkung'])
+      expect(keys).not.toContain('fp')
+    }
+  })
+})
+
+describe('Berlin-Bilder', () => {
+  it('Links zeigt Start/Ziel rechts (180°), Rechts links, alle mit dem Bild neben der Legende', () => {
+    expect(getSheetDef('blinks').bildDrehung).toBe(180)
+    expect(getSheetDef('brechts').bildDrehung).toBeUndefined()
+    for (const id of ['bstartziel', 'brechts', 'blinks']) expect(getSheetDef(id).bildNeben).toBe(true)
   })
 })

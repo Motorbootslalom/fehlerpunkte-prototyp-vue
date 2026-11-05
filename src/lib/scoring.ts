@@ -41,6 +41,17 @@ export function cellKey(nr: string, colKey: string, subIndex?: number): string {
  * alle; sonst nur, wenn die Klasse enthalten ist (z. B. Speed/MüB je Klasse).
  * Ein Blatt gilt genau einer Klasse, daher kann so pro Blatt gefiltert werden.
  */
+/**
+ * Eine Position für eine Klasse: nur deren Spalten. Bleibt keine Fehler-Spalte übrig
+ * (z. B. Berlin Rechts unter Klasse 4 ohne MüB), entfallen auch die Fehlerpunkte, der
+ * Hinweis dazu und die Disqualifikationen, die nur dorthin gehören.
+ */
+export function defFuerKlasse(def: SheetDef, klasse: string): SheetDef {
+  const columns = columnsForClass(def.columns, klasse)
+  if (!def.ohneCodes || columns.some((c) => c.kind === 'code')) return { ...def, columns }
+  return { ...def, columns, errorTable: undefined, errorTableTitle: undefined, errorGroups: undefined, ...def.ohneCodes }
+}
+
 export function columnsForClass(columns: Column[], klasse: string): Column[] {
   return columns.filter((c) => !c.klassen || c.klassen.length === 0 || c.klassen.includes(klasse))
 }

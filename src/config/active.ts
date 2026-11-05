@@ -14,9 +14,16 @@ import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
 // Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
 import bundledListe from './regelwerke.yaml?raw'
-import bundledPositionen from './positionen.yaml?raw'
+import bundledAufbauten from './aufbauten.yaml?raw'
+import { mergePositionen, quellDateien } from './merge-positionen'
 
 const bundledRegelwerke = import.meta.glob('./regelwerke/*.yaml', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>
+
+const bundledPositionenTeile = import.meta.glob(['./einstellungen.yaml', './i18n/*.yaml', './aufbauten/*.yaml'], {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -47,10 +54,11 @@ function neuBauen(): ResolvedConfig {
  * Parst die YAML-Texte und baut die Konfiguration. Das erste Regelwerk ist der
  * Standard; die Auswahl beginnt wieder bei den Standardwerten.
  */
-export function mergeAndBuild(regelwerkTexte: string | string[], positionenText: string): ResolvedConfig {
+export function mergeAndBuild(regelwerkTexte: string | string[], positionen: string | RawPositionen): ResolvedConfig {
   const texte = Array.isArray(regelwerkTexte) ? regelwerkTexte : [regelwerkTexte]
   rawRegelwerke = texte.map((t) => (yamlLoad(t) as RawRegelwerk) ?? {})
-  rawPositionen = (yamlLoad(positionenText) as RawPositionen) ?? { positionen: [] }
+  rawPositionen =
+    typeof positionen === 'string' ? ((yamlLoad(positionen) as RawPositionen) ?? { positionen: [] }) : positionen
   auswahl = {}
   return neuBauen()
 }
@@ -62,7 +70,8 @@ export function regelwerkIds(listeText: string): string[] {
 
 export function bundledConfig(): ResolvedConfig {
   const texte = regelwerkIds(bundledListe).map((id) => bundledRegelwerke[`./regelwerke/${id}.yaml`] ?? '')
-  return mergeAndBuild(texte, bundledPositionen)
+  const teile = quellDateien(bundledAufbauten).map((name) => yamlLoad(bundledPositionenTeile[`./${name}.yaml`] ?? ''))
+  return mergeAndBuild(texte, mergePositionen(teile))
 }
 
 export function initConfig(cfg: ResolvedConfig): void {
@@ -106,6 +115,12 @@ export function defaultAufbauId(): string {
 export function getAufbau(id: string): ResolvedAufbau {
   const a = cfg().aufbauten.find((x) => x.id === id)
   return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', order: [], zusatz: [] }
+}
+
+/** Positionen eines Aufbaus, wahlweise mit zusammengelegten Listen. */
+export function aufbauOrder(id: string, kombiAktiv: boolean): string[] {
+  const a = getAufbau(id)
+  return kombiAktiv && a.kombi ? a.kombi.order : a.order
 }
 
 export function allDisqs(): DisqDef[] {

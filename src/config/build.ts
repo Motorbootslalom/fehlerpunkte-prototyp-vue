@@ -1,6 +1,7 @@
 import { CLASS_IDS } from '../types'
 import type { CellKind, Column, DisqDef, ErrorDef, ErrorGroup, SheetDef, Sprache, TrennerDesign } from '../types'
 import type { RawConfig, RawDisq, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
+import { findeKombi, kombiReihenfolge } from './kombi'
 import { bogenTexte, uebersetzt, uebersetztBlock, type BogenTexte } from './sprache'
 
 /** Übersetzt einen Text in die Sprache der Konfiguration. */
@@ -19,6 +20,8 @@ export interface ResolvedAufbau {
    *  der Standard-Bögen bzw. des kompletten Laufs, aber in der Schnellauswahl
    *  und den Menüs wählbar. */
   zusatz: string[]
+  /** Zusammenlegen möglich: die Liste, was sie ersetzt, und die Reihenfolge damit. */
+  kombi?: { positionId: string; ersetzt: string[]; order: string[] }
 }
 
 /** Umschaltbares Bezeichnungs-Schema (Bojen-Kürzel), z. B. Rechts/Links. */
@@ -230,7 +233,7 @@ export function buildConfig(
   // erhalten und greift wieder, sobald zurückgewechselt wird).
   const sprache: Sprache = regelwerk.sprachen.includes('en') ? (opts?.sprache ?? 'de') : 'de'
   const t: Uebersetzer = (de, en) => uebersetzt(sprache, de, en)
-  const englisch = raw.englisch ?? {}
+  const englisch = raw.uebersetzungen?.en ?? {}
   const englischTexte = englisch.texte ?? {}
   const allDisqs: DisqDef[] = (raw.disqualifikationen ?? []).map((d) => ({
     code: String(d.code),
@@ -285,6 +288,19 @@ export function buildConfig(
     const noteLinks = [...noteDe, ...hinweisDe].join('\n')
     const noteRechts = [...noteEnZeilen, ...hinweisEn].join('\n')
     const legendNote = [noteLinks, noteRechts].filter(Boolean).join('\n')
+    // Hängt die Fehler-Spalte von der Klasse ab, gibt es eine Legende ohne Codes: ohne
+    // Fehlerpunkte, ohne den Hinweis dazu und ohne die MüB-Buchstaben.
+    const codeJeKlasse = spalten.some((sp) => sp.typ === 'code' && sp.klassen)
+    const ohneCodes = codeJeKlasse
+      ? {
+          legendNote: [...noteDe, ...noteEnZeilen].join('\n') || undefined,
+          legendNoteSpalten:
+            noteDe.length > 0 && noteEnZeilen.length > 0
+              ? ([noteDe.join('\n'), noteEnZeilen.join('\n')] as [string, string])
+              : undefined,
+          disqTable: resolveDisq({ ...pos, disq: pos.disq === 'mueb' ? 'parcours' : pos.disq }, raw.disqualifikationen ?? [], t),
+        }
+      : undefined
     return {
       typeId: pos.id,
       title: t(pos.titel, englischTexte[pos.titel]),
@@ -305,9 +321,11 @@ export function buildConfig(
       showDisqTable: !!disqTable && disqTable.length > 0,
       legendNote: legendNote || undefined,
       legendNoteSpalten: noteLinks && noteRechts ? [noteLinks, noteRechts] : undefined,
+      ohneCodes,
       courseImageDir: pos.bild,
       bildDrehung: pos.bildDrehung,
       bildBreite: pos.bildBreite,
+      bildNeben: pos.bildNeben,
     }
   })
 
@@ -351,7 +369,16 @@ export function buildConfig(
     raw.aufbauten && raw.aufbauten.length > 0
       ? raw.aufbauten.map((a) => {
           const order = nummeriert(a.positionen.filter((id) => known.has(id)))
-          return { id: a.id, name: a.name, order, zusatz: schnell.filter((id) => !a.positionen.includes(id)) }
+          const kombi = findeKombi(a.positionen, raw.positionen ?? [])
+          return {
+            id: a.id,
+            name: a.name,
+            order,
+            zusatz: schnell.filter((id) => !a.positionen.includes(id)),
+            ...(kombi?.ersetzt
+              ? { kombi: { positionId: kombi.id, ersetzt: kombi.ersetzt, order: kombiReihenfolge(order, kombi.id, kombi.ersetzt) } }
+              : {}),
+          }
         })
       : [{ id: 'standard', name: 'Standard', order: positions.map((p) => p.typeId), zusatz: [] }]
   // Nummerierte Positionen direkt hinter ihrer Basis-Position einreihen.

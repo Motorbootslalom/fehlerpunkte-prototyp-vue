@@ -2,8 +2,9 @@
 //   • regelwerke.yaml        - Liste der verfügbaren Regelwerke (Menü-Reihenfolge)
 //   • regelwerke/<id>.yaml   - je Regelwerk und Version: Disqualifikationen +
 //     Fehler-Kataloge (aus der Ausschreibung), z. B. dm-2026, uim-2026
-//   • positionen.yaml        - Hinweise + Positionen (orts-/personenabhängig),
-//     die Kataloge und Hinweise per Verweis (ID) einbinden
+//   • einstellungen.yaml, i18n/*.yaml, aufbauten/*.yaml - Hinweise + Positionen
+//     (orts-/personenabhängig), die Kataloge und Hinweise per Verweis (ID) einbinden.
+//     Der Build führt sie zu public/config/positionen.yaml zusammen.
 // Aus dem gewählten Regelwerk und den Positionen erzeugt build.ts die interne
 // Darstellung.
 
@@ -173,6 +174,8 @@ export interface RawPosition {
   bildDrehung?: number
   /** Nur bei ±90° gedrehtem Bild: Breite des Bildes neben der Legende in mm (Standard 40). */
   bildBreite?: number
+  /** Bild rechts neben Fehlerpunkten und Beschreibung, darunter die Disqualifikationen. */
+  bildNeben?: boolean
   /**
    * Diese Position wird von der Gegenseite betrachtet (z. B. Alcatraz von
    * hinten). Bei räumlichen Schemata (Pfeile) werden die Bojen-Seiten dann
@@ -180,6 +183,11 @@ export interface RawPosition {
    * Frontal-Aufbau - auch wenn sie eine andere Boje meinen.
    */
   pfeileSpiegeln?: boolean
+  /**
+   * Diese Liste legt die genannten Positionen zusammen, z. B. [tor5, parcours]: Option
+   * in jedem Aufbau, der alle genannten enthält.
+   */
+  ersetzt?: string[]
   /** Verweis auf hinweise.<id> (oder direkter Text, falls kein Treffer). */
   hinweis?: string
   /** Verweis auf kataloge.<id> im Regelwerk (Fehlercodes → Punkte). */
@@ -232,6 +240,20 @@ export interface RawAufbau {
   name: string
   /** Positions-IDs in Reihenfolge (auch gemeinsame wie zeit, knoten …). */
   positionen: string[]
+  /** Eigene Bojen (z. B. Parallelslalom): Der Überwachungs-Check gilt hier nicht. */
+  eigeneStrecke?: boolean
+}
+
+/** Eine Boje oder Aufgabe, die jeder Aufbau auf einer Liste abdecken muss. */
+export interface RawUeberwachung {
+  name: string
+  /** Bojen-Spalte, ggf. mit ihren Bojen (`sub`). */
+  key?: string
+  sub?: string[]
+  /** Oder: eine Fehler-Spalte mit diesem Katalog. */
+  katalog?: string
+  /** Nur für diese Klassen (fehlt = alle). */
+  klassen?: Array<string | number>
 }
 
 /** Laufzettel (je Klasse/Lauf): Arbeitsschritte unter den Seiten-Checkboxen. */
@@ -242,20 +264,20 @@ export interface RawLaufzettel {
   schritte?: string[]
 }
 
-/** Englische Texte der Positionen (für Regelwerke mit Englisch). */
-export interface RawEnglisch {
-  /** Deutscher Titel/Spaltenname → englischer Text. */
+/** Übersetzung der Positionen in eine Sprache (i18n/<sprache>.yaml). */
+export interface RawUebersetzung {
+  /** Deutscher Titel/Spaltenname → übersetzter Text. */
   texte?: Record<string, string>
-  /** Hinweis-ID → englischer Hinweistext (mit denselben Tokens). */
+  /** Hinweis-ID → übersetzter Hinweistext (mit denselben Tokens). */
   hinweise?: Record<string, string>
-  /** Bezeichnungs-Schema → englische Tokens (Langnamen der Bojen-Seiten). */
+  /** Bezeichnungs-Schema → übersetzte Tokens (Langnamen der Bojen-Seiten). */
   bezeichnungen?: Record<string, Record<string, string>>
 }
 
-/** positionen.yaml */
+/** Die zusammengeführten Positions-Dateien (public/config/positionen.yaml). */
 export interface RawPositionen {
-  /** Englische Texte (für Regelwerke mit `sprachen: [de, en]`). */
-  englisch?: RawEnglisch
+  /** Übersetzungen je Sprache, z. B. { en: {...} }. */
+  uebersetzungen?: Record<string, RawUebersetzung>
   /**
    * Globale Bojen-Kürzel als Token-Map, z. B. { hin: "H", rueck: "Z",
    * seiteA: "R", seiteB: "L" }. In Spalten-`sub` und Hinweisen werden diese
@@ -275,6 +297,8 @@ export interface RawPositionen {
   laufzettel?: RawLaufzettel
   /** Aufbauten (Setups); der erste ist der Standard. */
   aufbauten?: RawAufbau[]
+  /** Was jeder Aufbau auf einer Liste abdecken muss (geprüft von config:check). */
+  ueberwachung?: RawUeberwachung[]
   /** Alle Positionen (werden von den Aufbauten per ID referenziert). */
   positionen: RawPosition[]
 }

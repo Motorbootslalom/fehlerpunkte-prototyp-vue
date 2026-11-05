@@ -1,0 +1,30 @@
+# =====================================================================
+# Aufbau Parallelslalom
+# =====================================================================
+# Wird von `npm run config:sync` mit den anderen Dateien zu public/config/positionen.yaml
+# zusammengeführt. Parameter: siehe src/config/aufbauten.yaml.
+
+aufbauten:
+  - id: parallel
+    name: Parallelslalom
+    positionen: [zeit, steg, parallelparcours]
+    eigeneStrecke: true   # eigene Bojen, der Überwachungs-Check gilt hier nicht
+
+positionen:
+  - id: parallelparcours
+    titel: "Parallelslalom"
+    menue: "Parallelslalom (nur Fahrweg)"
+    disq: parcours
+    spalten:
+      - { key: start, label: "Start", typ: boje, sub: ["seiteB seiteA"] }
+      - { key: b1a, label: "Boje 1", typ: boje }
+      - { key: b2a, label: "Boje 2", typ: boje }
+      - { key: b3a, label: "Boje 3", typ: boje }
+      - { key: b4a, label: "Boje 4", typ: boje }
+      - { key: b5, label: "Boje 5", typ: boje }
+      - { key: b4b, label: "Boje 4", typ: boje }
+      - { key: b3b, label: "Boje 3", typ: boje }
+      - { key: b2b, label: "Boje 2", typ: boje }
+      - { key: b1b, label: "Boje 1", typ: boje }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["seiteB seiteA"] }
+      - { key: disq, label: "Disq.", typ: disq }

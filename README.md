@@ -27,7 +27,9 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
 - **Automatische Summen (Σ):** Bojenberührungen × 5 bzw. Fehlercodes → Punkte
   laut Legende, laufend aufsummiert. Bei Mann-über-Bord/Schikane liegt die
   Σ-Spalte bewusst mittig.
-- **Disqualifikation verorten:** Codes A-X in der Disq.-Spalte **oder** direkt in
+- **Mehrere Regelwerke und Versionen** (DM 2026, UIM 2026), UIM wahlweise englisch
+  oder zweisprachig, dazu eine **A4-Legende** aller Codes und Strafen.
+- **Disqualifikation verorten:** Codes in der Disq.-Spalte **oder** direkt in
   einer Tor-Spalte (dokumentiert Ort und Grund).
 - **Schnelle Zeiteingabe** über das Numpad: eine Zahl mit Komma/Punkt, Regel
   „> 20 = Sekunden, ≤ 20 = Minuten“; Enter springt weiter; Anzeige normalisiert
@@ -61,7 +63,7 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
 
 Links die Steuerleiste (nur am Bildschirm, im Druck ausgeblendet):
 
-1. Veranstaltungsnamen setzen.
+1. Regelwerk, Aufbau und Veranstaltungsnamen setzen.
 2. Unter **Bögen** die gewünschten Listen zusammenstellen (Typ/Klasse/Lauf).
 3. In den Bögen rechts die Werte eintragen - Σ und Zeiten aktualisieren sich live.
 4. **Drucken / Als PDF (Browser)** oder **PDF herunterladen (JS)**.
@@ -137,7 +139,11 @@ wirkt nach dem Neuladen der Seite, ohne Neubau). Gepflegt werden sie unter
   `regelwerke.yaml` eintragen. Mit `sprachen: [de, en]` lassen sich die Listen
   zusätzlich englisch oder zweisprachig ausgeben; `npm run config:check` meldet
   dann jede fehlende Übersetzung.
-- **`positionen.yaml`** - die **orts-/personenabhängigen Positionen** (welche
+- **`aufbauten.yaml`, `aufbauten/*.yaml`, `einstellungen.yaml`, `i18n/*.yaml`** -
+  der Build (`npm run config:sync`) führt sie zu einer Datei
+  `public/config/positionen.yaml` zusammen. Neuer Austragungsort: Datei unter
+  `aufbauten/` anlegen und in `aufbauten.yaml` eintragen. Enthalten sind die
+  **orts-/personenabhängigen Positionen** (welche
   Liste, welche Spalten in welcher Reihenfolge, welches Bild/Drehung). Positionen
   binden Kataloge und wiederverwendbare **Hinweise** per Verweis (ID) ein.
   Positionen sind zu **Aufbauten (Setups)** gebündelt (z. B. `Alcatraz`, `Frontal`);
@@ -151,13 +157,22 @@ Wichtige Felder einer Position: `spalten` (Reihenfolge/Typen), `katalog`
 die Buchstaben nennen im Regelwerk ihre `bereiche`: `vorsteg`, `steg`, `parcours`,
 `mueb`; bei querliegendem Bild steht die Liste zweispaltig),
 `bild` + `bildDrehung: 0 | 90 | -90 | 180` + `bildBreite` (bei ±90° gedrehtem Bild,
-in mm).
+in mm) + `bildNeben` (querliegendes Bild neben der Legende).
 
 **Globale Bojen-Kürzel:** Die Seiten-/Richtungskürzel stehen zentral unter
 `bezeichnungen` (Token-Map, z. B. `seiteA: R`, `seiteB: L`). In `sub` und in den
 Hinweisen werden die Tokens (`hin`, `rueck`, `seiteA`, `seiteB`) als ganze Wörter
 ersetzt - so stellt man von Rechts/Links auf Land/See (`L`/`S`) oder Hafen/Kai
 (`H`/`K`) an EINER Stelle um; die Spaltenköpfe und der Hinweis ziehen automatisch nach.
+
+**Tor 5 mit Parcoursüberwachung:** Bei Aufbauten, die Tor 5 und eine Parcoursliste
+haben, kann eine Person beides übernehmen (Option in der Bedienleiste, gesteuert über
+`ersetzt` an der Position). Die extra Parcoursliste entfällt dann.
+
+**Überwachungs-Check:** `npm run config:check` prüft je Aufbau und Klasse, ob jede Boje
+und jede Aufgabe aus `ueberwachung` (`einstellungen.yaml`) auf einer Liste steht, auch
+mit zusammengelegten Listen. Die Prüfung zeigt Lücken als Hinweis, ein Test verlangt,
+dass jeder Aufbau lückenlos ist.
 
 **Legende als A4-Blatt:** „Nur Legende drucken / Als PDF“ in der Bedienleiste gibt
 alle Fehlercodes, Strafen und Disqualifikationen des gewählten Regelwerks auf einem
@@ -184,7 +199,7 @@ UI-Render-Smoke-Test sind mit **Vitest** abgedeckt.
 ```bash
 npm test            # alle Tests einmal ausführen
 npm run test:watch  # Watch-Modus
-npm run check       # Typecheck (vue-tsc) + Tests - auch im pre-commit-Hook
+npm run check       # Typecheck, Tests, Konfigurations-Prüfung - auch im pre-commit-Hook
 ```
 
 Die Tests laufen automatisch **lokal bei jedem Commit** (Git-Hook
@@ -198,14 +213,15 @@ Die Tests laufen automatisch **lokal bei jedem Commit** (Git-Hook
 2. **Settings → Pages → Build and deployment → Source** = **GitHub Actions**.
 3. Bei jedem Push auf `main` baut und deployt
    [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) nach
-   <https://motorbootslalom.github.io/fehlerpunkte-prototyp/>.
+   <https://motorbootslalom.github.io/fehlerpunkte-prototyp-vue/>.
 
 Der Vite-`base` ist `./`, daher läuft der Build unter Projekt-Unterpfad **und** lokal.
 
 ## Assets
 
-Die Parcoursbilder unter `public/parcours/` stammen aus `../Parcours/dist/`
-(Verzeichnisse `alcatraz_I`, `alcatraz_II`, `alcatraz_Parcours`, SVG je Klasse).
+`public/parcours/alcatraz_Parcours` stammt aus `../Parcours/dist/alcatraz_Parcours` (SVG
+und PNG je Klasse). Die übrigen Ordner unter `public/parcours/` erzeugt `npm run
+parcours:build` daraus.
 
 ## Tech-Stack
 

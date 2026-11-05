@@ -1,6 +1,7 @@
 import { inject, reactive, watch, type App, type InjectionKey } from 'vue'
 import type { AppState, Bogen, ClassId, Lauf, SheetTypeId, Sprache } from '../types'
-import { applyBeschriftung, applyRegelwerk, applySprache, positionAllowsClass } from '../config/active'
+import { applyBeschriftung, applyRegelwerk, applySprache, getAufbau, positionAllowsClass } from '../config/active'
+import { trennen, zusammenlegen } from '../lib/kombi'
 import { normalizeClassOrder } from '../lib/quickpick'
 import { cellKey } from '../lib/scoring'
 import { syncUrlToState } from '../lib/sharelink'
@@ -12,6 +13,7 @@ export type Action =
   | { type: 'SET_REGELWERK'; regelwerk: string }
   | { type: 'SET_SPRACHE'; sprache: Sprache }
   | { type: 'SET_AUFBAU'; aufbau: string }
+  | { type: 'SET_TOR5_MIT_PARCOURS'; on: boolean }
   | { type: 'SET_BESCHRIFTUNG'; beschriftung: string }
   | { type: 'SET_EMPTY_ROWS'; emptyRows: number }
   | { type: 'SET_ROWS_PER_PAGE'; rowsPerPage: number }
@@ -57,7 +59,17 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_AUFBAU':
       // Aufbau wechseln = neue Bogen-Grundausstattung dieses Setups (Klasse 3).
-      return { ...state, aufbau: action.aufbau, boegen: defaultBoegen(action.aufbau) }
+      return { ...state, aufbau: action.aufbau, boegen: defaultBoegen(action.aufbau, state.tor5MitParcours) }
+
+    case 'SET_TOR5_MIT_PARCOURS': {
+      const kombi = getAufbau(state.aufbau).kombi
+      if (!kombi) return { ...state, tor5MitParcours: action.on }
+      return {
+        ...state,
+        tor5MitParcours: action.on,
+        boegen: action.on ? zusammenlegen(state.boegen, kombi) : trennen(state.boegen, kombi, () => uid('bg')),
+      }
+    }
 
     case 'SET_BESCHRIFTUNG':
       // Bezeichnungs-Schema live umstellen: Konfiguration mit neuen Bojen-Kürzeln

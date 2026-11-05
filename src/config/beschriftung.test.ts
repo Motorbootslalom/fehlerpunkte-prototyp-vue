@@ -16,6 +16,17 @@ function colSub(posId: string, key: string): string[] | undefined {
 describe('Bezeichnungs-Schemata (live umschaltbar)', () => {
   afterAll(() => applyBeschriftung('rl')) // Standard für andere Tests wiederherstellen
 
+  it('Innen/Außen gilt auch in Berlin: Tor 1/3 innen = seiteB, Tor 2/4 innen = seiteA', () => {
+    applyBeschriftung('ia')
+    expect(colSub('brechts', 't1a')).toEqual(['H A', 'H I'])
+    expect(colSub('brechts', 't3b')).toEqual(['R A', 'R I'])
+    expect(colSub('blinks', 't2a')).toEqual(['H I', 'H A'])
+    expect(colSub('blinks', 't4b')).toEqual(['R I', 'R A'])
+    // Tor 5 und Start/Ziel bleiben bei R/L.
+    expect(colSub('blinks', 't5')).toEqual(['H R', 'H L', 'R R', 'R L'])
+    expect(colSub('bstartziel', 'start')).toEqual(['H R', 'H L'])
+  })
+
   it('liefert die konfigurierten Schemata', () => {
     expect(getBeschriftungen().map((b) => b.id)).toEqual(['rl', 'ls', 'sl', 'kh', 'pfeile', 'ia'])
   })

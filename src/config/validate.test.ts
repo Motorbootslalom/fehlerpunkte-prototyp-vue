@@ -1,15 +1,29 @@
 import { describe, expect, it } from 'vitest'
-import { validateConfigTexts, validateRawConfig, type ConfigIssue } from './validate'
+import { ueberwachungsLuecken, validateConfigTexts, validateRawConfig, type ConfigIssue } from './validate'
 // Gebündelte Standard-Konfiguration (dieselben Dateien, die die App bündelt).
+import { dump as yamlDump, load as yamlLoad } from 'js-yaml'
 import bundledListe from './regelwerke.yaml?raw'
-import bundledPositionen from './positionen.yaml?raw'
+import bundledAufbauten from './aufbauten.yaml?raw'
+import { mergePositionen, quellDateien } from './merge-positionen'
 
 const bundledRegelwerke = Object.fromEntries(
   Object.entries(
     import.meta.glob('./regelwerke/*.yaml', { query: '?raw', import: 'default', eager: true }) as Record<string, string>,
   ).map(([pfad, text]) => [pfad.replace('./regelwerke/', '').replace('.yaml', ''), text]),
 )
-const texte = { liste: bundledListe, regelwerke: bundledRegelwerke, positionen: bundledPositionen }
+const positionenTeile = import.meta.glob(['./einstellungen.yaml', './i18n/*.yaml', './aufbauten/*.yaml'], {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>
+
+/** Die Positions-Dateien zusammengeführt, wahlweise mit geändertem Text. */
+function positionenText(aendern: (text: string) => string = (t) => t): string {
+  const teile = quellDateien(bundledAufbauten).map((n) => yamlLoad(aendern(positionenTeile[`./${n}.yaml`])))
+  return yamlDump(mergePositionen(teile), { lineWidth: -1, noRefs: true })
+}
+
+const texte = { liste: bundledListe, regelwerke: bundledRegelwerke, positionen: positionenText() }
 
 const errors = (issues: ConfigIssue[]) => issues.filter((i) => i.severity === 'error')
 
@@ -49,7 +63,7 @@ describe('Konfigurations-Validierung', () => {
     const ohneEn = bundledRegelwerke['uim-2026'].replace(', en: "Additional touch of the starting pontoon"', '')
     const issues = errors(validateConfigTexts({ ...texte, regelwerke: { ...bundledRegelwerke, 'uim-2026': ohneEn } }))
     expect(issues.map((i) => i.code)).toContain('MISSING_EN')
-    const ohneWort = bundledPositionen.replace('"Bemerkung": "Remarks"', '')
+    const ohneWort = positionenText((t) => t.replace('"Bemerkung": "Remarks"', ''))
     const issues2 = errors(validateConfigTexts({ ...texte, positionen: ohneWort }))
     expect(issues2.find((i) => i.code === 'MISSING_EN')?.message).toContain('Bemerkung')
   })
@@ -72,6 +86,55 @@ describe('Konfigurations-Validierung', () => {
     expect(codes).toEqual(
       expect.arrayContaining(['BAD_DISQ_CODE', 'UNKNOWN_DISQ_BEREICH', 'BAD_DISQ', 'BAD_FEHLER_CODE', 'BAD_KLASSE', 'UNKNOWN_SPALTE']),
     )
+  })
+
+  describe('Überwachung', () => {
+    const roh = (aendern?: (t: string) => string) => yamlLoad(positionenText(aendern)) as Parameters<typeof ueberwachungsLuecken>[0]
+    const luecken = (raw: Parameters<typeof ueberwachungsLuecken>[0], aufbau: string) =>
+      ueberwachungsLuecken(raw).filter((l) => l.aufbau === aufbau)
+
+    it('jeder Aufbau überwacht jede Boje, auch zusammengelegt', () => {
+      expect(ueberwachungsLuecken(roh())).toEqual([])
+    })
+
+    it('meldet einen falschen Spaltennamen', () => {
+      const raw = { positionen: [{ id: 'p', spalten: [{ key: 't4a', label: 'Tor 2', typ: 'boje' as const, innen: 'seiteA' as const }] }] }
+      expect(validateRawConfig(raw).map((i) => i.code)).toContain('FALSCHER_TORNAME')
+    })
+
+    it('meldet eine Boje, die mit zusammengelegter Tor-5-Liste nicht mehr überwacht wird', () => {
+      // Ohne die Start-Spalte der DM26-Liste geht Start beim Zusammenlegen verloren.
+      const ohneStart = roh((t) =>
+        t.replace(`      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
+      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: fehler,`, `      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
+      - { key: fehler,`),
+      )
+      const l = luecken(ohneStart, 'alcatrazdm26')
+      expect(l.map((x) => x.element)).toEqual(['Start (hin seiteA)', 'Start (hin seiteB)'])
+      expect(l.every((x) => x.nurZusammengelegt)).toBe(true)
+      expect(l[0].klassen).toHaveLength(8)
+    })
+
+    it('beachtet die Klassen: Tor 1 auf der Rückfahrt nicht bei Klasse 4, MüB erst ab Klasse 4', () => {
+      const ohneMueb = roh((t) => t.replace('[zeit, vorsteg, steg, gate135, gate245, tor5, mueb, parcours]', '[zeit, vorsteg, steg, gate135, gate245, tor5, parcours]'))
+      expect(luecken(ohneMueb, 'alcatraz').map((l) => [l.element, l.klassen])).toEqual([['Mann-über-Bord', ['4', '5', '6', '7']]])
+    })
+
+    it('lässt Aufbauten mit eigener Strecke aus', () => {
+      expect(luecken(roh(), 'parallel')).toEqual([])
+    })
+
+    it('zeigt Lücken als Hinweis in der Prüfung, nicht als Fehler', () => {
+      const raw = {
+        ueberwachung: [{ name: 'Start', key: 'start' }],
+        aufbauten: [{ id: 'a', name: 'A', positionen: ['p'] }],
+        positionen: [{ id: 'p', spalten: [{ key: 'x', label: 'X', typ: 'boje' as const }] }],
+      }
+      const issues = validateRawConfig(raw).filter((i) => i.code === 'NICHT_UEBERWACHT')
+      expect(issues.map((i) => i.severity)).toEqual(['warning'])
+      expect(issues[0].message).toContain('alle Klassen')
+    })
   })
 
   it('findet doppelte Positions-IDs', () => {

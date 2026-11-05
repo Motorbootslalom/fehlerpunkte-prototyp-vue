@@ -1,7 +1,7 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
 import { getBogenTexte, getSheetDef } from '../config/active'
-import { cellKey, columnsForClass, scoreRow } from '../lib/scoring'
+import { cellKey, columnsForClass, defFuerKlasse, scoreRow } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
 import { bogenPayload } from '../lib/qr'
@@ -205,7 +205,7 @@ function SheetPage({
   images: CourseImages
   descWidth?: number
 }) {
-  const def = getSheetDef(bogen.typeId)
+  const def = defFuerKlasse(getSheetDef(bogen.typeId), bogen.klasse)
   const values = state.values[bogen.id] ?? {}
   const get = (k: string) => values[k] ?? ''
 

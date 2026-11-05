@@ -29,7 +29,7 @@ export function uebersetztBlock(sprache: Sprache, de: string, en?: string): stri
   return sprache === 'en' ? en : `${de}\n${en}`
 }
 
-/** Feste Texte auf den Listen (außer den Spaltennamen, siehe positionen.yaml). */
+/** Feste Texte auf den Listen (außer den Spaltennamen, siehe i18n/en.yaml). */
 export interface BogenTexte {
   nr: string
   wkr: string

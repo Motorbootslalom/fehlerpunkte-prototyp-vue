@@ -17,7 +17,7 @@ export type Lauf = 1 | 2 | 3
 export type Sprache = 'de' | 'en' | 'de+en'
 
 /**
- * Kennung einer Position/Liste. Frei konfigurierbar (siehe config/positionen.yaml),
+ * Kennung einer Position/Liste. Frei konfigurierbar (siehe config/aufbauten.yaml),
  * daher ein String und keine feste Aufzählung.
  */
 export type SheetTypeId = string
@@ -141,6 +141,13 @@ export interface SheetDef {
   bildDrehung?: number
   /** Breite des gedrehten Bildes neben der Legende in mm (Standard siehe CSS). */
   bildBreite?: number
+  /** Bild rechts neben Fehlerpunkten und Beschreibung, darunter die Disqualifikationen. */
+  bildNeben?: boolean
+  /**
+   * Was die Legende zeigt, wenn eine Klasse keine Fehler-Spalte hat (z. B. Berlin
+   * Rechts unter Klasse 4 ohne MüB). Siehe defFuerKlasse.
+   */
+  ohneCodes?: { legendNote?: string; legendNoteSpalten?: [string, string]; disqTable?: DisqDef[] }
 }
 
 /** Ein Bogen = konkrete Instanz eines Listentyps für Klasse + Lauf. */
@@ -162,6 +169,8 @@ export interface AppState {
   sprache: Sprache
   /** Gewählter Aufbau (Setup), z. B. "alcatraz" oder "frontal". */
   aufbau: string
+  /** Eine Person übernimmt Tor 5 und die Parcoursüberwachung (wo der Aufbau es erlaubt). */
+  tor5MitParcours: boolean
   /** Gewähltes Bezeichnungs-Schema (Bojen-Kürzel), z. B. "rl" oder "ls". */
   beschriftung: string
   /** Anzahl leerer Zeilen, die nach den Startnummern angehängt werden. */

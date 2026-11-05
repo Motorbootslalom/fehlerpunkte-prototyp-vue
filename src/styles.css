@@ -755,7 +755,19 @@ body {
 /* Getrennte Fehlerblöcke (Steg Ablegen | Anlegen) nebeneinander */
 .legend-grouped {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
+}
+
+.lc-col-code {
+  width: 28px;
+}
+
+.lc-col-pts {
+  width: 30px;
+}
+
+.lc-col-buffer {
+  width: 18px;
 }
 
 .legend-grouped .lc-grouptitle {
@@ -879,6 +891,54 @@ body {
 }
 
 .sheet--rotated .sheet-signature-row {
+  grid-area: sig;
+}
+
+/* Bild neben der Legende: links Fehlerpunkte und Beschreibung, rechts das Bild, darunter
+   die Disqualifikationen über die ganze Breite. */
+.sheet--bild-neben .sheet-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto auto;
+  grid-template-areas:
+    'fehler course'
+    'note course'
+    'disq disq'
+    'sig sig';
+  column-gap: 8px;
+  row-gap: 7px;
+}
+
+/* Die Blöcke der Legende werden selbst zu Rasterzellen. */
+.sheet--bild-neben .legend {
+  display: contents;
+}
+
+.sheet--bild-neben .legend-fehler {
+  grid-area: fehler;
+}
+
+.sheet--bild-neben .legend-note {
+  grid-area: note;
+}
+
+/* In der schmalen Spalte stehen beide Sprachen untereinander. */
+.sheet--bild-neben .legend-note--2 {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+.sheet--bild-neben .legend-disqblock {
+  grid-area: disq;
+}
+
+.sheet--bild-neben .course {
+  grid-area: course;
+  margin: 0;
+  align-self: start;
+}
+
+.sheet--bild-neben .sheet-signature-row {
   grid-area: sig;
 }
 

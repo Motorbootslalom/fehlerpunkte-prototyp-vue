@@ -11,7 +11,8 @@
 // anders aus - ein Neuschreiben machte den Git-Baum im Build „dirty“.
 // `--force` rastert trotzdem alles neu (z. B. nach einem resvg-Update).
 //
-// Gesteuert wird das über positionen.yaml:
+// Gesteuert wird das über die Positionen (src/config/aufbauten/*.yaml, zusammengeführt
+// in public/config/positionen.yaml):
 //   • Positions-Feld  bildGenerator: true   → dieses Bild wird generiert
 //   • Positions-Feld  bildQuelle: <ordner>  → Quellordner (Default alcatraz_Parcours)
 //   • Positions-Feld  bild: <ordner>        → Zielordner (das die App lädt)
@@ -27,6 +28,10 @@ import { dirname, resolve } from 'node:path'
  *  andere (Fahrweg, Zeitnahme, Start/Ziel, Schikane, Speedbojen) bleibt sichtbar,
  *  außer es steht ausdrücklich in `abblenden`. */
 export const DIM_UNIVERSE = ['Tor1', 'Tor2', 'Tor3', 'Tor4', 'Tor5'] as const
+
+/** IDs, die nicht in jedem Klassenbild vorkommen: Die untere Speedboje zeigt der
+ *  Master-Export nur dort, wo die Route um sie herumführt. */
+export const OPTIONALE_IDS = new Set(['Speedboje_unten'])
 
 /** Rest-Deckkraft der abgeblendeten Elemente (0 = unsichtbar, 1 = voll). */
 export const DIM_OPACITY = 0.2
@@ -139,8 +144,8 @@ function run(): void {
     for (const file of svgs) {
       const srcSvg = readFileSync(resolve(srcDir, file), 'utf8')
       const { svg, missing } = applyDimming(srcSvg, dim)
-      if (missing.length > 0)
-        console.warn(`      ⚠ ${file}: IDs nicht gefunden: ${missing.join(', ')}`)
+      const fehlend = missing.filter((id) => !OPTIONALE_IDS.has(id))
+      if (fehlend.length > 0) console.warn(`      ⚠ ${file}: IDs nicht gefunden: ${fehlend.join(', ')}`)
       const outSvg = resolve(outDir, file)
       const outPng = resolve(outDir, file.replace(/\.svg$/, '.png'))
       if (!force && existsSync(outPng) && existsSync(outSvg) && readFileSync(outSvg, 'utf8') === svg) {

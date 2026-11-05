@@ -1,7 +1,14 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { load as yamlLoad } from 'js-yaml'
 import { describe, it, expect } from 'vitest'
-import { deriveDimSet, applyDimming, DIM_UNIVERSE, DIM_OPACITY } from './generate-parcours.ts'
+import { deriveDimSet, applyDimming, DIM_UNIVERSE, DIM_OPACITY, OPTIONALE_IDS } from './generate-parcours.ts'
+import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
+
+/** Die Positionen aus allen Quelldateien unter src/config. */
+function allePositionen() {
+  const dateien = quellDateien(readFileSync('src/config/aufbauten.yaml', 'utf8'))
+  return mergePositionen(dateien.map((n) => yamlLoad(readFileSync(`src/config/${n}.yaml`, 'utf8')))).positionen
+}
 
 describe('deriveDimSet', () => {
   it('leitet aus Spalten-`hebt` die Gegenmenge des DIM_UNIVERSE ab', () => {
@@ -65,10 +72,8 @@ describe('applyDimming', () => {
   })
 })
 
-describe('Berlin-Bilder (positionen.yaml)', () => {
-  const { positionen } = yamlLoad(readFileSync('src/config/positionen.yaml', 'utf8')) as {
-    positionen: Array<{ id: string; abblenden?: string[]; spalten?: Array<{ hebt?: string }> }>
-  }
+describe('Berlin-Bilder', () => {
+  const positionen = allePositionen()
   const dim = (id: string) => deriveDimSet(positionen.find((p) => p.id === id)!)
   // Die gelben Bojen des Start/Ziel-Tors: die Gruppe und ihre beiden Bojen.
   const GELB = ['StartZiel', 'StartZiel_oben', 'StartZiel_unten']
@@ -88,22 +93,25 @@ describe('Berlin-Bilder (positionen.yaml)', () => {
 describe('IDs in den Quell-SVGs', () => {
   const ORDNER = 'public/parcours/alcatraz_Parcours'
   const svgs = readdirSync(ORDNER).filter((f) => f.endsWith('.svg'))
-  const { positionen } = yamlLoad(readFileSync('src/config/positionen.yaml', 'utf8')) as {
-    positionen: Array<{ bildGenerator?: boolean; abblenden?: string[]; spalten?: Array<{ hebt?: string }> }>
-  }
+  const positionen = allePositionen()
 
-  it('jede ID aus positionen.yaml gibt es in allen SVGs', () => {
+  it('jede ID aus den Positionen gibt es in allen SVGs', () => {
     const ids = new Set(
       positionen
         .filter((p) => p.bildGenerator)
         .flatMap((p) => [...(p.abblenden ?? []), ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
-        .filter(Boolean),
+        .filter((id) => id && !OPTIONALE_IDS.has(id)),
     )
     expect(ids.size).toBeGreaterThan(0)
     for (const file of svgs) {
       const svg = readFileSync(`${ORDNER}/${file}`, 'utf8')
       for (const id of ids) expect(svg, `${file}: ${id}`).toContain(`id="${id}"`)
     }
+  })
+
+  it('die untere Speedboje steht nur in Klassenbildern, deren Route um sie herumführt', () => {
+    const mit = svgs.filter((f) => readFileSync(`${ORDNER}/${f}`, 'utf8').includes('id="Speedboje_unten"'))
+    expect(mit.sort()).toEqual(['Klasse7.svg', 'Klasse7_rc1.svg', 'Klasse7_rc2.svg'])
   })
 
   it('die Zeitnahme bleibt zur Orientierung auf jeder Liste sichtbar', () => {

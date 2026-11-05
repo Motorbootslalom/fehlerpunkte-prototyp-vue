@@ -20,8 +20,17 @@ const groupRowIndices = computed(() =>
 <template>
   <div class="legend">
     <!-- Mehrere Fehlerblöcke nebeneinander (getrennte Kataloge). -->
-    <div v-if="hasGroups" class="legend-block">
+    <div v-if="hasGroups" class="legend-block legend-fehler">
       <table class="legend-errors legend-grouped">
+        <!-- Feste Breiten: Alle Blöcke sind gleich breit, egal wie lang ihre Texte sind. -->
+        <colgroup>
+          <template v-for="nr in def.errorGroups?.length ?? 0" :key="`s${nr}`">
+            <col v-if="nr > 1" class="lc-col-buffer" />
+            <col class="lc-col-code" />
+            <col />
+            <col class="lc-col-pts" />
+          </template>
+        </colgroup>
         <thead>
           <tr>
             <template v-for="(g, gi) in def.errorGroups" :key="`h${gi}`">
@@ -44,7 +53,7 @@ const groupRowIndices = computed(() =>
     </div>
 
     <!-- Einzelner Fehler-Katalog. -->
-    <div v-else-if="def.errorTable" class="legend-block">
+    <div v-else-if="def.errorTable" class="legend-block legend-fehler">
       <div class="legend-title">{{ def.errorTableTitle ?? 'Fehler:' }}</div>
       <table class="legend-errors">
         <tbody>
@@ -62,7 +71,7 @@ const groupRowIndices = computed(() =>
     </div>
     <div v-else-if="def.legendNote" class="legend-note">{{ def.legendNote }}</div>
 
-    <div v-if="def.disqTable && def.disqTable.length > 0" class="legend-block">
+    <div v-if="def.disqTable && def.disqTable.length > 0" class="legend-block legend-disqblock">
       <div class="legend-title">{{ def.disqTableTitle ?? 'Disqualifikation:' }}</div>
       <table :class="['legend-disq', { 'legend-disq--2': def.disqZweispaltig }]">
         <tbody>

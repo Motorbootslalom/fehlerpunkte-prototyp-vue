@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getAufbau, getLaufzettelConfig, getLegende, getSheetDef } from './config/active'
+import { aufbauOrder, getLaufzettelConfig, getLegende, getSheetDef } from './config/active'
 import { buildLaufzettel } from './lib/laufzettel'
 import { pageCounts, showLaufzettel, showLegende } from './state/laufzettel'
 import { useStore } from './state/store'
@@ -15,12 +15,12 @@ const { state } = useStore()
 const laufzettel = computed(() =>
   buildLaufzettel(
     state.boegen,
-    getAufbau(state.aufbau).order,
+    aufbauOrder(state.aufbau, state.tor5MitParcours),
     (t) => getSheetDef(t).titelDe,
     (id) => pageCounts[id] ?? 1,
   ),
 )
-// Arbeitsschritte der Auswertung (positionen.yaml → laufzettel).
+// Arbeitsschritte der Auswertung (einstellungen.yaml → laufzettel).
 const lzConfig = getLaufzettelConfig()
 
 // Die aktive Konfiguration ist nicht reaktiv: Der Zustand zeigt an, wann sie sich
