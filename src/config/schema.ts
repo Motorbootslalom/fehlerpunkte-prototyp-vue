@@ -244,6 +244,24 @@ export interface RawAufbau {
   positionen: string[]
   /** Eigene Bojen (z. B. Parallelslalom): Der Überwachungs-Check gilt hier nicht. */
   eigeneStrecke?: boolean
+  /** Disziplin mit eigenen Eingaben und Ergebnislisten. Fehlt: die erste aus `disziplinen`. */
+  disziplin?: string
+}
+
+/** Eine Spalte der Ergebnisliste; Felder ohne Liste im Aufbau oder in der Klasse entfallen. */
+export interface RawErgebnisSpalte {
+  label: string
+  /** Felder, deren Punkte zusammen in einer Zelle stehen, z. B. beide Start-Bojen. */
+  felder?: string[]
+  /** Felder mit je einer Unter-Spalte. Kürzel: das der Boje, sonst `label`. */
+  unter?: Array<string | { label: string; feld: string }>
+}
+
+/** Disziplin: Ihre Aufbauten teilen sich die Eingaben und die Ergebnislisten. */
+export interface RawDisziplin {
+  id: string
+  name: string
+  ergebnisspalten?: RawErgebnisSpalte[]
 }
 
 /** Eine Boje oder Aufgabe, die jeder Aufbau auf einer Liste abdecken muss. */
@@ -278,6 +296,8 @@ export interface RawUebersetzung {
 
 /** Die zusammengeführten Positions-Dateien (public/config/positionen.yaml). */
 export interface RawPositionen {
+  /** Disziplinen in Menü-Reihenfolge; die erste ist der Standard. */
+  disziplinen?: RawDisziplin[]
   /** Übersetzungen je Sprache, z. B. { en: {...} }. */
   uebersetzungen?: Record<string, RawUebersetzung>
   /**

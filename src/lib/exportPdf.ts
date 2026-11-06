@@ -22,8 +22,8 @@ export async function exportSheetsToPdf(fileName: string): Promise<void> {
   ])
   const { jsPDF } = jspdf
 
-  // Laufzettel haben einen eigenen Druckweg und gehören nicht in die Bögen-PDF.
-  const sheets = Array.from(document.querySelectorAll<HTMLElement>('.sheet:not(.laufzettel)'))
+  // Laufzettel und Ergebnislisten haben einen eigenen Druckweg und gehören nicht in die Bögen-PDF.
+  const sheets = Array.from(document.querySelectorAll<HTMLElement>('.sheet:not(.laufzettel):not(.ergebnis-sheet)'))
   if (sheets.length === 0) return
 
   const firstLandscape = sheets[0].classList.contains('sheet--landscape')

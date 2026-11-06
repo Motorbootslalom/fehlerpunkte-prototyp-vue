@@ -28,8 +28,8 @@ beschriebenen Punkte beispielhaft um.
    zusammengerechnet (Σ-Spalte). Bei Schikane / Mann-über-Bord liegt die
    Ergebnisspalte bewusst **etwas mittig**.
 3. **Disqualifikationen verorten.** In den Tor-Spalten können auch
-   Disqualifikations-Codes eingetragen werden, damit auf der (nicht zum Prototyp
-   gehörenden) Ergebnisseite sichtbar ist, **wo und warum** disqualifiziert wurde.
+   Disqualifikations-Codes eingetragen werden, damit auf der Ergebnisliste (§8f)
+   sichtbar ist, **wo und warum** disqualifiziert wurde.
 4. **Druck / PDF.** Die Bögen lassen sich per Knopfdruck als PDF ausgeben und
    drucken.
 5. **Scanner-Vorbereitung.** Die Bögen tragen maschinenlesbare Codes (QR), damit
@@ -103,7 +103,8 @@ Mitgelieferte Positionen (Auszug, Aufbau Alcatraz):
 (`H` = Hinfahrt, `R` = Rückfahrt) + **Seite**. Die Seiten-Kürzel sind global und
 **auf der Seite umschaltbar** (§12a): R/L (Rechts/Links, Standard), L/S (Land/See),
 S/L, K/H (Kai/Hafen), **Pfeile** (→/←) oder **Innen/Außen** (I/A). Beispiel
-Standard: `H R` = Hinfahrt Rechts, `R L` = Rückfahrt Links.
+Standard: `H R` = Hinfahrt Rechts, `R L` = Rückfahrt Links. Die Bezeichnung dient den WKR
+zur Orientierung am Parcours und gilt nur für die Bögen; die Ergebnislisten bleiben bei R/L (§8f).
 
 ## 4a. Klassenabhängige Spalten & Blätter
 
@@ -222,8 +223,7 @@ Alle Codes, Strafen und Disqualifikationen eines Regelwerks lassen sich als
   - in der eigenen **Disq.-Spalte** der Zeile **oder**
   - **direkt in einer Tor-/Bojenspalte** (Buchstabe statt Zahl). So ist die
     genaue Stelle dokumentiert (z. B. „G an Tor 3 H R“).
-- Für die Ergebnisseite (nicht Teil des Prototyps) stehen damit **Ort und Grund**
-  der Disqualifikation strukturiert bereit.
+- Die Ergebnislisten (§8f) zeigen damit **Ort und Grund** der Disqualifikation.
 - **Eingabehilfe:** Disq-Eingaben werden automatisch groß geschrieben; es sind
   **nur Codes zulässig, die in der Legende stehen**. Mehrere Codes mit
   Komma und/oder Leerzeichen; die Anzeige normalisiert einheitlich auf „A, B".
@@ -236,10 +236,11 @@ abdecken.
 
 **Regeln** (eine Zahl mit Trenner - Komma **oder** Punkt, je nach Layout):
 
-- Zahl vor dem Trenner **> 20** → es sind **Sekunden**, danach **Hundertstel**.
+- Zahl vor dem Trenner **≥ 20** → es sind **Sekunden**, danach **Hundertstel**.
   Beispiel `45,67` → 0:45,67.
-- Zahl vor dem Trenner **≤ 20** → es sind **Minuten**, danach **Sekunden +
+- Zahl vor dem Trenner **< 20** → es sind **Minuten**, danach **Sekunden +
   Hundertstel** (`mm,ssHH`). Beispiel `1,2345` → 1:23,45.
+- Der Trenner darf fehlen, die Grenze gilt genauso: `1` → 1:00,00, `20` → 0:20,00.
 - **Enter** übernimmt und springt ins nächste Zeitfeld.
 - Nach Verlassen des Feldes normalisiert die Anzeige auf **`mm:ss,00 (ss,00)`**
   (Uhrzeit- und reine Sekundendarstellung zugleich), z. B. `01:23,45 (83,45)`.
@@ -318,11 +319,11 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
   Schnellauswahl und die **Bogen-Auswahl** (Liste × Klasse × Lauf). So lässt sich z. B. „Baden-Württemberg, alle
   Wasser-2-Listen" zusammenklicken und einfach **die URL teilen**; ein Knopf
   „Einstellungs-Link kopieren" legt sie in die Zwischenablage.
-- **Nicht** enthalten sind eingetragene Werte (Punkte/Zeiten) und WKR-Namen -
-  der Link stellt nur die leere Zusammenstellung her, keine Daten.
+- **Nicht** enthalten sind eingetragene Werte (Punkte/Zeiten), WKR-Namen und die Namen
+  der Starter - der Link stellt nur die Zusammenstellung her, keine Daten.
 - Öffnet jemand einen geteilten Link, hat dessen Konfiguration Vorrang vor dem
-  lokal gespeicherten Stand. Beim normalen Neuladen (eigene URL) bleiben die
-  lokalen Eingaben erhalten.
+  lokal gespeicherten Stand. Die im eigenen Browser gespeicherten Eingaben bleiben
+  dabei erhalten (§8e).
 
 ## 8b. Legende als A4-Blatt
 
@@ -344,6 +345,125 @@ Für den doppelseitigen Druck (Wenden an der langen Kante) lassen sich Legende u
 Parcoursbild auf eine eigene Rückseite je Blatt legen. Klappt man das Blatt am Klemmbrett
 nach oben, steht die Beschreibung richtig herum in der sichtbaren Hälfte; vorne ist mehr
 Platz für Starter. Passt sie nicht in diese Hälfte, warnt die Vorschau.
+
+## 8e. Eingaben speichern und beim Wechsel erhalten
+
+- Eingetragene Werte und WKR-Namen werden laufend **lokal im Browser** gespeichert und
+  überleben ein Neuladen. „Alles zurücksetzen“ leert diesen Speicher.
+- **Gespeichert wird je Disziplin, Klasse, Lauf und Startnummer**, nicht je Bogen. Ein Bogen
+  zeigt nur, was zu seiner Klasse und seinem Lauf gehört: Wird er entfernt und später wieder
+  hinzugefügt, sind die Werte wieder da. Stellt man ihn auf einen anderen Lauf, zeigt er
+  dessen Werte. Knoten stehen je Klasse ohne Lauf.
+- **Parallelslalom und Manövrieren** haben getrennte Werte, auch auf den Listen, die beide
+  nutzen (Zeit, Steg). Beim Wechsel und zurück bleiben beide erhalten.
+- **Aufbau wechseln (innerhalb einer Disziplin):** Eine Eingabe bleibt in dem Feld, das sie
+  erfasst: dieselbe Boje (Fahrtrichtung und Seite), dieselben Fehler (gleicher Katalog),
+  dieselbe Zeit-Spalte. Das gilt auch, wenn das Feld im neuen Aufbau in anderer Reihenfolge
+  oder auf einer anderen Liste steht (Tor 1 wechselt z. B. von „Tore 1/3/5“ auf Berlin
+  „Rechts“).
+- **Disq., Bemerkung und WKR-Name** gehören zu ihrer Liste und ziehen auf die entsprechende
+  Liste des neuen Aufbaus um. Gibt es keine, bleiben sie gespeichert und sind beim
+  Zurückwechseln wieder da; eine solche Disqualifikation zählt weiter.
+- **Leerzeilen** sind je Lauf dieselben: Eine von Hand eingetragene Startnummer steht auf
+  allen Listen des Laufs in derselben Zeile.
+- **Bögen beim Aufbau-Wechsel:** Die unveränderte Grundausstattung wird zur
+  Grundausstattung des neuen Aufbaus. Eine eigene Auswahl behält ihre Klassen und Läufe,
+  die Positionen kommen vom neuen Aufbau.
+- **Regelwerk wechseln:** Eingaben bleiben, solange sie gültig sind, auch die gerade nicht
+  sichtbaren. Fehlercodes und Disqualifikationen, die das neue Regelwerk an dieser Stelle
+  nicht kennt, werden gelöscht, die übrigen Codes derselben Zelle bleiben. Spalten und
+  Klassen, die es nicht mehr gibt, entfallen samt ihren Eingaben.
+- **Startnummer entfernen:** Die Werte bleiben gespeichert, zählen aber nicht mehr, bis die
+  Nummer wieder in der Klasse steht.
+
+## 8f. Ergebnislisten
+
+Aus den Eingaben entstehen je Klasse Ergebnislisten (A4 quer), nachgebaut nach den
+Auswertungs-Listen der DM 2026. Es zählen die Eingaben der Disziplin des gewählten Aufbaus;
+der Aufbau selbst ändert am Ergebnis nichts. Gedruckt werden sie über „Nur Ergebnislisten
+drucken“, wahlweise nur für eine Klasse. Gedruckt wird, was die Vorschau zeigt.
+
+**Zeitstempel:** Unten auf jeder Liste steht, wann sich ihr Inhalt zuletzt geändert hat, auch
+wenn sie dabei nicht angezeigt war. Es zählt nur, was auf der Liste steht: Eine Bemerkung oder
+dieselbe Zeit anders getippt lassen ihn stehen. Die beiden Listen eines Laufs teilen ihn. Die
+Gesamtliste übernimmt jede Änderung an einem Lauf ihrer Klasse, auch wenn sie bei ihr nicht zu
+sehen ist (anderer Fehlercode mit gleichen Punkten): Kein Lauf darf neuer aussehen als die
+Gesamtliste. Knoten und die Streich-Einstellung ändern nur die Gesamtliste. Der
+Veranstaltungsname zählt nicht mit, sonst sähe nach einem Tippfehler jede Liste neu aus. Der Stand bleibt im Browser gespeichert; der Einstellungs-Link enthält ihn nicht.
+
+**Je Lauf zwei Listen**, eine nach Startnummer und eine nach Platz. Es erscheinen nur Läufe
+mit Eingaben.
+
+- **Zeit:** Mittelwert der eingetragenen Zeitnehmer (wie in der Auswertungs-Arbeitsmappe),
+  auf Hundertstel gerundet. Auch mehrere Zeit-Listen (Alcatraz-DM26) fließen ein.
+- **Punkte:** eine Sekunde = ein Punkt. **ges. Punkte** = Punkte + alle Strafpunkte.
+- **Disqualifiziert** ist, wer irgendwo einen Disq-Buchstaben hat, auch „Nicht gestartet“:
+  `x` in der Spalte disq. und `disq.` statt ges. Punkte. Die 999,00 der Excel-Listen entfallen:
+  Sie sollten dort nur erzwingen, dass diese Starter ganz unten stehen.
+- **Platz:** Gleiche Punkte teilen sich den Platz, der nächste entfällt. Disqualifizierte
+  teilen sich den Platz hinter allen anderen und stehen nach Startnummer. Wer noch keine Zeit
+  hat, steht ohne Platz am Ende.
+- **Spalten:** die Punkte an jeder Stelle des Fahrwegs; Disq-Buchstaben stehen dort, wo sie
+  eingetragen wurden. Welche Spalten es gibt, legt `ergebnisspalten` je Disziplin fest;
+  Felder, die eine Klasse nicht fährt, entfallen (Klasse 4 ohne 1 R). Die Bojen heißen immer
+  R und L, die gewählte Bezeichnung der Bojen-Seiten gilt nur für die Bögen.
+- **Fehler-Schlüssel:** alle Codes und Buchstaben in natürlicher Reihenfolge: die Codes der
+  Zahl nach, dahinter die Buchstaben („3, 17, 18, A, C“). Die Excel-Listen der DM sortieren die
+  Codes dagegen als Text („17, 18, 3“).
+
+**Auf Wunsch zum Schluss die Gesamtliste** mit allen Läufen. Sie ist meist erst am Ende
+gefragt und erscheint deshalb nur mit „Gesamtliste dazunehmen“, nach dem Neuladen ist der
+Schalter wieder aus. Das Anhaken zeigt auch die Ergebnislisten.
+
+- **Gestrichen** ist genau **ein** Lauf, der schlechteste, bei Gleichstand der frühere. Das
+  gilt in der Regel erst ab **drei** Läufen; die Einstellung „Schon ab zwei Läufen einen
+  streichen“ schaltet es um. Sie steckt auch im Einstellungs-Link. Es zählen die Läufe der
+  Klasse mit Eingaben. Bei nur einem Lauf wird nie gestrichen. Zeit, Strafpunkte und Gesamt
+  des Laufs sind durchgestrichen, sein Platz nicht.
+- **Ergebnis** = Summe der übrigen Läufe. **Gesamt** = Ergebnis + Knoten.
+- **Disqualifikation, die zählt:** Bei zwei gefahrenen Läufen wird nichts gestrichen, schon
+  eine Disqualifikation lässt den Starter also ohne gültige Gesamtzeit. Ab drei Läufen ist
+  nur einer gestrichen, es braucht also zwei. In beiden Fällen: Ergebnis und Gesamt `disq.`,
+  gemeinsamer **letzter Platz**.
+- **Fehlender Lauf:** Wird gestrichen, gilt ein noch leerer Lauf eines Starters als der
+  gestrichene. Fehlt mehr oder wird nicht gestrichen, bleibt der Starter ohne Ergebnis und
+  Platz am Ende. Eine Disqualifikation wird vor einem leeren Lauf gestrichen.
+- **Knoten** kommen aus der Knoten-Liste. Sie ist in jedem Aufbau wählbar, gehört aber nicht
+  in jedem zur Grundausstattung.
+
+**Namen:** Name und Vorname kommen aus „Namen der Starter“ (je Zeile Startnummer, Name,
+Vorname; auch aus Excel einfügbar). Neue Nummern werden zu den Startnummern der Klasse
+ergänzt. Die Namen bleiben im Browser, der Einstellungs-Link enthält sie nicht.
+
+## 8g. Beispielwerte
+
+Damit sich der Prototyp ohne ausgedachte Werte erklären lässt, füllen zwei Schaltflächen alle
+angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der Zeitnahme:
+
+| | Zeiten je Start und Lauf | Eingabe |
+|---|---|---|
+| **Stoppuhr** | 2 bis 3, die Ergebnisliste rechnet den Mittelwert | `<minuten>,<sekunden><hundertstel>`, z. B. `1,2345` |
+| **Lichtschranke** | genau eine, in der ersten Zeit-Spalte | `<sekunden>,<hundertstel>`, z. B. `85,34` |
+
+- **Grundlage** sind Kennzahlen je Klasse: die Quartile der Zeit und die Quoten für Bojen,
+  Fehlercodes, Disqualifikationen und Knoten. Sie hängen vom gewählten Wettkampf ab:
+
+  | Wettkampf | Ergebnislisten |
+  |---|---|
+  | Manövrieren nach DM | DM 2026 |
+  | Manövrieren nach UIM | WM 2025, beide Versuche |
+  | Parallelslalom | WM 2025, Vorlauf |
+
+  Das Repo enthält nur diese gerundeten Kennzahlen, keine einzelnen Ergebnisse oder Namen. Die
+  WM hat je Klasse nur 20 bis 44 Versuche, ihre Quoten sind deshalb mit dem Schnitt aller
+  Klassen geglättet. Nicht aus den Listen stammen die Streuung zwischen den Stoppuhren und der
+  Anteil dritter Zeiten: Die Listen zeigen nur den Mittelwert.
+- **Geltungsbereich:** Ersetzt werden die Werte der angezeigten Bögen, nach einer Rückfrage,
+  falls dort schon welche stehen. Andere Listen, Bemerkungen, Leerzeilen und WKR-Namen bleiben.
+- **Stimmigkeit:** Dieselbe Person bleibt über die Läufe ähnlich schnell, auch wenn die Läufe
+  einzeln gefüllt werden. Eine Disqualifikation trifft eine Stelle im ganzen Aufbau und erscheint
+  nur, wenn deren Liste angezeigt ist; eine einzelne Liste hat also nicht die Quote eines
+  ganzen Laufs. Es erscheinen nur Codes und Buchstaben, die das gewählte Regelwerk dort zulässt.
 
 ## 9. Scanner-Erfassung (spätere Ausbaustufe)
 
@@ -485,8 +605,12 @@ Platz für Starter. Passt sie nicht in diese Hälfte, warnt die Vorschau.
 
 ## 12. Nicht-Ziele / offene Punkte
 
-- Ergebnis-/Ranglistenseite (Zusammenführung aller Bögen) ist **nicht** Teil des
-  Prototyps.
+- Ergebnislisten (§8f): Klassen 5 bis 7 und Parallelslalom sind nach dem Vorbild von Klasse 4
+  abgeleitet, es liegt keine Vorlage vor. Offen: Gilt für den Parallelslalom dieselbe Wertung?
+  Die Listen sind nur deutsch.
+- Ergebnislisten (§8f): Für Disqualifikationen in der Gesamtwertung gelten weitere, aus den
+  UIM-Regeln hergeleitete Regeln. Sie sind noch nicht umgesetzt, die Wertung kennt bisher nur
+  den gemeinsamen letzten Platz. Der Regeltext fehlt noch.
 - Klassenabhängige Listen/Spalten (Speedbojen, Mann-über-Bord) sind umgesetzt
   (§4a). DM 2026 und UIM 2026 sind mit ihren Regelwerken abgeglichen; ob die Hinweise
   „ab Klasse …“ bei Fehlercodes auch die Eingabe einschränken, ist noch offen, heute sind

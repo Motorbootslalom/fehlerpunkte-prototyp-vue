@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Column } from '../types'
 import {
   allClassesAllPositionsItems,
   classAllPositionsItems,
@@ -151,7 +152,10 @@ describe('Schnellauswahl', () => {
     expect(cfg.positions.map((p) => p.typeId)).toEqual(['z', 'z-1', 'z-2', 'z-3', 'p'])
     const z2 = cfg.positions.find((p) => p.typeId === 'z-2')!
     expect([z2.title, z2.menuLabel]).toEqual(['Zeit (2)', 'Zeitnahme (2)'])
-    expect(z2.columns).toEqual(cfg.positions[0].columns)
+    // Gleiche Spalten, aber jede Zeitnahme erfasst eigene Werte.
+    const ohneFelder = (cols: Column[]) => cols.map((c) => ({ ...c, felder: undefined }))
+    expect(ohneFelder(z2.columns)).toEqual(ohneFelder(cfg.positions[0].columns))
+    expect(z2.columns[0].felder).toEqual(['x~2'])
   })
 
   it('Zusatz-Position, die schon im Aufbau steht, erscheint nicht doppelt', () => {

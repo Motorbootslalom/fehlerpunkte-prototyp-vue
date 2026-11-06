@@ -5,10 +5,11 @@ import { gridNavKeyDown } from '../lib/gridnav'
 import { normalizeCodeCell } from '../lib/codes'
 import { PRINT_MARGIN_MM, overflowRows, pageHeightMm as pageHeightOf } from '../lib/paging'
 import { allowedSet, sanitizeBuoy, sanitizeCodeInput, sanitizeDisq } from '../lib/disq'
-import { cellKey, columnsForClass, formatDisqs, scoreRow, summenText } from '../lib/scoring'
+import { NR_SPALTE, cellKey, columnsForClass, formatDisqs, scoreRow, summenText } from '../lib/scoring'
 import { useCell, useStore } from '../state/store'
 import type { Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
 import { hasDescription } from '../lib/backside'
+import { wkrVon } from '../lib/eingaben'
 import { fitCells, fitEventTarget } from '../lib/fitText'
 import CourseImage from './CourseImage.vue'
 import Legend from './Legend.vue'
@@ -44,7 +45,7 @@ const props = defineProps<{
 }>()
 
 const { state, dispatch } = useStore()
-const cell = useCell(props.bogen.id)
+const cell = useCell(() => props.bogen)
 // Bögen werden bei einem Sprachwechsel neu aufgebaut (Key in App.vue).
 const texte = getBogenTexte()
 
@@ -222,13 +223,13 @@ function onTimeChange(leaf: Leaf, rowKey: string, raw: string) {
   cell.set(leafCk(leaf, rowKey), raw)
 }
 function nrValue(row: Row): string {
-  return cell.getByKey(cellKey(row.id, '__nr'))
+  return cell.getByKey(cellKey(row.id, NR_SPALTE))
 }
 function onNrInput(row: Row, e: Event) {
-  cell.set(cellKey(row.id, '__nr'), (e.target as HTMLInputElement).value)
+  cell.set(cellKey(row.id, NR_SPALTE), (e.target as HTMLInputElement).value)
 }
 function onWkr(name: string) {
-  dispatch({ type: 'SET_WKR', bogenId: props.bogen.id, name })
+  dispatch({ type: 'SET_WKR', bogen: props.bogen, name })
 }
 
 // Passt die Seite auf ein A4-Blatt? Das Blatt am Bildschirm hat dieselben Maße
@@ -305,7 +306,7 @@ function fitAusEreignis(e: Event) {
               :def="def"
               :bogen="bogen"
               :event-name="state.eventName"
-              :wkr="state.wkr[bogen.id] ?? ''"
+              :wkr="wkrVon(state, bogen)"
               @wkr="onWkr"
             />
           </th>

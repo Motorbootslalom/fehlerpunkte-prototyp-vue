@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { aufbauOrder, getLaufzettelConfig, getLegende, getSheetDef } from './config/active'
 import { buildLaufzettel } from './lib/laufzettel'
-import { pageCounts, showLaufzettel, showLegende } from './state/laufzettel'
+import { pageCounts, showErgebnisse, showLaufzettel, showLegende } from './state/laufzettel'
 import { useStore } from './state/store'
 import ControlPanel from './components/ControlPanel.vue'
+import ErgebnisListen from './components/ErgebnisListen.vue'
 import LaufzettelPage from './components/LaufzettelPage.vue'
 import LegendePage from './components/LegendePage.vue'
 import SheetView from './components/SheetView.vue'
@@ -36,6 +37,10 @@ const legende = computed(() => (configKey.value, getLegende()))
       <!-- A4-Legende; gedruckt nur über „Nur Legende drucken“. -->
       <section v-if="showLegende" class="legende-stack">
         <LegendePage :legende="legende" :event-name="state.eventName" />
+      </section>
+      <!-- Ergebnislisten; gedruckt nur über „Nur Ergebnislisten drucken“. -->
+      <section v-if="showErgebnisse" class="ergebnis-stack">
+        <ErgebnisListen :key="configKey" />
       </section>
       <p v-if="state.boegen.length === 0" class="empty">
         Keine Bögen ausgewählt - links einen Bogen hinzufügen.

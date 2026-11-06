@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { bundledConfig, initConfig } from '../config/active'
 import { buildInitialState } from '../state/initState'
+import { setzeZelle } from './eingaben'
 import { buildAllPages } from './sheetModel'
 import { cellKey } from './scoring'
 import type { AppState } from '../types'
@@ -37,10 +38,8 @@ describe('buildAllPages (Sheet-Modell für PDF)', () => {
     const one = buildAllPages({ ...state, boegen: [bogen] })[0]
     const nr = one.rows.find((r) => r.fixed)!.nr
     const buoy = one.leaves.find((l) => l.kind === 'buoy')!
-    const values: AppState['values'] = {
-      [bogen.id]: { [cellKey(nr, buoy.colKey, buoy.subIndex)]: '10' },
-    }
-    const withVal = buildAllPages({ ...state, boegen: [bogen], values })[0]
+    const eingaben = setzeZelle(state, bogen, cellKey(nr, buoy.colKey, buoy.subIndex), '10')
+    const withVal = buildAllPages({ ...state, boegen: [bogen], eingaben })[0]
     const row = withVal.rows.find((r) => r.nr === nr)!
     const sumIdx = withVal.leaves.findIndex((l) => l.kind === 'sum')
     expect(row.cells[sumIdx].display).toBe('10')

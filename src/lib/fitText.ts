@@ -8,7 +8,7 @@ export const FIT_MIN = 0.5
 /** Luft, damit Rundung und Tabellenziffern (misst die Canvas nicht) nichts abschneiden. */
 const FIT_LUFT = 0.98
 
-const ZELLEN = '.cell-input, .col-sum-cell'
+const ZELLEN = '.cell-input, .col-sum-cell, .erg-fit'
 
 /** Faktor für die Schrift: 1, wenn der Text passt, sonst so klein wie nötig (mindestens `min`). */
 export function fitFactor(textWidth: number, available: number, min = FIT_MIN): number {

@@ -37,6 +37,11 @@ export interface Column {
   label: string
   kind: CellKind
   /**
+   * Was die Zellen dieser Spalte erfassen (eine Kennung je Unter-Spalte, siehe
+   * config/feld.ts). Fehlt = der `key`.
+   */
+  felder?: string[]
+  /**
    * Unter-Spalten (z. B. Blickrichtungen "H K" / "H H" an einem Tor). Jede
    * erzeugt eine eigene Zelle; der Kopf wird dann zweizeilig dargestellt.
    */
@@ -163,8 +168,27 @@ export interface Bogen {
   lauf: Lauf
 }
 
-/** Zellwerte werden flach als Map gespeichert: bogenId → "nr:colKey" → value. */
-export type SheetValues = Record<string, Record<string, string>>
+/**
+ * Eingetragene Werte: Lauf → Zeile → Feld → Wert, z. B.
+ * eingaben["manoevrieren/4/1"]["401"]["t1a|hin seiteA"] = "5". Der Lauf-Schlüssel enthält
+ * Disziplin, Klasse und Lauf (siehe lib/eingaben), das Feld die Kennung aus config/feld.ts.
+ * Die Werte hängen damit nicht an der Bogen-Auswahl und nicht am Aufbau.
+ */
+export type Eingaben = Record<string, Record<string, Record<string, string>>>
+
+/** Name eines Starters für die Ergebnislisten. */
+export interface Starter {
+  name: string
+  vorname: string
+}
+
+/** Wann sich eine Ergebnisliste zuletzt geändert hat. */
+export interface ListenStand {
+  /** Prüfsumme dessen, was auf der Liste steht. */
+  inhalt: number
+  /** Zeitpunkt der letzten Änderung in Millisekunden. */
+  zeit: number
+}
 
 export interface AppState {
   eventName: string
@@ -176,6 +200,8 @@ export interface AppState {
   aufbau: string
   /** Eine Person übernimmt Tor 5 und die Parcoursüberwachung (wo der Aufbau es erlaubt). */
   tor5MitParcours: boolean
+  /** Gesamtliste: schon ab zwei Läufen einen streichen; sonst (Regelfall) erst ab drei. */
+  streichenAbZwei: boolean
   /** Gewähltes Bezeichnungs-Schema (Bojen-Kürzel), z. B. "rl" oder "ls". */
   beschriftung: string
   /** Anzahl leerer Zeilen, die nach den Startnummern angehängt werden. */
@@ -207,11 +233,15 @@ export interface AppState {
    * enthaltene Klassen lässt die Schnellauswahl aus. Standard: E, 1 … 7.
    */
   classOrder: ClassId[]
-  /** WKR-Name je Bogen. */
+  /** WKR-Name je Lauf und Liste, z. B. wkr["manoevrieren/4/1/steg"]. */
   wkr: Record<string, string>
   /** Aktuell im Setup zusammengestellte Bögen. */
   boegen: Bogen[]
   /** Eingetragene Zellwerte. */
-  values: SheetValues
+  eingaben: Eingaben
+  /** Namen je Klasse und Startnummer. Bleiben lokal, der Einstellungs-Link enthält sie nicht. */
+  starter: Partial<Record<ClassId, Record<string, Starter>>>
+  /** Stand je Ergebnisliste, unter ihrem Lauf-Schlüssel bzw. gesamtSchluessel (lib/ergebnis). */
+  listenStand: Record<string, ListenStand>
   initialized: boolean
 }

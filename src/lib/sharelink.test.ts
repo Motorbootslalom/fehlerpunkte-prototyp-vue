@@ -9,6 +9,7 @@ function stateFixture(): AppState {
     sprache: 'de+en',
     aufbau: 'bawue',
     tor5MitParcours: true,
+    streichenAbZwei: true,
     beschriftung: 'ls',
     emptyRows: 5,
     rowsPerPage: 12,
@@ -16,12 +17,14 @@ function stateFixture(): AppState {
     descriptionOnBack: true,
     numbers: { '2': ['1', '2', '3'] },
     classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
-    wkr: { bg_1: 'Max' },
+    wkr: { 'manoevrieren/2/1/bawuewasser2': 'Max' },
     boegen: [
       { id: 'bg_1', typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
       { id: 'bg_2', typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
     ],
-    values: { bg_1: { '1:sum': '5' } },
+    eingaben: { 'manoevrieren/2/1': { '1': { start: '5' } } },
+    starter: { '2': { '1': { name: 'Muster', vorname: 'Anna' } } },
+    listenStand: {},
     initialized: true,
   }
 }
@@ -36,6 +39,7 @@ describe('sharelink', () => {
       sprache: 'de+en',
       aufbau: 'bawue',
       tor5MitParcours: true,
+      streichenAbZwei: true,
       beschriftung: 'ls',
       emptyRows: 5,
       rowsPerPage: 12,
@@ -59,6 +63,7 @@ describe('sharelink', () => {
     expect(round?.rowsPerPage).toBeUndefined()
     expect(round?.splitFrom).toBeUndefined()
     expect(round?.descriptionOnBack).toBeUndefined()
+    expect(round?.streichenAbZwei).toBeUndefined()
   })
 
   it('Klassen-Reihenfolge: fehlt in älteren Links, eine Teilauswahl bleibt erhalten', () => {

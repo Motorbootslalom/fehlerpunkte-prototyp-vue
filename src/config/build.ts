@@ -1,6 +1,7 @@
 import { CLASS_IDS } from '../types'
 import type { CellKind, Column, DisqDef, ErrorDef, ErrorGroup, SheetDef, Sprache, TrennerDesign } from '../types'
-import type { RawConfig, RawDisq, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
+import type { RawConfig, RawDisq, RawDisziplin, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
+import { feldKennungen } from './feld'
 import { findeKombi, kombiReihenfolge } from './kombi'
 import { bogenTexte, uebersetzt, uebersetztBlock, type BogenTexte } from './sprache'
 
@@ -13,6 +14,8 @@ type Uebersetzer = (de: string, en?: string) => string
 export interface ResolvedAufbau {
   id: string
   name: string
+  /** Disziplin: Ihre Aufbauten teilen sich die Eingaben und die Ergebnislisten. */
+  disziplin: string
   /** Positions-IDs dieses Aufbaus (nur existierende, in Reihenfolge). */
   order: string[]
   /** Positionen mit `schnellauswahl: true`, die nicht schon in `order` stehen
@@ -68,6 +71,7 @@ export interface ResolvedConfig {
   positions: SheetDef[]
   /** Aufbauten (Setups); der erste ist der Standard. */
   aufbauten: ResolvedAufbau[]
+  disziplinen: RawDisziplin[]
   /** Alle konfigurierten Disqualifikationen. */
   allDisqs: DisqDef[]
   /** Auf der Seite umschaltbare Bezeichnungs-Schemata (der erste ist Standard). */
@@ -115,6 +119,8 @@ function toColumn(
   kataloge: Record<string, RawKatalog>,
   t: Uebersetzer,
   texte: Record<string, string>,
+  posKatalog?: string,
+  positionId?: string,
 ): Column {
   // Innen/Außen-Modus: aktiv, sobald das Schema innen/aussen-Tokens liefert.
   // Für eine Spalte mit `innen`-Markierung (Tore 1-4) werden die Bojen-Seiten
@@ -132,6 +138,7 @@ function toColumn(
     key: sp.key ?? '',
     label: t(sp.label ?? '', texte[sp.label ?? '']),
     kind: TYP_TO_KIND[sp.typ as Exclude<RawSpalte['typ'], 'trenner'>] ?? 'text',
+    felder: feldKennungen(sp, posKatalog, positionId),
     sub: sp.sub?.map((x) => resolveTokens(x, subTokens)),
     pointsCol: sp.punkteSpalte,
     einzeln: sp.einzeln,
@@ -156,6 +163,8 @@ function buildColumns(
   t: Uebersetzer,
   texte: Record<string, string>,
   posSubTrenner?: TrennerDesign,
+  posKatalog?: string,
+  positionId?: string,
 ): Column[] {
   const cols: Column[] = []
   let pending: TrennerDesign | undefined
@@ -164,7 +173,7 @@ function buildColumns(
       pending = sp.design ?? 'fett'
       continue
     }
-    const col = toColumn(sp, tokens, kataloge, t, texte)
+    const col = toColumn(sp, tokens, kataloge, t, texte, posKatalog, positionId)
     if (pending) {
       col.trenner = pending
       pending = undefined
@@ -311,7 +320,7 @@ export function buildConfig(
       orientation: pos.ausrichtung === 'quer' ? 'landscape' : 'portrait',
       showLauf: pos.lauf !== false,
       klassen: pos.klassen?.map((k) => String(k)),
-      columns: buildColumns(spalten, posTokens, kataloge, t, englischTexte, pos.subTrenner),
+      columns: buildColumns(spalten, posTokens, kataloge, t, englischTexte, pos.subTrenner, pos.katalog, pos.id),
       sumColumnKey: pos.summeSpalte,
       errorTable: katalogRows(kat, t),
       errorTableTitle: kat && katalogTitel(kat, t),
@@ -355,6 +364,11 @@ export function buildConfig(
           title: `${basis.title} (${n})`,
           titelDe: `${basis.titelDe} (${n})`,
           menuLabel: `${basis.menuLabel} (${n})`,
+          // Jede Zeitnahme erfasst eigene Werte; die erste entspricht der einfachen Liste.
+          columns: basis.columns.map((c) => ({
+            ...c,
+            felder: c.felder?.map((f) => (f.includes('@') ? `${f.split('@')[0]}@${nid}` : n === 1 ? f : `${f}~${n}`)),
+          })),
         })
         instanzen.set(id, liste)
       }
@@ -365,6 +379,7 @@ export function buildConfig(
   // Positionen mit `schnellauswahl: true` stehen jedem Aufbau als Zusatz zur
   // Verfügung (sofern sie nicht ohnehin zu ihm gehören).
   const schnell = (raw.positionen ?? []).filter((p) => p.schnellauswahl === true).map((p) => p.id)
+  const standardDisziplin = raw.disziplinen?.[0]?.id ?? 'standard'
   // Aufbauten: nur existierende Positions-IDs; ohne Definition ein Standard mit allen.
   const aufbauten: ResolvedAufbau[] =
     raw.aufbauten && raw.aufbauten.length > 0
@@ -374,6 +389,7 @@ export function buildConfig(
           return {
             id: a.id,
             name: a.name,
+            disziplin: a.disziplin ?? standardDisziplin,
             order,
             zusatz: schnell.filter((id) => !a.positionen.includes(id)),
             ...(kombi?.ersetzt
@@ -381,7 +397,7 @@ export function buildConfig(
               : {}),
           }
         })
-      : [{ id: 'standard', name: 'Standard', order: positions.map((p) => p.typeId), zusatz: [] }]
+      : [{ id: 'standard', name: 'Standard', disziplin: standardDisziplin, order: positions.map((p) => p.typeId), zusatz: [] }]
   // Nummerierte Positionen direkt hinter ihrer Basis-Position einreihen.
   const allePositionen = positions.flatMap((p) => [p, ...(instanzen.get(p.typeId) ?? [])])
 
@@ -403,6 +419,7 @@ export function buildConfig(
     bogenTexte: bogenTexte(sprache, raw.klassenNamen),
     positions: allePositionen,
     aufbauten,
+    disziplinen: raw.disziplinen ?? [],
     allDisqs,
     beschriftungen,
     laufzettel,

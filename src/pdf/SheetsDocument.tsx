@@ -1,6 +1,7 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
 import { getBogenTexte, getSheetDef } from '../config/active'
+import { bogenLeser, wkrVon } from '../lib/eingaben'
 import { cellKey, columnsForClass, defFuerKlasse, scoreRow, summenText } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
@@ -206,8 +207,7 @@ function SheetPage({
   descWidth?: number
 }) {
   const def = defFuerKlasse(getSheetDef(bogen.typeId), bogen.klasse)
-  const values = state.values[bogen.id] ?? {}
-  const get = (k: string) => values[k] ?? ''
+  const get = bogenLeser(state, bogen)
 
   const rows: RowData[] = chunkNums.map((n) => ({ id: n, nr: n, fixed: true, shaded: false }))
   // Leerzeilen je Seite (einstellbar). Seiten-Präfix hält die Zeilen-IDs im
@@ -298,7 +298,7 @@ function Header({ state, bogen, def }: { state: AppState; bogen: Bogen; def: She
           )}
         </View>
         <View style={s.wkrBox}>
-          <Text style={s.wkrLabel}>{getBogenTexte().wkr} {state.wkr[bogen.id] ?? ''}</Text>
+          <Text style={s.wkrLabel}>{getBogenTexte().wkr} {wkrVon(state, bogen)}</Text>
         </View>
       </View>
     </View>

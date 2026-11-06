@@ -7,12 +7,14 @@ import {
   defaultAufbauId,
   defaultBeschriftungId,
   defaultRegelwerkId,
+  getSheetDef,
   positionAllowsClass,
   resolveRegelwerkId,
 } from '../config/active'
 import { isSprache } from '../config/sprache'
 import { allDemoNumbers } from '../lib/demo'
-import { normalizeClassOrder } from '../lib/quickpick'
+import { ausBogenWerten } from '../lib/eingaben'
+import { normalizeClassOrder, withoutLaufRepeats } from '../lib/quickpick'
 import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
 import { loadState } from '../lib/storage'
 
@@ -46,6 +48,7 @@ export function defaultState(): AppState {
     sprache: 'de',
     aufbau,
     tor5MitParcours: false,
+    streichenAbZwei: false,
     beschriftung: defaultBeschriftungId(),
     emptyRows: 3,
     rowsPerPage: 0,
@@ -55,7 +58,9 @@ export function defaultState(): AppState {
     classOrder: [...CLASS_IDS],
     wkr: {},
     boegen: defaultBoegen(aufbau),
-    values: {},
+    eingaben: {},
+    starter: {},
+    listenStand: {},
     initialized: false,
   }
 }
@@ -68,10 +73,36 @@ function sameBoegenShape(a: Bogen[], b: ShareConfig['boegen']): boolean {
   )
 }
 
+/**
+ * Bögen nach einem Aufbau-Wechsel: Aus der unveränderten Grundausstattung wird die des
+ * neuen Aufbaus, sonst bleiben Klassen und Läufe der Auswahl und die Positionen kommen vom
+ * neuen Aufbau.
+ */
+export function boegenFuerAufbau(state: AppState, aufbau: string): Bogen[] {
+  const kombi = state.tor5MitParcours
+  const standard = state.boegen.length === 0 || sameBoegenShape(state.boegen, defaultBoegen(state.aufbau, kombi))
+  if (standard) return defaultBoegen(aufbau, kombi)
+  const laeufe = new Map(state.boegen.map((b) => [`${b.klasse}:${b.lauf}`, b]))
+  const neu = [...laeufe.values()].flatMap(({ klasse, lauf }) =>
+    aufbauOrder(aufbau, kombi)
+      .filter((typeId) => positionAllowsClass(typeId, klasse))
+      .map((typeId) => ({ typeId, klasse, lauf })),
+  )
+  return withoutLaufRepeats(neu, (t) => getSheetDef(t).showLauf === false).map((b) => ({ id: uid('bg'), ...b }))
+}
+
+/** Gespeicherter Stand; früher standen die Werte je Bogen unter `values`. */
+function ausSpeicher(loaded: Partial<AppState> & { values?: Record<string, Record<string, string>> }): Partial<AppState> {
+  const { values, ...stand } = loaded
+  if (!values) return stand
+  const aufbau = stand.aufbau ?? defaultAufbauId()
+  return { ...stand, ...ausBogenWerten(values, stand.wkr ?? {}, stand.boegen ?? [], aufbau) }
+}
+
 /** Anfangszustand aus persistiertem Stand (localStorage) + geteiltem Link (URL). */
 export function buildInitialState(): AppState {
   const loaded = loadState()
-  let state = loaded ? { ...defaultState(), ...loaded } : defaultState()
+  let state = loaded ? { ...defaultState(), ...ausSpeicher(loaded) } : defaultState()
   // Ältere Stände speichern Startnummern als Zahlen → auf Strings normalisieren.
   if (loaded?.numbers) state = { ...state, numbers: normalizeNumbersMap(loaded.numbers) }
   // Fehlt in älteren Ständen bzw. defensiv bereinigen.
@@ -88,6 +119,7 @@ export function buildInitialState(): AppState {
       sprache: shared.sprache ?? state.sprache,
       aufbau: shared.aufbau || state.aufbau,
       tor5MitParcours: shared.tor5MitParcours ?? state.tor5MitParcours,
+      streichenAbZwei: shared.streichenAbZwei ?? state.streichenAbZwei,
       beschriftung: shared.beschriftung || state.beschriftung,
       // Fehlen Leerzeilen/Seitenaufteilung im Link (z. B. Link aus dem
       // Verzahnungstool), bleiben die lokalen Einstellungen.
@@ -101,8 +133,7 @@ export function buildInitialState(): AppState {
       classOrder: shared.classOrder ?? state.classOrder,
     }
     // Bögen nur ersetzen, wenn die Auswahl wirklich abweicht - so bleiben beim
-    // normalen Neuladen (Auto-Sync-URL = eigener Stand) die lokalen IDs samt
-    // eingetragener Werte erhalten.
+    // normalen Neuladen (Auto-Sync-URL = eigener Stand) die lokalen IDs erhalten.
     if (shared.boegen.length > 0 && !sameBoegenShape(state.boegen, shared.boegen)) {
       state = { ...state, boegen: shared.boegen.map((b) => ({ id: uid('bg'), ...b })) }
     }

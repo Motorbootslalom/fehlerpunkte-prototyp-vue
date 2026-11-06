@@ -1,4 +1,5 @@
 import { getSheetDef } from '../config/active'
+import { bogenLeser } from './eingaben'
 import { pageChunks } from './paging'
 import { bogenPayload } from './qr'
 import { cellKey, columnsForClass, defFuerKlasse, formatDisqs, scoreRow, summenText } from './scoring'
@@ -92,7 +93,7 @@ export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[]
   const chunks = pageChunks(state.numbers[bogen.klasse] ?? [], state.rowsPerPage, state.splitFrom)
   const pageCount = chunks.length
 
-  const getByKey = (k: string) => state.values[bogen.id]?.[k] ?? ''
+  const getByKey = bogenLeser(state, bogen)
 
   return chunks.map((chunkNums, pageIndex) => {
     const rowKeys = chunkNums.map((n) => ({ nr: n, fixed: true, key: n }))

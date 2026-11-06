@@ -34,6 +34,9 @@ export interface RowScore {
   disqs: DisqHit[]
 }
 
+/** Spalte der handschriftlichen Startnummer in Leerzeilen (Zelle „_p0_x0:__nr“). */
+export const NR_SPALTE = '__nr'
+
 /** Zellschlüssel für Wert-Map: "nr:colKey" bzw. "nr:colKey#subIndex". */
 export function cellKey(nr: string, colKey: string, subIndex?: number): string {
   return subIndex === undefined ? `${nr}:${colKey}` : `${nr}:${colKey}#${subIndex}`
@@ -69,8 +72,30 @@ export function columnCellKeys(nr: string, col: Column): string[] {
 
 const LETTER = /^[A-Za-z]$/
 
+/** Eine Bojen-Zelle: Punkte (5, 10, 15 … direkt eingetragen) oder ein Disq-Buchstabe. */
+export function bojenWert(raw: string): { punkte: number; disq?: string } {
+  const v = raw.trim()
+  if (LETTER.test(v)) return { punkte: 0, disq: v.toUpperCase() }
+  return { punkte: parseInt(v, 10) || 0 }
+}
+
+/** Die Buchstaben einer Disq-Zelle. */
+export function disqCodes(raw: string): string[] {
+  return raw
+    .split(/[\s,;]+/)
+    .map((c) => c.trim().toUpperCase())
+    .filter((c) => c !== '')
+}
+
+/** Die Disq-Buchstaben einer Fehler-Spalte. */
+export function codeDisqs(raw: string): string[] {
+  return codeEntries(raw)
+    .map((entry) => entry.toUpperCase())
+    .filter((c) => LETTER.test(c))
+}
+
 /** Die Punkte einer Fehler-Spalte je Eintrag, in dessen Reihenfolge. */
-function errorParts(table: ErrorDef[] | undefined, raw: string): Array<{ anzahl: number; punkte: number }> {
+export function errorParts(table: ErrorDef[] | undefined, raw: string): Array<{ anzahl: number; punkte: number }> {
   if (!table) return []
   return codeEntries(raw).flatMap((entry) => {
     const parsed = parseCodeEntry(entry)
@@ -112,34 +137,19 @@ export function scoreRow(
       }
       // Ein Disq-Buchstabe in einer Fehler-Spalte markiert die Disqualifikation
       // an dieser Stelle (wie in den Bojen-Zellen).
-      for (const entry of codeEntries(raw)) {
-        const c = entry.toUpperCase()
-        if (LETTER.test(c)) disqs.push({ where: col.label, code: c })
-      }
+      for (const c of codeDisqs(raw)) disqs.push({ where: col.label, code: c })
     } else if (col.kind === 'points') {
       const v = parseInt(get(cellKey(nr, col.key)), 10)
       if (!Number.isNaN(v)) sum += v
     } else if (col.kind === 'disq') {
-      const raw = get(cellKey(nr, col.key)).trim()
-      if (raw !== '') {
-        for (const token of raw.split(/[\s,;]+/)) {
-          const c = token.trim().toUpperCase()
-          if (c !== '') disqs.push({ where: col.label, code: c })
-        }
-      }
+      for (const c of disqCodes(get(cellKey(nr, col.key)))) disqs.push({ where: col.label, code: c })
     }
   }
 
   function handleBuoy(raw: string, where: string) {
-    const v = raw.trim()
-    if (v === '') return
-    if (LETTER.test(v)) {
-      disqs.push({ where, code: v.toUpperCase() })
-      return
-    }
-    // Direkte Punkteingabe (5, 10, 15 …) - nicht die Anzahl der Berührungen.
-    const n = parseInt(v, 10)
-    if (!Number.isNaN(n)) sum += n
+    const { punkte, disq } = bojenWert(raw)
+    sum += punkte
+    if (disq) disqs.push({ where, code: disq })
   }
 
   return { sum, computedCols, einzelPunkte, disqs }

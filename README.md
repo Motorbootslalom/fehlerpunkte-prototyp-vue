@@ -13,8 +13,9 @@ die Kontrolle der Eintragungen extrem einfach.
 
 Die ausführlichen Anforderungen stehen im **[Lastenheft](./LASTENHEFT.md)**.
 
-Es werden **keine echten personenbezogenen Daten** verarbeitet; alle Eingaben
-bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein Reload.
+Die Startnummern sind Demo-Daten, Namen trägst du für die Ergebnislisten selbst ein. Alle
+Eingaben und Namen bleiben ausschließlich **lokal im Browser** (localStorage) und überleben
+ein Reload.
 
 ## Funktionen
 
@@ -32,8 +33,14 @@ bleiben ausschließlich **lokal im Browser** (localStorage) und überleben ein R
 - **Disqualifikation verorten:** Codes in der Disq.-Spalte **oder** direkt in
   einer Tor-Spalte (dokumentiert Ort und Grund).
 - **Schnelle Zeiteingabe** über das Numpad: eine Zahl mit Komma/Punkt, Regel
-  „> 20 = Sekunden, ≤ 20 = Minuten“; Enter springt weiter; Anzeige normalisiert
+  „≥ 20 = Sekunden, < 20 = Minuten“; Enter springt weiter; Anzeige normalisiert
   auf `mm:ss,00 (ss,00)`.
+- **Ergebnislisten** nach dem Vorbild der DM: je Lauf nach Startnummer und nach Platz, auf
+  Wunsch die Gesamtliste mit Knoten und gestrichenem Lauf ([Lastenheft §8f](./LASTENHEFT.md)).
+- **Beispielwerte:** füllt die angezeigten Bögen mit glaubhaften Zufallswerten nach der
+  Statistik der DM 2026 oder, nach UIM und im Parallelslalom, der WM 2025, wahlweise mit
+  Stoppuhr- oder Lichtschranken-Zeiten
+  ([Lastenheft §8g](./LASTENHEFT.md)).
 - **Parcoursbilder** (SVG) je Klasse auf den Tor-/Parcours-Bögen.
 - **QR-Code** je Bogen für die spätere automatische Scanner-Zuordnung
   (Listentyp/Klasse/Lauf).
@@ -67,6 +74,15 @@ Links die Steuerleiste (nur am Bildschirm, im Druck ausgeblendet):
 2. Unter **Bögen** die gewünschten Listen zusammenstellen (Typ/Klasse/Lauf).
 3. In den Bögen rechts die Werte eintragen - Σ und Zeiten aktualisieren sich live.
 4. **Drucken / Als PDF (Browser)** oder **PDF herunterladen (JS)**.
+5. Unter **Ergebnislisten** die Listen ansehen und drucken, die Gesamtliste per Häkchen
+   dazunehmen; Namen kommen aus **Namen der Starter**, Knoten aus der Knoten-Liste (unter
+   **Bögen** wählbar).
+
+Die Eingaben stehen je Disziplin, Klasse, Lauf und Startnummer, unabhängig von der
+Bogen-Auswahl. Beim Wechsel von Aufbau oder Regelwerk bleiben sie in den entsprechenden
+Feldern; was danach nicht mehr gilt, wird gelöscht. Parallelslalom und Manövrieren haben
+getrennte Werte (siehe [Lastenheft §8e](./LASTENHEFT.md)). **Alles zurücksetzen** leert auch
+den Speicher im Browser.
 
 ## PDF-Export - vier Wege zum Vergleich
 
@@ -149,7 +165,9 @@ wirkt nach dem Neuladen der Seite, ohne Neubau). Gepflegt werden sie unter
   Positionen sind zu **Aufbauten (Setups)** gebündelt (z. B. `Alcatraz`, `Frontal`);
   ein Aufbau enthält alle genutzten Listen. Gemeinsame Listen (Zeit, Knoten, …)
   werden geteilt, nur die Tor-Positionen unterscheiden sich je Aufbau. In der
-  Bedienleiste wählt man den Aufbau; das erzeugt dessen Bögen neu.
+  Bedienleiste wählt man den Aufbau; das erzeugt dessen Bögen neu, die Eingaben bleiben in
+  den entsprechenden Feldern. **Disziplinen** (`disziplinen`, z. B. Manövrieren und
+  Parallelslalom) trennen die Eingaben und legen die Spalten der Ergebnislisten fest.
 
 Wichtige Felder einer Position: `spalten` (Reihenfolge/Typen), `katalog`
 (Verweis auf einen Fehler-Katalog), `hinweis` (Verweis auf einen Hinweistext),
@@ -164,6 +182,7 @@ in mm) + `bildNeben` (querliegendes Bild neben der Legende).
 Hinweisen werden die Tokens (`hin`, `rueck`, `seiteA`, `seiteB`) als ganze Wörter
 ersetzt - so stellt man von Rechts/Links auf Land/See (`L`/`S`) oder Hafen/Kai
 (`H`/`K`) an EINER Stelle um; die Spaltenköpfe und der Hinweis ziehen automatisch nach.
+Das gilt für die Bögen: Die Ergebnislisten bleiben immer bei R/L.
 
 **Tor 5 mit Parcoursüberwachung:** Bei Aufbauten, die Tor 5 und eine Parcoursliste
 haben, kann eine Person beides übernehmen (Option in der Bedienleiste, gesteuert über

@@ -1135,6 +1135,171 @@ body {
 }
 
 /* ============================================================
+   ERGEBNISLISTEN (A4 quer)
+   ============================================================ */
+
+.ergebnis-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.ergebnis-sheet {
+  font-family: Arial, Helvetica, 'Liberation Sans', sans-serif;
+}
+
+.erg-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 7.5pt;
+  line-height: 1.15;
+}
+
+.erg-table td,
+.erg-table thead tr:not(:first-child) th {
+  border: 0.2mm solid var(--line);
+  padding: 0 1px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.erg-table tbody td {
+  height: 4.1mm;
+}
+
+.erg-table tbody {
+  border: 1.6px solid var(--line);
+}
+
+.erg-table thead tr.erg-spaltenkopf th,
+.erg-table thead tr.erg-unterkopf th {
+  white-space: normal;
+  font-weight: 700;
+  font-size: 8.5pt;
+  line-height: 1.1;
+  padding: 0.5mm 1px;
+}
+
+.erg-table thead tr.erg-spaltenkopf th {
+  border-top: 1.6px solid var(--line);
+}
+
+.erg-table thead tr.erg-spaltenkopf th:first-child {
+  border-left: 1.6px solid var(--line);
+}
+
+.erg-table thead tr.erg-spaltenkopf th:last-child {
+  border-right: 1.6px solid var(--line);
+}
+
+.erg-table thead tr.erg-unterkopf th {
+  font-weight: 400;
+  font-size: 6pt;
+  line-height: 1.2;
+  padding: 0.3mm 0 0.2mm;
+}
+
+.erg-table thead tr.erg-unterkopf--gesamt th {
+  font-size: 7.5pt;
+  padding: 0.5mm 0;
+}
+
+.erg-table td.erg-gruppe,
+.erg-table thead th.erg-gruppe {
+  border-left: 0.35mm solid var(--line);
+}
+
+.erg-table td.erg-disq {
+  background: #bdbdbd;
+}
+
+/* Gestrichener Lauf: Zeit, Strafpunkte und Gesamt; der Platz im Lauf bleibt lesbar. */
+.erg-table td.erg-gestrichen {
+  text-decoration: line-through;
+}
+
+.erg-kopf-zelle {
+  padding: 0 0 3mm;
+  font-weight: 700;
+}
+
+.erg-kopf {
+  display: grid;
+  grid-template-columns: 52mm 40mm 1fr;
+  border: 1.6px solid var(--line);
+  font-size: 12pt;
+  text-align: center;
+}
+
+.erg-kopf > span {
+  padding: 1.5mm 2mm;
+}
+
+.erg-kopf-titel {
+  border-left: 1.6px solid var(--line);
+  border-right: 1.6px solid var(--line);
+}
+
+.erg-stand {
+  align-self: flex-end;
+  margin-top: 3mm;
+  border: 1.6px solid var(--line);
+  padding: 1.5mm 5mm;
+  font-size: 8.5pt;
+  font-weight: 700;
+}
+
+.erg-w-platz {
+  width: 9.5mm;
+}
+.erg-w-nr {
+  width: 9mm;
+}
+.erg-w-name {
+  width: 27mm;
+}
+.erg-w-vorname {
+  width: 24mm;
+}
+.erg-w-zeit {
+  width: 13mm;
+}
+.erg-w-punkte {
+  width: 12mm;
+}
+.erg-w-spalte {
+  width: 9mm;
+}
+.erg-w-disq {
+  width: 9mm;
+}
+.erg-w-ges {
+  width: 12mm;
+}
+.erg-w-schluessel {
+  width: 17mm;
+}
+.erg-w-strafp {
+  width: 10mm;
+}
+.erg-w-knoten {
+  width: 12mm;
+}
+.erg-w-ergebnis {
+  width: 14mm;
+}
+
+.starter-input {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  font-size: 12px;
+}
+
+/* ============================================================
    LAUFZETTEL (A4 quer, in der Mitte auf A5 gefaltet)
    ============================================================ */
 
@@ -1352,6 +1517,34 @@ body {
   body.print-legende .sheet:not(.legende-sheet),
   body.print-legende .empty {
     display: none !important;
+  }
+
+  /* Ergebnislisten nur über „Nur Ergebnislisten drucken“ (body.print-ergebnisse) - dann
+     umgekehrt ohne die Bögen. */
+  .ergebnis-stack {
+    display: none !important;
+  }
+
+  body.print-ergebnisse .ergebnis-stack {
+    display: block !important;
+  }
+
+  body.print-ergebnisse .sheet:not(.ergebnis-sheet),
+  body.print-ergebnisse .empty {
+    display: none !important;
+  }
+
+  .ergebnis-sheet thead {
+    display: table-header-group;
+  }
+
+  .ergebnis-sheet tbody tr {
+    break-inside: avoid;
+  }
+
+  .ergebnis-sheet td {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .cell-input:focus {

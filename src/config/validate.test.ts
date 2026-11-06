@@ -89,6 +89,24 @@ describe('Konfigurations-Validierung', () => {
     )
   })
 
+  describe('Ergebnislisten', () => {
+    const codes = (aendern: (text: string) => string) =>
+      validateConfigTexts({ ...texte, positionen: positionenText(aendern) }).map((i) => i.code)
+
+    it('meldet ein Feld, das in keiner Ergebnisspalte steht', () => {
+      const ohneSch = (t: string) => t.replace('      - { label: "SCH", felder: ["katalog:mueb"] }\n', '')
+      expect(codes(ohneSch)).toContain('ERGEBNIS_LUECKE')
+    })
+
+    it('meldet einen Aufbau mit unbekannter Disziplin', () => {
+      expect(codes((t) => t.replace('disziplin: parallel', 'disziplin: gibtsnicht'))).toContain('UNKNOWN_DISZIPLIN')
+    })
+
+    it('weist auf eine Ergebnisspalte ohne bekanntes Feld hin', () => {
+      expect(codes((t) => t.replace('felder: [speed1]', 'felder: [speed1, tippfehler]'))).toContain('UNKNOWN_ERGEBNIS_FELD')
+    })
+  })
+
   describe('Überwachung', () => {
     const roh = (aendern?: (t: string) => string) => yamlLoad(positionenText(aendern)) as Parameters<typeof ueberwachungsLuecken>[0]
     const luecken = (raw: Parameters<typeof ueberwachungsLuecken>[0], aufbau: string) =>

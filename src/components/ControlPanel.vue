@@ -11,10 +11,12 @@ import {
   positionAllowsClass,
 } from '../config/active'
 import { SPRACHEN } from '../config/sprache'
+import { beispielwerteErsetzen, type Zeitnahme } from '../lib/beispielwerte'
 import { extendNumbers, formatNumbers, parseNumbers, shrinkNumbers } from '../lib/demo'
 import { exportSheetsToPdf } from '../lib/exportPdf'
 import { exportPdfmake } from '../lib/exportPdfmake'
 import { exportJsPdfVector } from '../lib/exportJsPdfVector'
+import { laeufeMitEingaben } from '../lib/ergebnis'
 import { describeBoegen, exportBaseName, printWithFilename } from '../lib/print'
 import {
   LAEUFE,
@@ -32,7 +34,8 @@ import {
   type QuickLauf,
 } from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
-import { showLaufzettel, showLegende } from '../state/laufzettel'
+import { formatStarter, parseStarter } from '../lib/starter'
+import { ergebnisKlasse, showErgebnisse, showGesamtliste, showLaufzettel, showLegende } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import type { ClassId, Lauf, SheetTypeId, Sprache } from '../types'
 
@@ -161,6 +164,28 @@ function printLegende() {
   return printNur('print-legende', `Legende ${getRegelwerk().label}`)
 }
 
+const hatErgebnisse = computed(() =>
+  klassen.value.some((k) => (!ergebnisKlasse.value || k === ergebnisKlasse.value) && laeufeMitEingaben(state, k).length > 0),
+)
+
+function zeigeGesamtliste(an: boolean) {
+  showGesamtliste.value = an
+  // Ohne die Ergebnislisten bliebe das Häkchen ohne sichtbare Wirkung.
+  if (an) showErgebnisse.value = true
+}
+
+function fuegeBeispielwerteEin(zeitnahme: Zeitnahme) {
+  if (!beispielwerteErsetzen(state) || confirm('Die angezeigten Bögen enthalten schon Werte. Durch Zufallswerte ersetzen?')) {
+    dispatch({ type: 'SET_BEISPIELWERTE', zeitnahme })
+  }
+}
+
+function printErgebnisse() {
+  showErgebnisse.value = true
+  const klasse = ergebnisKlasse.value ? ` Klasse ${ergebnisKlasse.value}` : ''
+  return printNur('print-ergebnisse', `Ergebnislisten${klasse}`)
+}
+
 async function downloadPdf() {
   busy.value = true
   try {
@@ -241,7 +266,7 @@ const commitDate = __GIT_COMMIT_DATE__
         <span>Aufbau (Setup)</span>
         <select
           :value="state.aufbau"
-          title="Bei einem Wettkampf genutzter Aufbau; wechseln erzeugt dessen Bögen neu"
+          title="Bei einem Wettkampf genutzter Aufbau; wechseln erzeugt dessen Bögen neu. Die Eingaben bleiben in den entsprechenden Feldern, Parallelslalom hat eigene."
           @change="dispatch({ type: 'SET_AUFBAU', aufbau: ($event.target as HTMLSelectElement).value })"
         >
           <option v-for="a in aufbauten" :key="a.id" :value="a.id">{{ a.name }}</option>
@@ -264,7 +289,7 @@ const commitDate = __GIT_COMMIT_DATE__
         <span>Bezeichnung der Bojen-Seiten</span>
         <select
           :value="state.beschriftung"
-          title="Kürzel der Bojen-Seiten (Rechts/Links, Land/See …) - wirkt sofort auf alle Listen"
+          title="Kürzel der Bojen-Seiten (Rechts/Links, Land/See …) zur Orientierung der WKR - wirkt sofort auf alle Bögen, die Ergebnislisten bleiben bei R/L"
           @change="
             dispatch({ type: 'SET_BESCHRIFTUNG', beschriftung: ($event.target as HTMLSelectElement).value })
           "
@@ -356,6 +381,86 @@ const commitDate = __GIT_COMMIT_DATE__
       <p class="hint">
         Die Adresszeile enthält immer den aktuellen Stand - stelle dir z. B. „alle Wasser-2-Listen"
         zusammen und teile einfach die URL. Eingetragene Werte werden nicht übertragen.
+      </p>
+    </section>
+
+    <section>
+      <h2>Beispielwerte</h2>
+      <div class="btn-row">
+        <button
+          :disabled="state.boegen.length === 0"
+          title="Je Start 2 bis 3 Zeiten als Minuten,SekundenHundertstel, z. B. 1,2345"
+          @click="fuegeBeispielwerteEin('stoppuhr')"
+        >
+          🎲 Zufallswerte mit Stoppuhr
+        </button>
+        <button
+          :disabled="state.boegen.length === 0"
+          title="Je Start genau eine Zeit als Sekunden,Hundertstel, z. B. 85,34"
+          @click="fuegeBeispielwerteEin('lichtschranke')"
+        >
+          🎲 Zufallswerte mit Lichtschranke
+        </button>
+      </div>
+      <p class="hint">
+        Füllt alle angezeigten Bögen mit glaubhaften Werten, zum Erklären des Prototyps. Die
+        Statistik stammt von der DM 2026, nach UIM und im Parallelslalom von der WM 2025. Vorhandene
+        Werte dieser Bögen werden ersetzt, Bemerkungen und WKR-Namen bleiben.
+      </p>
+    </section>
+
+    <section>
+      <h2>Ergebnislisten</h2>
+      <label class="cp-check">
+        <input
+          type="checkbox"
+          :checked="showErgebnisse"
+          @change="showErgebnisse = ($event.target as HTMLInputElement).checked"
+        />
+        Ergebnislisten in der Vorschau zeigen
+      </label>
+      <label class="cp-check" title="Zeigt und druckt die Gesamtliste hinter den Läufen jeder Klasse">
+        <input
+          type="checkbox"
+          :checked="showGesamtliste"
+          @change="zeigeGesamtliste(($event.target as HTMLInputElement).checked)"
+        />
+        Gesamtliste dazunehmen
+      </label>
+      <label class="cp-check" title="Sonst wird erst ab drei Läufen gestrichen">
+        <input
+          type="checkbox"
+          :checked="state.streichenAbZwei"
+          @change="dispatch({ type: 'SET_STREICHEN_AB_ZWEI', on: ($event.target as HTMLInputElement).checked })"
+        />
+        Schon ab zwei Läufen einen streichen
+      </label>
+      <label class="field field-nums" style="margin-top: 8px">
+        <span>Klasse</span>
+        <select
+          :value="ergebnisKlasse"
+          title="Nur die Listen dieser Klasse zeigen und drucken"
+          @change="ergebnisKlasse = ($event.target as HTMLSelectElement).value as ClassId | ''"
+        >
+          <option value="">Alle mit Eingaben</option>
+          <option v-for="c in klassen" :key="c" :value="c">Klasse {{ c }}</option>
+        </select>
+      </label>
+      <div class="btn-row" style="margin-top: 8px">
+        <button
+          :disabled="!hatErgebnisse"
+          title="Druckt nur die Ergebnislisten (A4 quer) - die Bögen werden dabei ausgelassen"
+          @click="printErgebnisse"
+        >
+          🖨 Nur Ergebnislisten drucken / Als PDF
+        </button>
+      </div>
+      <p class="hint">
+        Je Lauf eine Liste nach Startnummer und eine nach Platz. Die Gesamtliste mit Knoten kommt
+        nur dazu, wenn du sie anhakst: Ab drei Läufen ist der schlechteste gestrichen. Wer danach
+        noch einen disqualifizierten Lauf hat, steht auf dem letzten Platz. Es zählen die Eingaben der
+        gewählten Disziplin; die Knoten-Liste wählst du unter „Bögen“. Namen kommen aus „Namen der
+        Starter“.
       </p>
     </section>
 
@@ -636,9 +741,29 @@ const commitDate = __GIT_COMMIT_DATE__
     </section>
 
     <section>
+      <details>
+        <summary><h2 style="display: inline">Namen der Starter</h2></summary>
+        <p class="hint">
+          Für die Ergebnislisten, je Zeile: Startnummer; Name; Vorname. Aus Excel einfügen geht auch.
+          Neue Nummern kommen zu den Startnummern der Klasse dazu. Die Namen bleiben im Browser, der
+          Einstellungs-Link enthält sie nicht.
+        </p>
+        <label v-for="c in klassen" :key="c" class="field" style="margin-top: 8px">
+          <span>Klasse {{ c }}</span>
+          <textarea
+            class="starter-input"
+            rows="3"
+            :value="formatStarter(state.starter[c])"
+            @change="dispatch({ type: 'SET_STARTER', klasse: c, starter: parseStarter(($event.target as HTMLTextAreaElement).value) })"
+          />
+        </label>
+      </details>
+    </section>
+
+    <section>
       <button class="danger" @click="resetAll">Alles zurücksetzen</button>
     </section>
 
-    <footer class="cp-footer">Konzept-Prototyp · keine echten personenbezogenen Daten</footer>
+    <footer class="cp-footer">Konzept-Prototyp · Eingaben und Namen bleiben im Browser</footer>
   </aside>
 </template>

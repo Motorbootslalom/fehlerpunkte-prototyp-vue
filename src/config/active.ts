@@ -9,7 +9,7 @@ import {
   type ResolvedAufbau,
   type ResolvedConfig,
 } from './build'
-import type { RawConfig, RawPositionen, RawRegelwerk, RawRegelwerkListe } from './schema'
+import type { RawConfig, RawDisziplin, RawPositionen, RawRegelwerk, RawRegelwerkListe } from './schema'
 import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
 // Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
@@ -114,7 +114,12 @@ export function defaultAufbauId(): string {
 /** Aufbau nach ID (Fallback: erster/Standard-Aufbau). */
 export function getAufbau(id: string): ResolvedAufbau {
   const a = cfg().aufbauten.find((x) => x.id === id)
-  return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', order: [], zusatz: [] }
+  return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', disziplin: 'standard', order: [], zusatz: [] }
+}
+
+/** Disziplin nach ID; ohne Eintrag eine ohne Ergebnis-Spalten. */
+export function getDisziplin(id: string): RawDisziplin {
+  return cfg().disziplinen.find((d) => d.id === id) ?? { id, name: id }
 }
 
 /** Positionen eines Aufbaus, wahlweise mit zusammengelegten Listen. */

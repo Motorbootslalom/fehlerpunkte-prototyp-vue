@@ -1,4 +1,5 @@
 import { load as yamlLoad, YAMLException } from 'js-yaml'
+import { feldKennungen, spaltenKennung } from './feld.ts'
 import { findeKombi, kombiReihenfolge } from './kombi.ts'
 import type {
   RawAufbau,
@@ -6,6 +7,8 @@ import type {
   RawConfig,
   RawDirektpunkt,
   RawDisq,
+  RawDisziplin,
+  RawErgebnisSpalte,
   RawUebersetzung,
   RawKatalog,
   RawLegendeHinweis,
@@ -38,6 +41,7 @@ export type ConfigInput = {
   bezeichnungen?: Record<string, string>
   beschriftungen?: Array<Partial<RawBeschriftung>>
   aufbauten?: Array<Partial<RawAufbau>>
+  disziplinen?: Array<Partial<RawDisziplin>>
   ueberwachung?: RawUeberwachung[]
   positionen?: Array<Partial<RawPosition>>
 }
@@ -110,12 +114,8 @@ function abgedeckt(positionen: Array<Partial<RawPosition>>, klasse: string): Set
     if (!gilt(pos.klassen)) continue
     for (const sp of pos.spalten ?? []) {
       if (!sp?.key || !gilt(sp.klassen)) continue
-      // Tor 5 darf auf zwei Spalten verteilt sein (t5a, t5b).
-      const key = sp.key.replace(/^t5[ab]$/, 't5')
-      out.add(key)
-      for (const s of sp.sub ?? []) out.add(`${key}|${s}`)
-      const katalog = sp.katalog ?? pos.katalog
-      if (sp.typ === 'code' && katalog) out.add(`katalog:${katalog}`)
+      out.add(spaltenKennung(sp.key))
+      for (const kennung of feldKennungen(sp, pos.katalog)) out.add(kennung)
     }
   }
   return out
@@ -392,6 +392,40 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
       if (!positionIds.has(pid))
         err('UNKNOWN_POSITION_REF', `Aufbau "${a?.id}" verweist auf unbekannte Position "${pid}".`, where)
   })
+
+  // ---- Ergebnislisten: Stehen alle Punkte einer Disziplin in ihren Spalten? --
+  const disziplinen = raw.disziplinen ?? []
+  if (disziplinen.length > 0) {
+    const felderVon = (sp: Partial<RawErgebnisSpalte>) => [
+      ...(sp.felder ?? []),
+      ...(sp.unter ?? []).map((u) => (typeof u === 'string' ? u : u.feld)),
+    ]
+    const bekannt = new Set(
+      positionen.flatMap((p) => (p?.spalten ?? []).flatMap((sp) => feldKennungen(sp, p?.katalog))),
+    )
+    for (const d of disziplinen)
+      for (const feld of (d?.ergebnisspalten ?? []).flatMap(felderVon))
+        if (!bekannt.has(feld))
+          warn('UNKNOWN_ERGEBNIS_FELD', `Ergebnisspalte verweist auf unbekanntes Feld "${feld}".`, `Disziplin ${d?.id}`)
+    aufbauten.forEach((a) => {
+      const d = a?.disziplin ? disziplinen.find((x) => x?.id === a.disziplin) : disziplinen[0]
+      if (!d) {
+        err('UNKNOWN_DISZIPLIN', `Aufbau "${a?.id}" verweist auf unbekannte Disziplin "${a?.disziplin}".`, 'aufbauten')
+        return
+      }
+      const inSpalten = new Set((d.ergebnisspalten ?? []).flatMap(felderVon))
+      for (const pid of a?.positionen ?? []) {
+        const pos = positionen.find((p) => p?.id === pid)
+        if (!pos || pos.lauf === false) continue // Knoten stehen nur auf der Gesamtliste.
+        for (const sp of pos.spalten ?? []) {
+          if (sp.typ !== 'boje' && sp.typ !== 'code' && sp.typ !== 'punkte') continue
+          for (const feld of feldKennungen(sp, pos.katalog))
+            if (!inSpalten.has(feld))
+              err('ERGEBNIS_LUECKE', `Feld "${feld}" (${pid}) fehlt in den Ergebnisspalten der Disziplin "${d.id}".`, `Aufbau ${a?.id}`)
+        }
+      }
+    })
+  }
 
   // ---- Verwaiste Positionen (in keinem Aufbau, nicht in der Schnellauswahl)
   // - nur Hinweis: sie wären nirgends wählbar.
