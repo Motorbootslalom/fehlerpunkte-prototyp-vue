@@ -18,7 +18,9 @@
 //   • Positions-Feld  bild: <ordner>        → Zielordner (das die App lädt)
 //   • Spalten-Feld    hebt: <id>            → dieses Element bleibt hervorgehoben
 //   • Positions-Feld  abblenden: [<id>, …]  → Fallback/Ergänzung: explizit dimmen
-//   • Positions-Feld  ausblenden: [<id>, …] → ganz unsichtbar (z. B. Ziffern)
+//
+// Die Ziffern in den Bojen bleiben nur bei großen Bildern (quer unter der Legende).
+// Hochkant oder neben der Legende wären sie nicht lesbar, siehe kleinesBild().
 import { load as yamlLoad } from 'js-yaml'
 import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
@@ -37,8 +39,20 @@ export const OPTIONALE_IDS = new Set(['Speedboje_unten', 'Nummer_Speedboje_unten
 /** Rest-Deckkraft der abgeblendeten Elemente (0 = unsichtbar, 1 = voll). */
 export const DIM_OPACITY = 0.2
 
-/** Deckkraft ausgeblendeter Elemente. Über die Deckkraft statt `display="none"`, weil
- *  die Elemente `display:inline` im style tragen und der das Attribut überstimmt. */
+/** Die Ziffern im Parcoursbild (Tore, Schikane, Speedbojen). */
+export const ZIFFERN_IDS = [
+  'Nummer_Tor1',
+  'Nummer_Tor2',
+  'Nummer_Tor3',
+  'Nummer_Tor4',
+  'Nummer_Tor5',
+  'Nummer_Schikane',
+  'Nummer_Speedboje_oben',
+  'Nummer_Speedboje_unten',
+] as const
+
+/** Deckkraft ausgeblendeter Ziffern. Über die Deckkraft statt `display="none"`, weil sie
+ *  `display:inline` im style tragen und der das Attribut überstimmt. */
 export const AUSBLENDEN_OPACITY = 0
 
 /** Rasterungs-Faktor der PNGs (2 = doppelte Auflösung für scharfen Druck). */
@@ -53,7 +67,8 @@ interface Position {
   bildGenerator?: boolean
   bildQuelle?: string
   abblenden?: string[]
-  ausblenden?: string[]
+  bildNeben?: boolean
+  bildDrehung?: number
   spalten?: Spalte[]
 }
 
@@ -72,6 +87,11 @@ export function deriveDimSet(pos: Position): string[] {
     for (const gate of DIM_UNIVERSE) if (!hervorgehoben.has(gate)) dim.add(gate)
   }
   return [...dim]
+}
+
+/** Hochkant oder neben der Legende ist ein Bild zu klein für lesbare Ziffern. */
+export function kleinesBild(pos: Pick<Position, 'bildNeben' | 'bildDrehung'>): boolean {
+  return !!pos.bildNeben || Math.abs(pos.bildDrehung ?? 0) === 90
 }
 
 /**
@@ -116,7 +136,8 @@ function run(): void {
       continue
     }
     const source = pos.bildQuelle ?? 'alcatraz_Parcours'
-    const aus = [...(pos.ausblenden ?? [])].sort()
+    const aus: string[] = kleinesBild(pos) ? [...ZIFFERN_IDS] : []
+    // Ausgeblendetes nicht zusätzlich abblenden: Zwei opacity-Attribute wären ungültiges SVG.
     const dim = deriveDimSet(pos)
       .filter((id) => !aus.includes(id))
       .sort()
@@ -149,7 +170,7 @@ function run(): void {
     }
     mkdirSync(outDir, { recursive: true })
     const svgs = readdirSync(srcDir).filter((f) => f.endsWith('.svg'))
-    console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'}${aus.length ? `; ausblenden: ${aus.join(', ')}` : ''})`)
+    console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'}${aus.length ? '; ohne Ziffern' : ''})`)
     for (const file of svgs) {
       const srcSvg = readFileSync(resolve(srcDir, file), 'utf8')
       const gedimmt = applyDimming(srcSvg, dim)

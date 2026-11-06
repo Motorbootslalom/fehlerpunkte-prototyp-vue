@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { load as yamlLoad } from 'js-yaml'
 import { describe, it, expect } from 'vitest'
-import { deriveDimSet, applyDimming, DIM_UNIVERSE, DIM_OPACITY, OPTIONALE_IDS } from './generate-parcours.ts'
+import { deriveDimSet, applyDimming, kleinesBild, DIM_UNIVERSE, DIM_OPACITY, OPTIONALE_IDS, ZIFFERN_IDS } from './generate-parcours.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
 /** Die Positionen aus allen Quelldateien unter src/config. */
@@ -99,7 +99,7 @@ describe('IDs in den Quell-SVGs', () => {
     const ids = new Set(
       positionen
         .filter((p) => p.bildGenerator)
-        .flatMap((p) => [...(p.abblenden ?? []), ...(p.ausblenden ?? []), ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
+        .flatMap((p) => [...(p.abblenden ?? []), ...ZIFFERN_IDS, ...(p.spalten ?? []).map((s) => s.hebt ?? '')])
         .filter((id) => id && !OPTIONALE_IDS.has(id)),
     )
     expect(ids.size).toBeGreaterThan(0)
@@ -118,14 +118,17 @@ describe('IDs in den Quell-SVGs', () => {
     }
   })
 
-  it('Berlin Links zeigt keine Ziffern, Berlin Rechts behält sie', () => {
-    const nummern = (ordner: string, file: string) =>
-      [...readFileSync(`public/parcours/${ordner}/${file}`, 'utf8').matchAll(/id="Nummer_[^"]*"( opacity="0")?/g)]
-    for (const file of svgs) {
-      const links = nummern('berlin_links', file)
-      expect(links.length, file).toBeGreaterThan(0)
-      expect(links.every((m) => m[1]), file).toBe(true)
-      expect(nummern('berlin_rechts', file).some((m) => m[1]), file).toBe(false)
+  it('kleine Bilder sind ohne Ziffern erzeugt, große behalten sie', () => {
+    const mitBild = positionen.filter((p) => p.bild)
+    expect(mitBild.filter(kleinesBild).length).toBeGreaterThan(0)
+    expect(mitBild.filter((p) => !kleinesBild(p)).length).toBeGreaterThan(0)
+    for (const pos of mitBild) {
+      if (kleinesBild(pos)) expect(pos.bildGenerator, `${pos.id} muss erzeugt werden`).toBe(true)
+      for (const file of svgs) {
+        const nummern = [...readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8').matchAll(/id="Nummer_[^"]*"( opacity="0")?/g)]
+        expect(nummern.length, `${pos.id}/${file}`).toBeGreaterThan(0)
+        expect(nummern.every((m) => !!m[1] === kleinesBild(pos)), `${pos.id}/${file}`).toBe(true)
+      }
     }
   })
 

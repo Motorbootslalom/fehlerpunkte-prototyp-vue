@@ -107,6 +107,8 @@ export interface RawSpalte {
   innen?: 'seiteA' | 'seiteB'
   /** Nur 'code': Schlüssel der 'summe'-Spalte, in der die Punkte erscheinen. */
   punkteSpalte?: string
+  /** Nur 'summe': Punkte einzeln in der Reihenfolge der Codes („5 + 5“) statt ihrer Summe. */
+  einzeln?: boolean
   /**
    * Element-ID im Parcoursbild (z. B. "Tor1"), die diese Spalte im Bild
    * HERVORHEBT. Genutzt vom Bildgenerator (scripts/generate-parcours.ts): Tore
@@ -170,8 +172,6 @@ export interface RawPosition {
    * sie zusätzliche Elemente (z. B. Speedboje_unten) abblenden.
    */
   abblenden?: string[]
-  /** Element-IDs im Parcoursbild, die ganz unsichtbar werden (z. B. Ziffern). */
-  ausblenden?: string[]
   /** Bild-Drehung in Grad: 0 | 90 | -90 | 180. */
   bildDrehung?: number
   /** Nur bei ±90° gedrehtem Bild: Breite des Bildes neben der Legende in mm (Standard 40). */

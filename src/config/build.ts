@@ -134,6 +134,7 @@ function toColumn(
     kind: TYP_TO_KIND[sp.typ as Exclude<RawSpalte['typ'], 'trenner'>] ?? 'text',
     sub: sp.sub?.map((x) => resolveTokens(x, subTokens)),
     pointsCol: sp.punkteSpalte,
+    einzeln: sp.einzeln,
     errorTable: sp.katalog ? katalogRows(kataloge[sp.katalog], t) : undefined,
     grow: sp.breite,
     trenner: sp.trenner,

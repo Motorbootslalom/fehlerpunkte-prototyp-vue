@@ -220,7 +220,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="373.69058"
          y="547.37"
-         id="Nummer_Schikane"><tspan
+         id="Nummer_Schikane" opacity="0"><tspan
            id="tspan3032"
            x="373.69058"
            y="547.37"
@@ -229,7 +229,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="412.12961"
          y="759.10162"
-         id="Nummer_Tor1"><tspan
+         id="Nummer_Tor1" opacity="0"><tspan
            id="tspan3036"
            x="412.12961"
            y="759.10162"
@@ -238,7 +238,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="808.383"
          y="570.12531"
-         id="Nummer_Tor4"><tspan
+         id="Nummer_Tor4" opacity="0"><tspan
            id="tspan3040"
            x="808.383"
            y="570.12531"
@@ -247,7 +247,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="940.70392"
          y="706.03198"
-         id="Nummer_Tor5"><tspan
+         id="Nummer_Tor5" opacity="0"><tspan
            id="tspan3044"
            x="940.70392"
            y="706.03198"
@@ -256,7 +256,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="676.13092"
          y="759.0235"
-         id="Nummer_Tor3"><tspan
+         id="Nummer_Tor3" opacity="0"><tspan
            id="tspan3048"
            x="676.13092"
            y="759.0235"
@@ -285,7 +285,7 @@
            style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
            x="408.87259"
            y="526.54285"
-           id="Nummer_Speedboje_oben"><tspan
+           id="Nummer_Speedboje_oben" opacity="0"><tspan
              id="tspan3064"
              x="408.87259"
              y="526.54285"
@@ -294,7 +294,7 @@
          style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
          x="543.92566"
          y="570.12531"
-         id="Nummer_Tor2"><tspan
+         id="Nummer_Tor2" opacity="0"><tspan
            id="tspan3088"
            x="543.92566"
            y="570.12531"
@@ -349,7 +349,7 @@
        style="font-style:normal;font-weight:normal;font-size:12.8px;line-height:0%;font-family:'Arial Black';fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.06667"
        x="408.87259"
        y="526.54285"
-       id="Nummer_Speedboje_unten"><tspan
+       id="Nummer_Speedboje_unten" opacity="0"><tspan
          id="tspan2186"
          x="408.87259"
          y="526.54285"

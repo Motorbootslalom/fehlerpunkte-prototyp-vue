@@ -9,8 +9,9 @@ import type { Column, ErrorDef, SheetDef } from '../types'
 //                   enthält sie einen Buchstaben A-X → Disqualifikation an
 //                   genau dieser Stelle (zählt nicht als Punkte).
 //   • 'code'-Zelle: kommagetrennte Fehlercodes → Punkte laut errorTable.
-//                   Die Summe wird (read-only) in der zugehörigen pointsCol
-//                   angezeigt.
+//                   Die Punkte erscheinen (read-only) in der zugehörigen pointsCol:
+//                   als Summe, bei `einzeln` einzeln in der Reihenfolge der Codes
+//                   („5 + 5“).
 //   • 'points'-Zelle: direkte Punkteingabe.
 //   • 'disq'-Zelle: Disqualifikations-Buchstabe für die ganze Zeile.
 //
@@ -27,6 +28,8 @@ export interface RowScore {
   sum: number
   /** Berechnete Punkte je 'sum'-Spalte (Schlüssel → Punkte). */
   computedCols: Record<string, number>
+  /** Punkte einzeln je Spalte mit `einzeln`, z. B. "5 + 5". */
+  einzelPunkte: Record<string, string>
   /** Disqualifikations-Treffer (aus Disq-Spalte und Bojen-Zellen). */
   disqs: DisqHit[]
 }
@@ -66,15 +69,14 @@ export function columnCellKeys(nr: string, col: Column): string[] {
 
 const LETTER = /^[A-Za-z]$/
 
-function errorPoints(table: ErrorDef[] | undefined, raw: string): number {
-  if (!table) return 0
-  let total = 0
-  for (const entry of codeEntries(raw)) {
+/** Die Punkte einer Fehler-Spalte je Eintrag, in dessen Reihenfolge. */
+function errorParts(table: ErrorDef[] | undefined, raw: string): Array<{ anzahl: number; punkte: number }> {
+  if (!table) return []
+  return codeEntries(raw).flatMap((entry) => {
     const parsed = parseCodeEntry(entry)
     const found = parsed && table.find((e) => e.code === parsed.code)
-    if (parsed && found) total += parsed.anzahl * found.punkte
-  }
-  return total
+    return parsed && found ? [{ anzahl: parsed.anzahl, punkte: found.punkte }] : []
+  })
 }
 
 export function scoreRow(
@@ -84,6 +86,8 @@ export function scoreRow(
 ): RowScore {
   let sum = 0
   const computedCols: Record<string, number> = {}
+  const einzelPunkte: Record<string, string> = {}
+  const einzelnSpalten = new Set(def.columns.filter((c) => c.einzeln).map((c) => c.key))
   const disqs: DisqHit[] = []
 
   for (const col of def.columns) {
@@ -97,9 +101,15 @@ export function scoreRow(
     } else if (col.kind === 'code') {
       // Eigener Spalten-Katalog (Steg AB/AN) hat Vorrang vor dem positionsweiten.
       const raw = get(cellKey(nr, col.key))
-      const pts = errorPoints(col.errorTable ?? def.errorTable, raw)
+      const parts = errorParts(col.errorTable ?? def.errorTable, raw)
+      const pts = parts.reduce((s, p) => s + p.anzahl * p.punkte, 0)
       sum += pts
       if (col.pointsCol) computedCols[col.pointsCol] = (computedCols[col.pointsCol] ?? 0) + pts
+      if (col.pointsCol && einzelnSpalten.has(col.pointsCol) && parts.length > 0) {
+        einzelPunkte[col.pointsCol] = parts
+          .map((p) => (p.anzahl > 1 ? `${p.anzahl}x${p.punkte}` : String(p.punkte)))
+          .join(' + ')
+      }
       // Ein Disq-Buchstabe in einer Fehler-Spalte markiert die Disqualifikation
       // an dieser Stelle (wie in den Bojen-Zellen).
       for (const entry of codeEntries(raw)) {
@@ -132,7 +142,15 @@ export function scoreRow(
     if (!Number.isNaN(n)) sum += n
   }
 
-  return { sum, computedCols, disqs }
+  return { sum, computedCols, einzelPunkte, disqs }
+}
+
+/** Text einer Summen-Spalte: die einzelnen Punkte, falls vorhanden, sonst die Summe (0 bleibt leer). */
+export function summenText(score: RowScore, colKey: string): string {
+  const einzeln = score.einzelPunkte[colKey]
+  if (einzeln) return einzeln
+  const val = colKey in score.computedCols ? score.computedCols[colKey] : score.sum
+  return val > 0 ? String(val) : ''
 }
 
 /** Kurztext der Disqualifikationen einer Zeile, z. B. "G @ Tor 3 H K". */

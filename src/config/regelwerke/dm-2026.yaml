@@ -100,7 +100,7 @@ kataloge:
       - { code: 23, text: "Treten auf den Schlauch / ab Klasse 3", punkte: 5 }
 
   tor5:
-    titel: "Einfahrt Tor 5 (gleichzeitig Parcoursüberwachung):"
+    titel: "Einfahrt Tor 5:"
     fehler:
       - { code: 1, text: "nicht mit gesamter Länge eingefahren", punkte: 20 }
       - { code: 2, text: "Durchreißen der Schaltung / erst ab Klasse 4", punkte: 5 }

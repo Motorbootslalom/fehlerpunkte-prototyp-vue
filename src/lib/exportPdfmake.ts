@@ -14,8 +14,8 @@ import { buildAllPages, type SheetModelPage } from './sheetModel'
 
 const SHADE = '#eeeeee'
 
-function leafWidth(kind: string): number | '*' {
-  if (kind === 'sum') return 18
+function leafWidth(kind: string, einzeln?: boolean): number | '*' {
+  if (kind === 'sum') return einzeln ? 40 : 18
   if (kind === 'disq') return 24
   if (kind === 'text') return '*' as const
   return 22
@@ -67,7 +67,7 @@ function pageContent(pg: SheetModelPage): Content[] {
     { text: r.nr, style: 'td' },
     ...r.cells.map((c) => ({ text: c.display, style: 'td' })),
   ])
-  const widths = ['auto', ...pg.leaves.map((l) => leafWidth(l.kind))]
+  const widths = ['auto', ...pg.leaves.map((l) => leafWidth(l.kind, l.einzeln))]
 
   const content: Content[] = [
     {

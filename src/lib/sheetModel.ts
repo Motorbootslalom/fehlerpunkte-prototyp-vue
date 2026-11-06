@@ -1,7 +1,7 @@
 import { getSheetDef } from '../config/active'
 import { pageChunks } from './paging'
 import { bogenPayload } from './qr'
-import { cellKey, columnsForClass, defFuerKlasse, formatDisqs, scoreRow } from './scoring'
+import { cellKey, columnsForClass, defFuerKlasse, formatDisqs, scoreRow, summenText } from './scoring'
 import { formatTimeDisplay, parseTime } from './time'
 import type { AppState, Bogen, CellKind, Column, SheetDef } from '../types'
 
@@ -13,6 +13,7 @@ import type { AppState, Bogen, CellKind, Column, SheetDef } from '../types'
 /** Ein "Blatt" = genau eine Zelle je Zeile (Bojen-Unterspalten flach). */
 export interface ModelLeaf {
   colKey: string
+  einzeln?: boolean
   subIndex?: number
   kind: CellKind
   label: string
@@ -65,11 +66,12 @@ function buildLeaves(columns: Column[]): ModelLeaf[] {
     col.sub && col.sub.length > 0
       ? col.sub.map((s, i) => ({
           colKey: col.key,
+          einzeln: col.einzeln,
           subIndex: i,
           kind: col.kind,
           label: `${col.label} ${s}`,
         }))
-      : [{ colKey: col.key, kind: col.kind, label: col.label }],
+      : [{ colKey: col.key, kind: col.kind, label: col.label, einzeln: col.einzeln }],
   )
 }
 
@@ -108,8 +110,7 @@ export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[]
         const raw = getByKey(cellKey(rk.key, leaf.colKey, leaf.subIndex))
         let display = raw
         if (leaf.kind === 'sum') {
-          const val = leaf.colKey in score.computedCols ? score.computedCols[leaf.colKey] : score.sum
-          display = val > 0 ? String(val) : ''
+          display = summenText(score, leaf.colKey)
         } else if (leaf.kind === 'time') {
           const p = parseTime(raw)
           display = p ? formatTimeDisplay(p.centis) : ''

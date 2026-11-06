@@ -59,7 +59,7 @@ positionen:
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, klassen: [7] }
       # Mann-über-Bord erst ab Klasse 4.
       - { key: mueb, label: "MüB", typ: code, punkteSpalte: mp, breite: 1, klassen: [4, 5, 6, 7] }
-      - { key: mp, label: "MüB-Pkt.", typ: summe, klassen: [4, 5, 6, 7] }
+      - { key: mp, label: "F-Pkt.", typ: summe, einzeln: true, klassen: [4, 5, 6, 7] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 
@@ -74,8 +74,6 @@ positionen:
     # Tor 2/4/5 bleiben hell (`hebt`), die Speedbojen auch. Tor 1/3 folgen aus
     # `hebt`, zusätzlich werden Start/Ziel und die Schikane abgeblendet.
     abblenden: [StartZiel, Schikane]
-    # Durch die Drehung stünden die Ziffern kopfüber, deshalb fehlen sie hier.
-    ausblenden: [Nummer_Tor1, Nummer_Tor2, Nummer_Tor3, Nummer_Tor4, Nummer_Tor5, Nummer_Schikane, Nummer_Speedboje_oben, Nummer_Speedboje_unten]
     summeSpalte: sum
     disq: parcours
     hinweis: blickrichtung
@@ -84,11 +82,12 @@ positionen:
       - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor2 }
       - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA", "hin seiteB"], innen: seiteA, hebt: Tor4 }
       - { key: t5, label: "Tor 5", typ: boje, sub: ["hin seiteA", "hin seiteB", "rueck seiteA", "rueck seiteB"], hebt: Tor5 }
-      - { key: fehler, label: "Tor 5 Fehler", typ: code, breite: 1 }
+      - { key: fehler, label: "Tor 5 Fehler", typ: code, punkteSpalte: fp, breite: 0.75 }
+      - { key: fp, label: "F-Pkt.", typ: summe, einzeln: true }
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor4 }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteA, hebt: Tor2 }
       # Speed nur je Klasse: Klasse 5/6 eine Boje, Klasse 7 zwei, darunter keine.
-      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
-      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
+      - { key: speed1, label: "Sp. 1", typ: boje, klassen: [5, 6, 7] }
+      - { key: speed2, label: "Sp. 2", typ: boje, klassen: [7] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }

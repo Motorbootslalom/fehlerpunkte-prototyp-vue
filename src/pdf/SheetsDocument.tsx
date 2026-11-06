@@ -1,7 +1,7 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
 import { getBogenTexte, getSheetDef } from '../config/active'
-import { cellKey, columnsForClass, defFuerKlasse, scoreRow } from '../lib/scoring'
+import { cellKey, columnsForClass, defFuerKlasse, scoreRow, summenText } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
 import { bogenPayload } from '../lib/qr'
@@ -129,8 +129,8 @@ function trennerStyle(trenner?: TrennerDesign): Style {
 }
 
 /** Feste Breite bzw. Flex-Anteil je Spaltenart (für die Ausrichtung). */
-function colFlex(kind: CellKind, grow?: number): { width?: number; flexGrow?: number; flexBasis?: number } {
-  if (kind === 'sum') return { width: 26 }
+function colFlex(kind: CellKind, grow?: number, einzeln?: boolean): { width?: number; flexGrow?: number; flexBasis?: number } {
+  if (kind === 'sum') return { width: einzeln ? 52 : 26 }
   if (kind === 'disq') return { width: 40 }
   if (grow) return { flexGrow: grow, flexBasis: 0 }
   return { flexGrow: 1, flexBasis: 0 }
@@ -310,7 +310,7 @@ function HeaderRows({ def }: { def: SheetDef }) {
     <View style={s.row}>
       <Text style={[s.cell, s.headCell, { width: NR_WIDTH }]}>{getBogenTexte().nr}</Text>
       {def.columns.map((col) => {
-        const flex = colFlex(col.kind, col.grow)
+        const flex = colFlex(col.kind, col.grow, col.einzeln)
         const sep = trennerStyle(col.trenner)
         if (col.sub && col.sub.length > 0) {
           return (
@@ -358,15 +358,14 @@ function DataCell({
   score: ReturnType<typeof scoreRow>
   autoDisq: string
 }) {
-  const flex = colFlex(leaf.kind, col.grow)
+  const flex = colFlex(leaf.kind, col.grow, col.einzeln)
   const ck = cellKey(rowKey, leaf.colKey, leaf.subIndex)
   const sep = trennerStyle(leaf.trenner)
 
   let text = ''
   let extra: Style = {}
   if (leaf.kind === 'sum') {
-    const val = leaf.colKey in score.computedCols ? score.computedCols[leaf.colKey] : score.sum
-    text = val > 0 ? String(val) : ''
+    text = summenText(score, leaf.colKey)
     extra = s.sumCell
   } else if (leaf.kind === 'disq') {
     const stored = get(ck)

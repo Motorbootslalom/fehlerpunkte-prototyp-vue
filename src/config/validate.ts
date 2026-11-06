@@ -280,7 +280,7 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
         err('MISSING_BILD', `Position "${pos.id}" hat bildGenerator: true, aber kein "bild" (Zielordner).`, where)
       const hatHebt = (pos.spalten ?? []).some((s) => !!s?.hebt)
       const hatAbblenden = Array.isArray(pos.abblenden) && pos.abblenden.length > 0
-      if (!hatHebt && !hatAbblenden)
+      if (!hatHebt && !hatAbblenden && !pos.bildNeben)
         warn(
           'EMPTY_ABBLENDUNG',
           `Position "${pos.id}" nutzt bildGenerator, blendet aber nichts ab (weder Spalten-"hebt" noch "abblenden") - erzeugt eine Kopie ohne Änderung.`,
@@ -289,8 +289,6 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     }
     if (pos.abblenden !== undefined && !Array.isArray(pos.abblenden))
       err('BAD_ABBLENDEN', `abblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
-    if (pos.ausblenden !== undefined && !Array.isArray(pos.ausblenden))
-      err('BAD_AUSBLENDEN', `ausblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
 
     if (pos.disq !== undefined && typeof pos.disq !== 'string') {
       err('BAD_DISQ', `disq in "${pos.id}" muss 'alle', 'keine' oder ein Bereich sein (keine Liste von Buchstaben).`, where)

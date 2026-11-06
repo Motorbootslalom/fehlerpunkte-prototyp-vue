@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
 import { getBogenTexte } from '../config/active'
 import { gridNavKeyDown } from '../lib/gridnav'
 import { normalizeCodeCell } from '../lib/codes'
 import { PRINT_MARGIN_MM, overflowRows, pageHeightMm as pageHeightOf } from '../lib/paging'
 import { allowedSet, sanitizeBuoy, sanitizeCodeInput, sanitizeDisq } from '../lib/disq'
-import { cellKey, columnsForClass, formatDisqs, scoreRow, type RowScore } from '../lib/scoring'
+import { cellKey, columnsForClass, formatDisqs, scoreRow, summenText } from '../lib/scoring'
 import { useCell, useStore } from '../state/store'
 import type { Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
 import { hasDescription } from '../lib/backside'
+import { fitCells, fitEventTarget } from '../lib/fitText'
 import CourseImage from './CourseImage.vue'
 import Legend from './Legend.vue'
 import SheetHeader from './SheetHeader.vue'
@@ -28,6 +29,7 @@ interface Leaf {
   kind: CellKind
   label: string
   grow?: number
+  einzeln?: boolean
   codes?: Set<string>
   trenner?: TrennerDesign
   trennerR?: TrennerDesign
@@ -60,6 +62,7 @@ function toLeaves(columns: Column[]): Leaf[] {
           kind: col.kind,
           label: `${col.label} ${s}`,
           grow: col.grow,
+          einzeln: col.einzeln,
           codes,
           // Erstes Unter-Blatt: linke Kante der Gruppe (Spalten-Trenner).
           // Weitere: Trennlinie zwischen den Unter-Spalten (subTrenner).
@@ -67,7 +70,7 @@ function toLeaves(columns: Column[]): Leaf[] {
           // Zusätzlich rechts, außer beim letzten Unter-Blatt.
           trennerR: i < col.sub!.length - 1 ? col.subTrenner : undefined,
         }))
-      : [{ colKey: col.key, kind: col.kind, label: col.label, grow: col.grow, codes, trenner: col.trenner }]
+      : [{ colKey: col.key, kind: col.kind, label: col.label, grow: col.grow, einzeln: col.einzeln, codes, trenner: col.trenner }]
   })
 }
 
@@ -83,7 +86,7 @@ function trennerClassR(trenner?: TrennerDesign): string {
 
 /** Spaltenbreite fürs <colgroup>. */
 function leafWidth(leaf: Leaf): string | undefined {
-  if (leaf.kind === 'sum') return '12mm'
+  if (leaf.kind === 'sum') return leaf.einzeln ? '18mm' : '12mm'
   if (leaf.kind === 'disq') return '16mm'
   if (leaf.grow) return `${leaf.grow * 12}%`
   return undefined // buoy/time/code ohne grow → teilen sich den Rest
@@ -179,10 +182,6 @@ function leafKey(leaf: Leaf): string {
 function leafSep(leaf: Leaf): string {
   return trennerClass(leaf.trenner) + trennerClassR(leaf.trennerR)
 }
-function sumVal(leaf: Leaf, score: RowScore): number | '' {
-  const val = leaf.colKey in score.computedCols ? score.computedCols[leaf.colKey] : score.sum
-  return val > 0 ? val : ''
-}
 function leafInputClass(leaf: Leaf): string {
   return leaf.kind === 'text' ? 'text-input' : leaf.kind === 'buoy' ? 'buoy-input' : 'code-input'
 }
@@ -263,6 +262,14 @@ onMounted(() => {
   }
 })
 onBeforeUnmount(() => resizeObserver?.disconnect())
+
+// Zu langer Text wird kleiner. Die Zeit-Zelle wechselt beim Tippen und beim Fokus ihren
+// Text, ohne dass der Bogen neu rendert; deshalb reicht onUpdated allein nicht.
+onMounted(() => fitCells(sheetEl.value))
+onUpdated(() => fitCells(sheetEl.value))
+function fitAusEreignis(e: Event) {
+  nextTick(() => fitEventTarget(e.target))
+}
 </script>
 
 <template>
@@ -281,7 +288,12 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
     </template>
     <!-- Der Bogen ist EINE Tabelle: <thead>/<tfoot> wiederholen sich beim Druck
          automatisch auf jeder Seite, falls eine Seite doch noch umbricht. -->
-    <table class="sheet-table" @focusin="handleFocus" @focusout="handleBlur">
+    <table
+      class="sheet-table"
+      @focusin="(e) => { handleFocus(e); fitAusEreignis(e) }"
+      @focusout="(e) => { handleBlur(e); fitAusEreignis(e) }"
+      @input="fitAusEreignis"
+    >
       <colgroup>
         <col class="cg-nr" />
         <col v-for="(leaf, i) in leaves" :key="i" :style="{ width: leafWidth(leaf) }" />
@@ -370,7 +382,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
               :class="`col-sum-cell${hl(rowIdx, li + 1)}${leafSep(leaf)}`"
               :title="rd.disqTitle"
             >
-              {{ sumVal(leaf, rd.score) }}
+              {{ summenText(rd.score, leaf.colKey) }}
             </td>
             <!-- Zeit-Zelle. -->
             <td v-else-if="leaf.kind === 'time'" :class="`col-time-cell${hl(rowIdx, li + 1)}${leafSep(leaf)}`">

@@ -46,7 +46,9 @@ Jeder Bogen ist eine A4-Seite (Knoten: Querformat) und besteht aus:
   Lauf, rechts das WKR-Feld. Am Bildschirm zeigt es einen Platzhalter, im Druck steht
   die Bezeichnung klein unter der Linie, damit sie nicht wie ein Eintrag wirkt.
 - **Tabelle:** eine Zeile je Startnummer (Startreihenfolge), plus einige leere
-  Zeilen. Spalten je nach Listentyp (siehe §4).
+  Zeilen. Spalten je nach Listentyp (siehe §4). Passt ein Eintrag nicht in seine Zelle,
+  etwa `01:14,53 (74,53)` in einer schmalen Zeit-Spalte, wird seine Schrift dynamisch
+  verkleinert, höchstens auf die Hälfte. Das gilt am Bildschirm und im Druck.
 - **Fuß:** Legende (Fehlercodes mit Punkten, Disqualifikations-Codes des Regelwerks),
   ggf. Parcoursbild, Unterschriftszeile „Unterschrift WKR“ mit genug Platz zum
   Unterschreiben darüber (ca. 1 cm).
@@ -72,8 +74,8 @@ Start wird ein Aufbau gewählt:
   + Start-/Zieltor-Bojen) · Rechts (Tor 1/3 + Mann-über-Bord) · Links (Tor 2/4/5 mit
   Einfahrt Tor 5 + Speedbojen). Das Bild steht neben der Legende, nicht beobachtete
   Elemente sind abgeblendet. Bei „Rechts“ liegt Start/Ziel links im Bild, bei „Links“
-  (um 180° gedreht) rechts, so wie der WKR den Kurs von seiner Seite sieht. Bei „Links“
-  fehlen deshalb die Ziffern im Bild, „Tempo-Runde“ steht dort kopfüber.
+  (um 180° gedreht) rechts, so wie der WKR den Kurs von seiner Seite sieht. „Tempo-Runde“ steht
+  bei „Links“ dadurch kopfüber.
 - **Baden-Württemberg** (Blick von den Seiten): Zeit · Steg · Land 1 · Land 2 ·
   Wasser 1 · Wasser 2 · Knoten.
 - **Parallelslalom** (Beispiel): Zeit · Steg · Parallel-Parcours.
@@ -87,10 +89,10 @@ Mitgelieferte Positionen (Auszug, Aufbau Alcatraz):
 | --- | ---------- | ------------------ | :-: | :-: |
 | Tore 1/3/5 | Tor 1 / 3 / 5 | Start · Tor 1 · Tor 3 · Tor 5 · Tor 3 · Tor 1 · Ziel (je Bojenspalten mit Fahrtrichtung/Seite) · Disq. · Σ | ✓ | alcatraz_I (generiert, §4b) |
 | Tore 2/4/5 | Tor 2 / 4 / 5 | analog mit Toren 2/4/5, dazu **Speedbojen (je Klasse, §4a)** | ✓ | alcatraz_II (generiert, §4b) |
-| Tor 5 | Tor 5 | Fehler · Σ · Disq. · Bemerkung | ✓ | - |
-| Tor 5 + Parcours (Option) | Tor 5 + Parcours | Fehler · Disq. · **Σ** · Bemerkung (Alcatraz-DM26: davor Start · Ziel) | ✓ | alcatraz_Parcours |
+| Tor 5 | Tor 5 | Fehler · Fehlerpunkte · Disq. · **Σ** · Bemerkung | ✓ | - |
+| Tor 5 + Parcours (Option) | Tor 5 + Parcours | Fehler · Fehlerpunkte · Disq. · **Σ** · Bemerkung (Alcatraz-DM26: davor Start · Ziel) | ✓ | alcatraz_Parcours_klein (generiert) |
 | Mann-über-Bord | Mann-über-Bord | Fehler · Fehlerpunkte · **Σ (mittig)** · Disq. · Bemerkung | ✓ | mueb (generiert, §4b) |
-| Steg | Steg | Fehler AB · F-Pkt. AB · Fehler AN · F-Pkt. AN · Disq. · Bemerkung | (je Gruppe) | - |
+| Steg | Steg | Fehler AB · F-Pkt. AB · Fehler AN · F-Pkt. AN · Disq. · Σ · Bemerkung | (je Gruppe) | - |
 | Vorsteg (an Land, vor dem Steg) | Vorsteg | Disq. · Bemerkung | - | - |
 | Zeit | Zeit | Zeit 1 · Zeit 2 · Zeit 3 | - | - |
 | Knoten (quer, **ohne Lauf**) | Knoten | Webleinstek · Schotstek · Palstek · Kreuzknoten · Klampe · Σ · Bemerkung | ✓ | - |
@@ -147,8 +149,12 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
   sichtbar**, alles andere nur, solange es nicht in `abblenden` steht. Weil `hebt` an der Spalte hängt, wandert die Hervorhebung beim
   Kopieren einer Spaltenzeile automatisch mit.
 - Alternativ/ergänzend blendet eine Positions-Liste `abblenden: [Tor2, Tor4]`
-  gezielt Elemente ab (Fallback, falls keine Spalte `hebt` nutzt). `ausblenden` macht
-  Elemente ganz unsichtbar; das nutzt Berlin „Links“ für die Ziffern.
+  gezielt Elemente ab (Fallback, falls keine Spalte `hebt` nutzt).
+- **Ziffern in den Bojen:** Nur die großen Bilder quer unter der Legende (Parcours-Listen
+  und Baden-Württemberg, 147 mm breit) zeigen sie. Hochkant oder neben der Legende
+  (höchstens 93 mm) wären sie nicht lesbar: Der Generator blendet sie dort aus (Tore,
+  Schikane, Speedbojen), auch auf der Tor-5-Parcours-Liste, deren Bild deshalb generiert
+  ist. Die Regel folgt aus `bildNeben` und `bildDrehung`, ein Test prüft alle Bilder.
 - **Einzelne Bojen** sind ebenso ansprechbar wie ganze Tore: Tor 5 (`Tor5_oben` /
   `Tor5_unten`), die beiden Start/Ziel-Bojen (`StartZiel_oben` oben / `StartZiel_unten`
   unten) und die beiden Speedbojen (`Speedboje_oben` oben / `Speedboje_unten` unten).
@@ -183,6 +189,11 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
   → 5). Mehrfachnennungen zählen mehrfach und stehen als „2x6“ (2. und 3. Versuch: → 10;
   auch „6, 6“ wird so geschrieben). Das X zwischen zwei Zahlen ist der Faktor, allein
   bleibt es der Disq-Buchstabe. Die Legende weist darauf hin.
+- **Fehlerpunkte einzeln:** Neben jeder Fehlercode-Spalte steht eine Punkte-Spalte
+  („Fehlerpunkte“, auf den engen Listen von Berlin, Baden-Württemberg und Alcatraz-DM26
+  „F-Pkt.“ bzw. „MüB Punkte“). Sie zeigt die Punkte einzeln in der Reihenfolge der Codes, die Σ-Spalte
+  die Summe: 13, 14 → „5 + 5“ und Σ 10; 3, 2x6 → „5 + 2x5“ und Σ 15. Die Punkte-Spalten
+  sind dafür breiter (18 mm statt 12 mm).
 - **Disqualifikation in einer Fehler-Spalte:** ein Disq-Buchstabe in einer
   Fehlercode-Spalte zählt als Disqualifikation an dieser Stelle (wie in den
   Bojenspalten) und wird in die Disq-Spalte übernommen.

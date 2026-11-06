@@ -678,6 +678,7 @@ body {
 
 .col-sum-cell {
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .time-input {

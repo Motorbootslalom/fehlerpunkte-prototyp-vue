@@ -60,7 +60,7 @@ positionen:
       - { key: t5a, label: "Tor 5", typ: boje, sub: ["hin seiteB"] }
       - { typ: trenner, design: "doppelt" }
       - { key: dffehler, label: "Tor 5 tief", typ: code, punkteSpalte: dfsum, breite: 1 }
-      - { key: dfsum, label: "Σ", typ: summe }
+      - { key: dfsum, label: "F-Pkt.", typ: summe, einzeln: true }
       - { typ: trenner, design: "doppelt" }
       - { key: t5b, label: "Tor 5", typ: boje, sub: ["rueck seiteB"] }
       - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteB"], innen: seiteB }
@@ -92,10 +92,10 @@ positionen:
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA"], innen: seiteA }
       - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA"], innen: seiteB }
       - { key: fehler4, label: "MüB Fehler", typ: code, punkteSpalte: fp4, breite: 1, klassen: [4] }
-      - { key: fp4, label: "MüB Punkte", typ: summe , klassen: [4] }
+      - { key: fp4, label: "MüB Punkte", typ: summe, einzeln: true, klassen: [4] }
       - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteA, klassen: ["E", 1, 2, 3, 5, 6, 7] }
       - { key: fehler, label: "MüB Fehler", typ: code, punkteSpalte: fp, breite: 1, klassen: [5, 6, 7] }
-      - { key: fp, label: "MüB Punkte", typ: summe, klassen: [5, 6, 7]  }
+      - { key: fp, label: "MüB Punkte", typ: summe, einzeln: true, klassen: [5, 6, 7] }
       - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteA, klassen: [7] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA"] }
       - { key: disq, label: "Disq.", typ: disq }

@@ -5,6 +5,7 @@ import { dump as yamlDump, load as yamlLoad } from 'js-yaml'
 import bundledListe from './regelwerke.yaml?raw'
 import bundledAufbauten from './aufbauten.yaml?raw'
 import { mergePositionen, quellDateien } from './merge-positionen'
+import type { RawPositionen } from './schema'
 
 const bundledRegelwerke = Object.fromEntries(
   Object.entries(
@@ -208,5 +209,17 @@ describe('Konfigurations-Validierung', () => {
       ],
     }
     expect(validateRawConfig(raw)).toEqual([])
+  })
+})
+
+describe('Fehlerpunkte-Spalten', () => {
+  it('neben jeder Fehler-Spalte steht eine Punkte-Spalte, die die Punkte einzeln zeigt', () => {
+    for (const pos of (yamlLoad(positionenText()) as RawPositionen).positionen ?? []) {
+      const spalten = pos.spalten ?? []
+      for (const sp of spalten.filter((s) => s.typ === 'code')) {
+        const ziel = spalten.find((s) => s.key === sp.punkteSpalte)
+        expect(ziel?.einzeln, `${pos.id}: ${sp.key}`).toBe(true)
+      }
+    }
   })
 })

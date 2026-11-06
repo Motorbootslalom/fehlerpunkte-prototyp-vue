@@ -47,6 +47,11 @@ export interface Column {
    */
   pointsCol?: string
   /**
+   * Nur für 'sum'-Spalten: zeigt die Punkte einzeln in der Reihenfolge der Codes
+   * („5 + 5“) statt ihrer Summe. Die Summe steht dann in der Σ-Spalte.
+   */
+  einzeln?: boolean
+  /**
    * Nur für 'code'-Zellen: eigener Fehler-Katalog dieser Spalte. Ist er gesetzt,
    * gelten für Bewertung und Eingabe nur diese Codes (statt des positionsweiten
    * SheetDef.errorTable). Beispiel: Steg "Fehler AB" vs. "Fehler AN".

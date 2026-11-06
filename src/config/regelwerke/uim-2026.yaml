@@ -71,8 +71,8 @@ kataloge:
       - { code: 12, text: "Boot nicht im Stillstand, obwohl Hände außerhalb des Bootes", en: "Boat did not stop at the landing pontoon when the driver put the hands out of the boat", punkte: 10 }
 
   tor5:
-    titel: "Einfahrt Tor 5 (gleichzeitig Parcoursüberwachung):"
-    titelEn: "Entering gate 5 (also racecourse monitoring):"
+    titel: "Einfahrt Tor 5:"
+    titelEn: "Entering gate 5:"
     fehler:
       - { code: 1, text: "nicht mit gesamter Länge durchs Tor gefahren", en: "Not passing the gate with the full length of the boat", punkte: 20 }
       - { code: 20, text: "2. und 3. Versuch des Elementes (je Versuch)", en: "2nd and 3rd attempt each element of the race course (each attempt)", punkte: 5 }

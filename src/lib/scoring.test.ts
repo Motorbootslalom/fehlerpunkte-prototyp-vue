@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getSheetDef, positionAllowsClass } from '../config/active'
-import { cellKey, columnsForClass, scoreRow } from './scoring'
+import { cellKey, columnsForClass, scoreRow, summenText } from './scoring'
 
 function getter(values: Record<string, string>) {
   return (key: string) => values[key] ?? ''
@@ -153,6 +153,54 @@ describe('scoreRow - Tor 5 (Code 1 = 20 Punkte)', () => {
     const nr = '305'
     const r = scoreRow(def, nr, getter({ [cellKey(nr, 'fehler')]: '1' }))
     expect(r.sum).toBe(20)
-    expect(r.computedCols['sum']).toBe(20)
+    expect(r.computedCols['fp']).toBe(20)
+  })
+})
+
+describe('Fehlerpunkte einzeln', () => {
+  const nr = '401'
+
+  it('MüB: Punkte in der Reihenfolge der Codes, Σ als Summe', () => {
+    const r = scoreRow(getSheetDef('mueb'), nr, getter({ [cellKey(nr, 'fehler')]: '13, 14' }))
+    expect(summenText(r, 'fp')).toBe('5 + 5')
+    expect(summenText(r, 'sum')).toBe('10')
+  })
+
+  it('Steg: je Richtung einzeln, auch mit Mehrfachnennung, Σ über beide', () => {
+    const r = scoreRow(
+      getSheetDef('steg'),
+      nr,
+      getter({ [cellKey(nr, 'fehlerAB')]: '3, 2x6', [cellKey(nr, 'fehlerAN')]: '9' }),
+    )
+    expect(summenText(r, 'fpab')).toBe('5 + 2x5')
+    expect(summenText(r, 'fpan')).toBe('10')
+    expect(summenText(r, 'sum')).toBe('25')
+  })
+
+  it('Berlin Rechts: F-Pkt. einzeln, Σ inklusive der Bojen', () => {
+    const def = getSheetDef('brechts')
+    expect(def.columns.find((c) => c.key === 'mp')?.label).toBe('F-Pkt.')
+    const r = scoreRow(def, nr, getter({ [cellKey(nr, 'mueb')]: '13, 14', [cellKey(nr, 't1a', 0)]: '5' }))
+    expect(summenText(r, 'mp')).toBe('5 + 5')
+    expect(summenText(r, 'sum')).toBe('15')
+  })
+
+  it('ein Fehler ist nur eine Zahl, keiner bleibt leer, Buchstaben zählen nicht', () => {
+    const def = getSheetDef('mueb')
+    expect(summenText(scoreRow(def, nr, getter({ [cellKey(nr, 'fehler')]: '13, G' })), 'fp')).toBe('5')
+    expect(summenText(scoreRow(def, nr, getter({})), 'fp')).toBe('')
+  })
+
+  it('Tor 5: einzeln, Σ als Summe, in allen Listen', () => {
+    for (const id of ['tor5', 'tor5pue', 'tor5puems', 'blinks']) {
+      const r = scoreRow(getSheetDef(id), nr, getter({ [cellKey(nr, 'fehler')]: '1, 2' }))
+      expect(summenText(r, 'fp'), id).toBe('20 + 5')
+      expect(summenText(r, 'sum'), id).toBe('25')
+    }
+    const land2 = getSheetDef('bawueland2')
+    expect(land2.columns.find((c) => c.key === 'dfsum')?.label).toBe('F-Pkt.')
+    const r = scoreRow(land2, nr, getter({ [cellKey(nr, 'dffehler')]: '1, 2' }))
+    expect(summenText(r, 'dfsum')).toBe('20 + 5')
+    expect(summenText(r, 'sum')).toBe('25')
   })
 })

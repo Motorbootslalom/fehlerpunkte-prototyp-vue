@@ -199,7 +199,7 @@ describe('A4-Legende', () => {
     expect(l.gruppen.map((g) => g.title)).toEqual([
       'Ablegen (AB)',
       'Anlegen (AN)',
-      'Einfahrt Tor 5 (gleichzeitig Parcoursüberwachung)',
+      'Einfahrt Tor 5',
       'Fehler (MüB)',
     ])
     expect(l.direkt.map((d) => d.titel)).toEqual(['Bojen', 'Tor 5', 'Knoten'])
@@ -323,12 +323,11 @@ describe('Tor 5 mit Parcoursüberwachung', () => {
     const werte: Record<string, string> = { [cellKey('1', 'start', 0)]: '5', [cellKey('1', 'fehler')]: '1' }
     const r = scoreRow(def, '1', (k) => werte[k] ?? '')
     expect(r.sum).toBe(25)
-    expect(r.computedCols).toEqual({}) // keine eigene Punkte-Spalte: Σ zeigt die Gesamtsumme
+    expect(r.computedCols).toEqual({ fp: 20 }) // Fehlerpunkte nur aus den Codes, Σ mit Start/Ziel
     expect(def.sumColumnKey).toBe('sum')
-    for (const id of ['tor5pue', 'tor5puems']) {
+    for (const id of ['tor5', 'tor5pue', 'tor5puems']) {
       const keys = getSheetDef(id).columns.map((c) => c.key)
-      expect(keys.slice(-3)).toEqual(['disq', 'sum', 'bemerkung'])
-      expect(keys).not.toContain('fp')
+      expect(keys.slice(-5)).toEqual(['fehler', 'fp', 'disq', 'sum', 'bemerkung'])
     }
   })
 })

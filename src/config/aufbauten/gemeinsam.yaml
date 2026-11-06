@@ -18,17 +18,19 @@ positionen:
     titel: "Steg"
     menue: "Steg (Ablegen / Anlegen)"
     ausrichtung: hoch
+    summeSpalte: sum
     disq: steg
     # Zwei getrennte Fehler-Spalten mit je eigenem Katalog (per-Spalte statt
     # position-weit). Jede Spalte lässt nur ihre Codes + Disqualifikationen zu.
     spalten:
       - { key: fehlerAB, label: "Fehler AB", typ: code, punkteSpalte: fpab, katalog: stegAblegen, breite: 1 }
-      - { key: fpab, label: "F-Pkt. AB", typ: summe }
+      - { key: fpab, label: "F-Pkt. AB", typ: summe, einzeln: true }
       - { typ: trenner, design: "doppelt" }
       - { key: fehlerAN, label: "Fehler AN", typ: code, punkteSpalte: fpan, katalog: stegAnlegen, breite: 1 }
-      - { key: fpan, label: "F-Pkt. AN", typ: summe }
+      - { key: fpan, label: "F-Pkt. AN", typ: summe, einzeln: true }
       - { typ: trenner, design: "doppelt" }
       - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
 
   - id: vorsteg
@@ -51,9 +53,10 @@ positionen:
     disq: parcours
     katalog: tor5
     spalten:
-      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: sum, breite: 1 }
-      - { key: sum, label: "Σ", typ: summe }
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
+      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
       - { key: disq, label: "Disq.", typ: disq }
+      - { key: sum, label: "Σ", typ: summe }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
 
   # Option „Tor 5 übernimmt die Parcoursüberwachung“: Eine Person macht beides, die
@@ -63,14 +66,16 @@ positionen:
     menue: "Tor 5 (Einfahrt + Parcoursüberwachung)"
     ersetzt: [tor5, parcours]
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: alcatraz_Parcours_klein
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt, das kleine Bild ohne Ziffern
     bildNeben: true
     summeSpalte: sum
     disq: parcours
     hinweis: parcours
     katalog: tor5
     spalten:
-      - { key: fehler, label: "Fehler", typ: code, breite: 1 }
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
+      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
@@ -82,7 +87,8 @@ positionen:
     menue: "Tor 5 (Einfahrt + Parcoursüberwachung mit Start und Ziel)"
     ersetzt: [tor5, parcoursms]
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: alcatraz_Parcours_klein
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt, das kleine Bild ohne Ziffern
     bildNeben: true
     summeSpalte: sum
     disq: parcours
@@ -91,7 +97,8 @@ positionen:
     spalten:
       - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
       - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: fehler, label: "Fehler", typ: code, breite: 1 }
+      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
+      - { key: fp, label: "F-Pkt.", typ: summe, einzeln: true }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
@@ -105,8 +112,7 @@ positionen:
     # Beobachtet wird nur die Schikane (MüB): alle Tore, Start/Ziel, die Speedbojen
     # und die übrigen Nummern werden abgeblendet. Sichtbar bleiben der Fahrweg, die
     # Zeitnahme (zur Orientierung) und die „6“ der Schikane.
-    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, StartZiel, Speedboje_unten, Speedboje_oben,
-                Nummer_Tor1, Nummer_Tor2, Nummer_Tor3, Nummer_Tor4, Nummer_Tor5]
+    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, StartZiel, Speedboje_unten, Speedboje_oben]
     bildDrehung: 90
     bildBreite: 50         # die lange MüB-Legende gibt den Platz ohnehin her
     klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
@@ -115,7 +121,7 @@ positionen:
     katalog: mueb
     spalten:
       - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
-      - { key: fp, label: "Fehlerpunkte", typ: summe }
+      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
       - { key: sum, label: "Σ", typ: summe }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }

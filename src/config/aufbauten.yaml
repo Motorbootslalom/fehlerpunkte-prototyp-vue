@@ -35,11 +35,11 @@ sprachen: [en]
 #                Spalten-`hebt` markierten Tore bleiben voll, der Rest wird
 #                abgeblendet (scripts/generate-parcours.ts → SVG + PNG). Ohne den
 #                Schalter zeigt `bild` auf ein festes fertiges Bild.
+#                Kleine Bilder (`bildNeben` oder um ±90° gedreht) verlieren dabei die
+#                Ziffern in den Bojen und brauchen deshalb diesen Schalter.
 #   bildQuelle   Quell-Ordner für den Generator (Default: alcatraz_Parcours).
 #   abblenden    [Tor2, Tor4, …] Element-IDs, die abgeblendet werden. Fallback zu
 #                `hebt` bzw. Ergänzung (z. B. zusätzlich Speedboje_unten).
-#   ausblenden   [Nummer_Tor1, …] Element-IDs, die ganz unsichtbar werden. Nur mit
-#                `bildGenerator`.
 #   bildDrehung  0 | 90 | -90 | 180  (Bild um so viel Grad drehen).
 #   bildNeben    true = Bild rechts neben Fehlerpunkten und Beschreibung, darunter die
 #                Disqualifikationen. Fehlt: querliegendes Bild unter der Legende.
@@ -66,6 +66,8 @@ sprachen: [en]
 #                (nur relevant im Schema "Innen/Außen").
 #   punkteSpalte key einer summe-Spalte, in die die aus `code` berechneten Punkte
 #                geschrieben werden.
+#   einzeln      Nur `summe`: true = die Punkte einzeln in der Reihenfolge der Codes
+#                („5 + 5“) statt ihrer Summe. Die Summe steht dann in der Σ-Spalte.
 #   katalog      eigener Fehler-Katalog NUR dieser Spalte (statt positionsweit).
 #   hebt         Element-ID im Parcoursbild (z. B. Tor1), die diese Spalte
 #                hervorhebt. Nur mit `bildGenerator`: markierte Tore bleiben voll,
