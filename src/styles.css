@@ -339,8 +339,22 @@ body {
   content: '▸ ';
 }
 
-.quickpick[open] .quickpick-title::before {
+.quickpick[open] .quickpick-title::before,
+.bogen-details[open] .quickpick-title::before {
   content: '▾ ';
+}
+
+/* Die Schnellauswahl ist immer offen: Überschrift ohne Pfeil. */
+.quickpick-title--fest {
+  cursor: default;
+}
+
+.quickpick-title--fest::before {
+  content: none;
+}
+
+.bogen-details > .quickpick-title {
+  margin-bottom: 8px;
 }
 
 .qp-body {

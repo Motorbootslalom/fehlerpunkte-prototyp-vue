@@ -586,8 +586,9 @@ const commitDate = __GIT_COMMIT_DATE__
     <section>
       <h2>Bögen ({{ state.boegen.length }})</h2>
 
-      <details class="quickpick">
-        <summary class="quickpick-title">Schnellauswahl</summary>
+      <!-- Die Schnellauswahl ist immer offen, die Liste der einzelnen Bögen nur aufgeklappt. -->
+      <div class="quickpick">
+        <div class="quickpick-title quickpick-title--fest">Schnellauswahl</div>
         <div class="qp-body">
           <div class="qp-row">
             <label class="qp-label" for="qp-class-order">Klassen-Reihenfolge:</label>
@@ -684,64 +685,67 @@ const commitDate = __GIT_COMMIT_DATE__
             Liste leeren
           </button>
         </div>
-      </details>
+      </div>
 
-      <ul class="bogen-list">
-        <li v-for="(b, i) in state.boegen" :key="b.id">
-          <select
-            :value="b.typeId"
-            @change="
-              dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { typeId: ($event.target as HTMLSelectElement).value } })
-            "
-          >
+      <details class="bogen-details">
+        <summary class="quickpick-title">Liste der Bögen ({{ state.boegen.length }})</summary>
+        <ul class="bogen-list">
+          <li v-for="(b, i) in state.boegen" :key="b.id">
+            <select
+              :value="b.typeId"
+              @change="
+                dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { typeId: ($event.target as HTMLSelectElement).value } })
+              "
+            >
+              <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
+            </select>
+            <select
+              :value="b.klasse"
+              @change="
+                dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { klasse: ($event.target as HTMLSelectElement).value as ClassId } })
+              "
+            >
+              <option v-for="c in klassen" :key="c" :value="c">Kl. {{ c }}</option>
+            </select>
+            <select
+              :value="b.lauf"
+              @change="
+                dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { lauf: Number(($event.target as HTMLSelectElement).value) as Lauf } })
+              "
+            >
+              <option v-for="l in LAEUFE" :key="l" :value="l">{{ l }}. Lauf</option>
+            </select>
+            <span class="bogen-actions">
+              <button :disabled="i === 0" title="nach oben" @click="dispatch({ type: 'MOVE_BOGEN', id: b.id, dir: -1 })">
+                ↑
+              </button>
+              <button
+                :disabled="i === state.boegen.length - 1"
+                title="nach unten"
+                @click="dispatch({ type: 'MOVE_BOGEN', id: b.id, dir: 1 })"
+              >
+                ↓
+              </button>
+              <button title="entfernen" @click="dispatch({ type: 'REMOVE_BOGEN', id: b.id })">✕</button>
+            </span>
+          </li>
+        </ul>
+
+        <div class="add-bogen">
+          <select :value="addType" @change="addTypeRaw = ($event.target as HTMLSelectElement).value">
             <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
           </select>
-          <select
-            :value="b.klasse"
-            @change="
-              dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { klasse: ($event.target as HTMLSelectElement).value as ClassId } })
-            "
-          >
+          <select :value="addKlasse" @change="addClass = ($event.target as HTMLSelectElement).value as ClassId">
             <option v-for="c in klassen" :key="c" :value="c">Kl. {{ c }}</option>
           </select>
-          <select
-            :value="b.lauf"
-            @change="
-              dispatch({ type: 'UPDATE_BOGEN', id: b.id, patch: { lauf: Number(($event.target as HTMLSelectElement).value) as Lauf } })
-            "
-          >
+          <select :value="addLauf" @change="addLauf = Number(($event.target as HTMLSelectElement).value) as Lauf">
             <option v-for="l in LAEUFE" :key="l" :value="l">{{ l }}. Lauf</option>
           </select>
-          <span class="bogen-actions">
-            <button :disabled="i === 0" title="nach oben" @click="dispatch({ type: 'MOVE_BOGEN', id: b.id, dir: -1 })">
-              ↑
-            </button>
-            <button
-              :disabled="i === state.boegen.length - 1"
-              title="nach unten"
-              @click="dispatch({ type: 'MOVE_BOGEN', id: b.id, dir: 1 })"
-            >
-              ↓
-            </button>
-            <button title="entfernen" @click="dispatch({ type: 'REMOVE_BOGEN', id: b.id })">✕</button>
-          </span>
-        </li>
-      </ul>
-
-      <div class="add-bogen">
-        <select :value="addType" @change="addTypeRaw = ($event.target as HTMLSelectElement).value">
-          <option v-for="t in menuOrder" :key="t" :value="t">{{ getSheetDef(t).menuLabel }}</option>
-        </select>
-        <select :value="addKlasse" @change="addClass = ($event.target as HTMLSelectElement).value as ClassId">
-          <option v-for="c in klassen" :key="c" :value="c">Kl. {{ c }}</option>
-        </select>
-        <select :value="addLauf" @change="addLauf = Number(($event.target as HTMLSelectElement).value) as Lauf">
-          <option v-for="l in LAEUFE" :key="l" :value="l">{{ l }}. Lauf</option>
-        </select>
-        <button @click="dispatch({ type: 'ADD_BOGEN', typeId: addType, klasse: addKlasse, lauf: addLauf })">
-          + Bogen
-        </button>
-      </div>
+          <button @click="dispatch({ type: 'ADD_BOGEN', typeId: addType, klasse: addKlasse, lauf: addLauf })">
+            + Bogen
+          </button>
+        </div>
+      </details>
     </section>
 
     <section>
