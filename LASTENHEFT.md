@@ -81,6 +81,10 @@ Start wird ein Aufbau gewählt:
 - **Baden-Württemberg** (Blick von den Seiten): Zeit · Steg · Land 1 · Land 2 ·
   Wasser 1 · Wasser 2 · Knoten. Wie bei Berlin zeigt jedes Bild den Kurs aus Sicht der
   Position: Bei Wasser 1 und 2 ist es um 180° gedreht.
+- **Möwe** (WSC „Möwe“ Oranienburg): Elektronische Zeiterfassung mit Start und Ziel ·
+  Steg · Tore 1/3/5 mit Fehler Tor 5 (eher von hinten) · Tore 2/4/5 mit Speed 1 (von links) ·
+  Mann-über-Bord · Parcours. Eigene Parcoursbilder für Klasse 5 bis 7 (Kursvariante): Die
+  Speedrunde läuft andersherum, Tonne 8 wird nicht ausgelegt (Spalte Sp. 2 bleibt).
 - **Parallelslalom** (Beispiel): Zeit · Steg · Parallel-Parcours.
 
 In Aufbauten mit Tor 5 und Parcoursliste kann **eine Person beides übernehmen** (Option
@@ -578,6 +582,11 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   ausführliche Form nach `public/config/positionen.yaml`. Alle Tor-, Tor-5-, MüB- und
   Parcours-Listen stehen so in den Quelldateien; ein Test hält fest, dass sie dieselben Felder
   und Bilder ergeben wie vorher die handgeschriebenen.
+- **Kursvariante:** `kurse` beschreibt, was ein Austragungsort am Kurs anders macht, der
+  Aufbau wählt sie mit `kurs`. Heute sind das eigene Parcoursbilder je Klasse
+  (`bilder: { 5: Klasse5_Moewe }`). Jeder erzeugte Bildordner enthält alle Quellbilder; die
+  App und die PDF-Insel nehmen die Datei der Variante. Fehlt vor Ort eine Boje, bleibt ihre
+  Spalte und wird ignoriert.
 - **Zeitnahme:** Eine Zeit-Spalte nennt ihr Gerät (`geraet: elektronisch | stoppuhr`). Ein
   Eintrag im Aufbau kann eine Position abwandeln, z. B. `{ id: zeit, zeiten: [elektronisch] }`:
   je Gerät eine Zeit-Spalte, eine reine Zeit-Liste mit einem Gerät heißt nach ihm.

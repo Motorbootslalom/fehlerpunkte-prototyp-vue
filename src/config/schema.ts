@@ -284,6 +284,23 @@ export interface RawAufbau {
   eigeneStrecke?: boolean
   /** Disziplin mit eigenen Eingaben und Ergebnislisten. Fehlt: die erste aus `disziplinen`. */
   disziplin?: string
+  /** Kursvariante des Austragungsorts (`kurse.<id>`), z. B. eigene Parcoursbilder. */
+  kurs?: string
+}
+
+/**
+ * Was ein Austragungsort am Kurs anders macht, ohne dass sich der Fahrweg ändert
+ * (KONZEPT-POSITIONEN.md §4.4). Fehlt vor Ort eine Boje, bleiben ihre Felder trotzdem.
+ */
+export interface RawKurs {
+  id: string
+  name: string
+  /**
+   * Eigene Parcoursbilder je Klasse: Dateiname ohne Endung in jedem Bildordner, z. B.
+   * { 5: Klasse5_Moewe }. Die übrigen Klassen nutzen Klasse<k>. Der Generator legt alle
+   * Quellbilder in jeden erzeugten Ordner, die Variante wählt nur die Datei.
+   */
+  bilder?: Record<string, string>
 }
 
 /** Eine Spalte der Ergebnisliste; Felder ohne Liste im Aufbau oder in der Klasse entfallen. */
@@ -357,6 +374,8 @@ export interface RawPositionen {
   laufzettel?: RawLaufzettel
   /** Aufbauten (Setups); der erste ist der Standard. */
   aufbauten?: RawAufbau[]
+  /** Kursvarianten der Austragungsorte. */
+  kurse?: RawKurs[]
   /** Was jeder Aufbau auf einer Liste abdecken muss (geprüft von config:check). */
   ueberwachung?: RawUeberwachung[]
   /** Alle Positionen (werden von den Aufbauten per ID referenziert). */

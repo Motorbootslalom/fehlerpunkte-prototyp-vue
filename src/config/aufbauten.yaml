@@ -13,7 +13,7 @@
 # diese. Neuer Aufbau: Datei unter aufbauten/ anlegen und unten eintragen.
 #
 # Die Reihenfolge gilt im Menü, der erste Aufbau ist der Standard.
-dateien: [alcatraz, frontal, berlin, bawue, parallel]
+dateien: [alcatraz, frontal, berlin, bawue, moewe, parallel]
 sprachen: [en]
 
 # Bei einem Wettkampf wird ein bestimmter AUFBAU (Setup) genutzt - Standard ist
@@ -30,6 +30,15 @@ sprachen: [en]
 #   eigeneStrecke true = eigene Bojen, der Überwachungs-Check gilt nicht.
 #   disziplin    Verweis auf disziplinen.<id>; fehlt: die erste (Manövrieren). Aufbauten
 #                einer Disziplin teilen sich die Eingaben und die Ergebnislisten.
+#   kurs         Verweis auf kurse.<id>: die Kursvariante des Austragungsorts.
+#
+# ---- KURS-Parameter (je Eintrag unter `kurse:`) ----------------------
+# Was ein Austragungsort am Kurs anders macht, ohne dass sich der Fahrweg ändert.
+#   id, name     Kennung und Anzeige.
+#   bilder       { 5: Klasse5_Moewe, … }: eigenes Parcoursbild je Klasse, Dateiname ohne
+#                Endung. Jeder erzeugte Bildordner enthält alle Quellbilder, die Variante
+#                wählt nur die Datei; die übrigen Klassen nutzen Klasse<k>. Fehlt vor Ort
+#                eine Boje, bleibt ihre Spalte und wird ignoriert.
 #
 # ---- DISZIPLIN-Parameter (je Eintrag unter `disziplinen:`) ------------
 #   id, name     Kennung und Anzeige. Die Reihenfolge der Dateien gilt, die erste ist Standard.

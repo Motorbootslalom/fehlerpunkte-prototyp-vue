@@ -1,4 +1,4 @@
-import { getSheetDef } from '../config/active'
+import { bildDatei, getSheetDef } from '../config/active'
 import type { Bogen } from '../types'
 import { courseKey, type CourseImages } from './SheetsDocument'
 
@@ -25,24 +25,25 @@ async function loadCourseImage(url: string, drehung: number): Promise<string> {
   return canvas.toDataURL('image/png')
 }
 
-/** Lädt (und dreht) alle für die Bögen benötigten Parcoursbilder. */
-export async function loadCourseImages(boegen: Bogen[], baseUrl: string): Promise<CourseImages> {
-  const needed = new Map<string, { dir: string; klasse: string; drehung: number }>()
+/** Lädt (und dreht) alle für die Bögen benötigten Parcoursbilder, je Klasse aus der Kursvariante. */
+export async function loadCourseImages(boegen: Bogen[], baseUrl: string, aufbau: string): Promise<CourseImages> {
+  const needed = new Map<string, { dir: string; datei: string; drehung: number }>()
   for (const b of boegen) {
     const def = getSheetDef(b.typeId)
     if (def.courseImageDir) {
       const drehung = def.bildDrehung ?? 0
-      needed.set(courseKey(def.courseImageDir, b.klasse, drehung), {
+      const datei = bildDatei(aufbau, b.klasse)
+      needed.set(courseKey(def.courseImageDir, datei, drehung), {
         dir: def.courseImageDir,
-        klasse: b.klasse,
+        datei,
         drehung,
       })
     }
   }
   const entries = await Promise.all(
-    [...needed].map(async ([key, { dir, klasse, drehung }]) => {
+    [...needed].map(async ([key, { dir, datei, drehung }]) => {
       try {
-        const uri = await loadCourseImage(`${baseUrl}parcours/${dir}/Klasse${klasse}.png`, drehung)
+        const uri = await loadCourseImage(`${baseUrl}parcours/${dir}/${datei}.png`, drehung)
         return [key, uri] as const
       } catch {
         return null

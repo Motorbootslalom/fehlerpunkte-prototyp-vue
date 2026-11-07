@@ -1,6 +1,6 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
-import { getBogenTexte, getSheetDef } from '../config/active'
+import { bildDatei, getBogenTexte, getSheetDef } from '../config/active'
 import { bogenLeser, wkrVon } from '../lib/eingaben'
 import { cellKey, columnsForClass, defFuerKlasse, scoreRow, summenText } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
@@ -146,11 +146,11 @@ interface RowData {
   shaded: boolean
 }
 
-/** key = "<dir>/<klasse>/<drehung>" → data-URI. */
+/** key = "<dir>/<datei>/<drehung>" → data-URI; die Datei kommt aus der Kursvariante (bildDatei). */
 export type CourseImages = Record<string, string>
 
-export function courseKey(dir: string, klasse: string, drehung: number): string {
-  return `${dir}/${klasse}/${drehung}`
+export function courseKey(dir: string, datei: string, drehung: number): string {
+  return `${dir}/${datei}/${drehung}`
 }
 
 /** Breite der Beschreibungsspalte je Listentyp (in pt), im Browser gemessen. */
@@ -259,7 +259,7 @@ function SheetPage({
         })}
       </View>
 
-      <CourseFooter def={def} bogen={bogen} images={images} descWidth={descWidth} />
+      <CourseFooter def={def} bogen={bogen} aufbau={state.aufbau} images={images} descWidth={descWidth} />
 
       {/* Fuß: mittige „Seite n / X" (nur mehrseitig) auf Höhe der rechts-
           bündigen Unterschrift - wie in der HTML-Ansicht. */}
@@ -399,11 +399,13 @@ function DataCell({
 function CourseFooter({
   def,
   bogen,
+  aufbau,
   images,
   descWidth,
 }: {
   def: SheetDef
   bogen: Bogen
+  aufbau: string
   images: CourseImages
   descWidth?: number
 }) {
@@ -411,7 +413,7 @@ function CourseFooter({
   const drehung = def.bildDrehung ?? 0
   const rotated = Math.abs(drehung) === 90
   const uri = def.courseImageDir
-    ? images[courseKey(def.courseImageDir, bogen.klasse, drehung)]
+    ? images[courseKey(def.courseImageDir, bildDatei(aufbau, bogen.klasse), drehung)]
     : undefined
 
   if (rotated && uri) {

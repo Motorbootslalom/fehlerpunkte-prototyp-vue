@@ -3,10 +3,11 @@ import { computed } from 'vue'
 
 // Parcoursbild eines Bogens - unter der Tabelle (SheetPage) oder auf der
 // Rückseite (SheetBackPage, „Anne-Feature“). Liegt in einer Box `.course`.
-const props = defineProps<{ dir: string; klasse: string; drehung?: number }>()
+// `datei` kommt aus der Kursvariante des Aufbaus (z. B. Klasse5_Moewe), sonst Klasse<k>.
+const props = defineProps<{ dir: string; klasse: string; datei?: string; drehung?: number }>()
 
 const base = import.meta.env.BASE_URL
-const src = computed(() => `${base}parcours/${props.dir}/Klasse${props.klasse}.svg`)
+const src = computed(() => `${base}parcours/${props.dir}/${props.datei ?? `Klasse${props.klasse}`}.svg`)
 const gedreht = computed(() => Math.abs(props.drehung ?? 0) === 90)
 
 function onImgError(e: Event) {

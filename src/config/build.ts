@@ -26,6 +26,8 @@ export interface ResolvedAufbau {
   zusatz: string[]
   /** Zusammenlegen möglich: die Liste, was sie ersetzt, und die Reihenfolge damit. */
   kombi?: { positionId: string; ersetzt: string[]; order: string[] }
+  /** Kursvariante: eigene Parcoursbilder je Klasse (Dateiname ohne Endung). */
+  kurs?: { id: string; name: string; bilder: Record<string, string> }
 }
 
 /** Umschaltbares Bezeichnungs-Schema (Bojen-Kürzel), z. B. Rechts/Links. */
@@ -400,9 +402,19 @@ export function buildConfig(
           const ids = aufbauIds(a.positionen)
           const order = nummeriert(a.positionen.filter((_, i) => known.has(ids[i])))
           const kombi = findeKombi(ids, raw.positionen ?? [])
+          const kurs = raw.kurse?.find((k) => k.id === a.kurs)
           return {
             id: a.id,
             name: a.name,
+            ...(kurs
+              ? {
+                  kurs: {
+                    id: kurs.id,
+                    name: kurs.name,
+                    bilder: Object.fromEntries(Object.entries(kurs.bilder ?? {}).map(([k, d]) => [String(k), d])),
+                  },
+                }
+              : {}),
             disziplin: a.disziplin ?? standardDisziplin,
             order,
             zusatz: schnell.filter((id) => !ids.includes(id)),

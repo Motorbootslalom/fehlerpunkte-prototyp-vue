@@ -2,9 +2,9 @@
 
 Stand: 07.11.2026. **Abgestimmt, in Umsetzung.** Erledigt sind die Korrekturen an den heutigen
 Aufbauten, Baden-Württemberg (§6, §5.1), Berlin Rechts (§5.1) und die Reihenfolge der Ergebnisliste
-(§4.3), die Zeitnahme (§4.5) und die Kurzform (§4, §5.1). Den Stand der Schritte zeigt §10.
-Die Prüfung aus §5.1 läuft als Test mit (`src/config/kurzform.test.ts`). §5.2 spielt
-einen neuen Aufbau durch, den Möwe-Parcours in Oranienburg.
+(§4.3), die Zeitnahme (§4.5), die Kurzform (§4, §5.1) und die Kursvariante mit dem Möwe-Parcours in
+Oranienburg als erstem neuen Aufbau (§4.4, §5.2). Den Stand der Schritte zeigt §10.
+Die Prüfung aus §5.1 läuft als Test mit (`src/config/kurzform.test.ts`).
 
 Eine Veranstaltung hat wenige Personen und oft eigene Standorte am Kurs. Eine neue Verteilung der
 WKR-Positionen braucht heute Repo, Build und Deploy. Das Konzept schlägt drei Dinge vor, die
@@ -181,6 +181,12 @@ kurse:
   `Speedboje_unten`, und das ist heute schon bei allen Klassen ohne Speed 2 so. Das Abblenden funktioniert
   deshalb unverändert.
 
+**Umgesetzt (07.11.2026):** Der Generator legt ohnehin alle Quellbilder in jeden erzeugten Ordner, auch
+`Klasse5_Moewe`. Die Variante wählt deshalb nur beim Anzeigen die Datei je Klasse (`bildDatei` in
+`active.ts`, auch in der PDF-Insel). Das gilt für jede Liste des Aufbaus, auch für die gemeinsamen
+Listen MüB und Parcours; neue Bildordner braucht es nur bei neuer Abblendung. Ein Test prüft, dass jede
+Datei einer Variante in jedem erzeugten Ordner liegt.
+
 ### 4.5 Zeitnahme
 
 Bei der DM 2026 gab es drei Zeit-Blätter: eine Lichtschranke und zwei Stoppuhren. Gewertet wurde die
@@ -321,6 +327,11 @@ Bild, B die obere, ‖ eine doppelte Linie:
 In den anderen Klassen fällt weg, was sie nicht fahren. Jede Boje und Aufgabe steht in jeder Klasse auf
 genau einer Liste. Start und Ziel könnten statt auf der Zeitliste auch auf der Parcoursliste stehen, wie
 bei `parcoursms`.
+
+**Umgesetzt (07.11.2026)** in `src/config/aufbauten/moewe.yaml`, mit `kurs: moewe`. Die Zeitliste und
+Tor 1 / 3 / 5 nutzen die Bildordner von Berlin Start/Ziel und „Tore 1 / 3 / 5 ohne Start/Ziel“, weil sie
+genauso abblenden; nur Tor 2 / 4 / 5 von links bekommt einen eigenen. MüB und Parcours sind die
+gemeinsamen Listen und zeigen im Möwe-Aufbau die Möwe-Bilder.
 
 **Was das Konzept dafür gebraucht hat:** die Kursvariante (§4.4), Zeit mit einem Gerät (§4.5) und den
 richtigen Fahrweg. Beim Durchspielen mit Speed 1 auf „Tor 1 / 3 / 5“ stand Speed 1 noch vor Tor 1. So
@@ -505,7 +516,8 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 4. **Kurzform.** Erledigt: `src/config/kurzform.ts` mit Fahrweg und Regeln für die Darstellung, alle 19
    Positionen aus §5.1 stehen in Kurzform. `config:sync` schreibt sie aus, `config:check` prüft Blick,
    Bojen und Aufgaben. Der Test aus §5.1 ersetzt das Prüfskript.
-5. **Kursvariante** (§4.4) mit Möwe als erstem Aufbau im Repo (§5.2).
+5. **Kursvariante** (§4.4). Erledigt: `kurse` mit Bildern je Klasse, Möwe als erster Aufbau im Repo
+   (`src/config/aufbauten/moewe.yaml`, §5.2).
 6. **Bilder im Browser** (§9), zuerst nur für eigene Aufbauten.
 7. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.
 8. **Assistent** (§7) mit Tabelle und laufender Prüfung.

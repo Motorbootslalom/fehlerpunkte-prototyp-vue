@@ -39,13 +39,13 @@ export function PdfApp() {
       setImages({})
       return
     }
-    loadCourseImages(state.boegen, import.meta.env.BASE_URL).then((imgs) => {
+    loadCourseImages(state.boegen, import.meta.env.BASE_URL, state.aufbau).then((imgs) => {
       if (!cancelled) setImages(imgs)
     })
     return () => {
       cancelled = true
     }
-  }, [state.boegen, withImages])
+  }, [state.boegen, state.aufbau, withImages])
 
   const legendWidths = useMemo(
     () => measureLegendWidths(state.boegen.map((b) => b.typeId)),

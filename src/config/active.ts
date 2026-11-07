@@ -118,6 +118,11 @@ export function getAufbau(id: string): ResolvedAufbau {
   return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', disziplin: 'standard', order: [], zusatz: [] }
 }
 
+/** Das Parcoursbild einer Klasse im Aufbau: die Datei der Kursvariante, sonst Klasse<k>. */
+export function bildDatei(aufbauId: string, klasse: string): string {
+  return getAufbau(aufbauId).kurs?.bilder[klasse] ?? `Klasse${klasse}`
+}
+
 /** Disziplin nach ID; ohne Eintrag eine ohne Ergebnis-Spalten. */
 export function getDisziplin(id: string): RawDisziplin {
   return cfg().disziplinen.find((d) => d.id === id) ?? { id, name: id }

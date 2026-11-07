@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { bildDatei } from '../config/active'
 import { backNeedsFlip, hasDescription } from '../lib/backside'
+import { useStore } from '../state/store'
 import type { Bogen, SheetDef } from '../types'
 import CourseImage from './CourseImage.vue'
 import Legend from './Legend.vue'
@@ -11,6 +13,7 @@ import Legend from './Legend.vue'
 // steht nur in der Blatthälfte, die beim Nach-oben-Klappen sichtbar ist; Hochformat
 // wird dafür um 180° gedreht (siehe lib/backside).
 const props = defineProps<{ bogen: Bogen; def: SheetDef }>()
+const { state } = useStore()
 
 const drehung = computed(() => props.def.bildDrehung ?? 0)
 // Hochformat-Bild (±90°) neben der Legende, sonst darunter.
@@ -50,7 +53,12 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
       >
         <Legend :def="def" />
         <div v-if="def.courseImageDir" class="course">
-          <CourseImage :dir="def.courseImageDir" :klasse="bogen.klasse" :drehung="drehung" />
+          <CourseImage
+            :dir="def.courseImageDir"
+            :klasse="bogen.klasse"
+            :datei="bildDatei(state.aufbau, bogen.klasse)"
+            :drehung="drehung"
+          />
         </div>
       </div>
     </div>

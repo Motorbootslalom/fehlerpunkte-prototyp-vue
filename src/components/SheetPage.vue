@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
-import { getBogenTexte } from '../config/active'
+import { bildDatei, getBogenTexte } from '../config/active'
 import { gridNavKeyDown } from '../lib/gridnav'
 import { normalizeCodeCell } from '../lib/codes'
 import { PRINT_MARGIN_MM, overflowRows, pageHeightMm as pageHeightOf } from '../lib/paging'
@@ -344,7 +344,12 @@ function fitAusEreignis(e: Event) {
               <template v-if="!state.descriptionOnBack">
                 <Legend :def="def" />
                 <div v-if="def.courseImageDir" class="course">
-                  <CourseImage :dir="def.courseImageDir" :klasse="bogen.klasse" :drehung="drehung" />
+                  <CourseImage
+                    :dir="def.courseImageDir"
+                    :klasse="bogen.klasse"
+                    :datei="bildDatei(state.aufbau, bogen.klasse)"
+                    :drehung="drehung"
+                  />
                 </div>
               </template>
               <!-- „Anne-Feature“: Beschreibung steht auf der Rückseite (SheetBackPage). -->

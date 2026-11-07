@@ -14,6 +14,7 @@ import type {
   RawErgebnisSpalte,
   RawUebersetzung,
   RawKatalog,
+  RawKurs,
   RawLegendeHinweis,
   RawPosition,
   RawQuelle,
@@ -44,6 +45,7 @@ export type ConfigInput = {
   bezeichnungen?: Record<string, string>
   beschriftungen?: Array<Partial<RawBeschriftung>>
   aufbauten?: Array<Partial<RawAufbau>>
+  kurse?: Array<Partial<RawKurs>>
   disziplinen?: Array<Partial<RawDisziplin>>
   ueberwachung?: RawUeberwachung[]
   positionen?: Array<Partial<RawPosition>>
@@ -433,10 +435,25 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
         err('UNKNOWN_SPALTE', `ohneSpalten: Position "${pid}" hat keine Spalte "${key}".`, 'ohneSpalten')
   }
 
+  // ---- Kursvarianten -------------------------------------------------------
+  const kurse = raw.kurse ?? []
+  for (const [id, n] of duplicates(kurse, (k) => k?.id)) err('DUP_KURS_ID', `Kursvariante "${id}" ${n}× definiert.`, 'kurse')
+  kurse.forEach((k, i) => {
+    const where = `kurse[${i}]${k?.id ? ` (id: ${k.id})` : ''}`
+    if (!k?.id || !k.name) err('MISSING_KURS_ID', 'Kursvariante ohne "id" oder "name".', where)
+    for (const [klasse, datei] of Object.entries(k?.bilder ?? {})) {
+      if (!VALID_KLASSEN.has(String(klasse))) err('BAD_KURS_KLASSE', `Unbekannte Klasse "${klasse}" in den Bildern von "${k?.id}".`, where)
+      if (typeof datei !== 'string' || !/^[\w-]+$/.test(datei))
+        err('BAD_KURS_BILD', `Bild "${datei}" (Klasse ${klasse}) in "${k?.id}" muss ein Dateiname ohne Endung sein.`, where)
+    }
+  })
+
   // ---- Aufbauten: Positions-Verweise --------------------------------------
   aufbauten.forEach((a, i) => {
     const where = `aufbauten[${i}]${a?.id ? ` (id: ${a.id})` : ''}`
     if (!a?.id) err('MISSING_AUFBAU_ID', 'Aufbau ohne "id".', where)
+    if (a?.kurs !== undefined && !kurse.some((k) => k?.id === a.kurs))
+      err('UNKNOWN_KURS', `Aufbau "${a?.id}" verweist auf die unbekannte Kursvariante "${a.kurs}".`, where)
     for (const e of a?.positionen ?? []) {
       if (typeof e !== 'string' && !gueltigerEintrag(e)) {
         err(

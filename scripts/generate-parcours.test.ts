@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { load as yamlLoad } from 'js-yaml'
 import { describe, it, expect } from 'vitest'
 import {
@@ -15,10 +15,15 @@ import {
 import { aufloesen } from '../src/config/kurzform.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
+/** Alle Quelldateien unter src/config, zusammengeführt und ausgeschrieben. */
+function konfiguration() {
+  const dateien = quellDateien(readFileSync('src/config/aufbauten.yaml', 'utf8'))
+  return aufloesen(mergePositionen(dateien.map((n) => yamlLoad(readFileSync(`src/config/${n}.yaml`, 'utf8')))))
+}
+
 /** Die Positionen aus allen Quelldateien unter src/config. */
 function allePositionen() {
-  const dateien = quellDateien(readFileSync('src/config/aufbauten.yaml', 'utf8'))
-  return aufloesen(mergePositionen(dateien.map((n) => yamlLoad(readFileSync(`src/config/${n}.yaml`, 'utf8'))))).positionen
+  return konfiguration().positionen
 }
 
 describe('deriveDimSet', () => {
@@ -166,6 +171,20 @@ describe('IDs in den Quell-SVGs', () => {
         expect(readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8'), `${pos.bild}/${file}`).not.toContain(`id="${RAHMEN_ID}"`)
       }
     }
+  })
+
+  it('jede Kursvariante findet ihre Bilder in jedem erzeugten Ordner', () => {
+    const kurse = konfiguration().kurse ?? []
+    expect(kurse.length).toBeGreaterThan(0)
+    for (const kurs of kurse)
+      for (const datei of Object.values(kurs.bilder ?? {})) {
+        expect(svgs, `${kurs.id}: ${datei} fehlt in der Quelle`).toContain(`${datei}.svg`)
+        for (const pos of positionen.filter((p) => p.bild))
+          for (const endung of ['svg', 'png']) {
+            const pfad = `public/parcours/${pos.bild}/${datei}.${endung}`
+            expect(existsSync(pfad), pfad).toBe(true)
+          }
+      }
   })
 
   it('die untere Speedboje steht nur in Klassenbildern, deren Route um sie herumführt', () => {
