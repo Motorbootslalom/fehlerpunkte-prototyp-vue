@@ -7,16 +7,21 @@ import {
   defaultAufbauId,
   defaultBeschriftungId,
   defaultRegelwerkId,
+  getAufbauten,
+  getPositions,
   getSheetDef,
   positionAllowsClass,
+  pruefeEigeneAufbauten,
   resolveRegelwerkId,
+  setzeEigeneAufbauten,
 } from '../config/active'
+import { ausLinkUebernehmen } from '../config/eigene'
 import { isSprache } from '../config/sprache'
 import { allDemoNumbers } from '../lib/demo'
 import { ausBogenWerten } from '../lib/eingaben'
 import { normalizeClassOrder, withoutLaufRepeats } from '../lib/quickpick'
 import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
-import { loadState } from '../lib/storage'
+import { ladeEigeneAufbauten, loadState, speichereEigeneAufbauten } from '../lib/storage'
 
 // Framework-agnostischer Anfangszustand. Wird sowohl vom Vue-Store (Eingabe-App)
 // als auch von der React-Insel (pdf.html, nur lesend) genutzt, damit beide exakt
@@ -99,8 +104,34 @@ function ausSpeicher(loaded: Partial<AppState> & { values?: Record<string, Recor
   return { ...stand, ...ausBogenWerten(values, stand.wkr ?? {}, stand.boegen ?? [], aufbau) }
 }
 
+/**
+ * Die eigenen Aufbauten aus dem Browser in die Konfiguration. Bringt ein Link einen mit, hat
+ * er Vorrang; ein lokaler mit derselben ID und anderem Inhalt bleibt als Kopie. Was die
+ * Prüfung nicht besteht, wird nicht übernommen.
+ */
+function eigeneAufbautenLaden(shared: ShareConfig | null): void {
+  let eigene = ladeEigeneAufbauten()
+  setzeEigeneAufbauten(eigene)
+  if (!shared?.eigenerAufbau) return
+  const pruefung = pruefeEigeneAufbauten({ aufbauten: [shared.eigenerAufbau] })
+  if (pruefung.aufbauten.length !== 1) return
+  eigene = ausLinkUebernehmen(eigene, pruefung.aufbauten[0])
+  speichereEigeneAufbauten(eigene)
+  setzeEigeneAufbauten(eigene)
+}
+
+/** Ohne Aufbau oder Position, die es nicht (mehr) gibt, etwa nach dem Löschen eines eigenen. */
+export function ohneUnbekannte(state: AppState): AppState {
+  const positionen = new Set(getPositions().map((p) => p.typeId))
+  const aufbau = getAufbauten().some((a) => a.id === state.aufbau) ? state.aufbau : defaultAufbauId()
+  const boegen = state.boegen.filter((b) => positionen.has(b.typeId))
+  return aufbau === state.aufbau && boegen.length === state.boegen.length ? state : { ...state, aufbau, boegen }
+}
+
 /** Anfangszustand aus persistiertem Stand (localStorage) + geteiltem Link (URL). */
 export function buildInitialState(): AppState {
+  const shared = readShareConfig()
+  eigeneAufbautenLaden(shared)
   const loaded = loadState()
   let state = loaded ? { ...defaultState(), ...ausSpeicher(loaded) } : defaultState()
   // Ältere Stände speichern Startnummern als Zahlen → auf Strings normalisieren.
@@ -110,7 +141,6 @@ export function buildInitialState(): AppState {
 
   // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand:
   // Regelwerk, Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.
-  const shared = readShareConfig()
   if (shared) {
     state = {
       ...state,
@@ -150,5 +180,5 @@ export function buildInitialState(): AppState {
   applyRegelwerk(state.regelwerk)
   applySprache(state.sprache)
   if (state.beschriftung) applyBeschriftung(state.beschriftung)
-  return state
+  return ohneUnbekannte(state)
 }

@@ -9,8 +9,9 @@ import {
   type ResolvedAufbau,
   type ResolvedConfig,
 } from './build'
-import type { RawConfig, RawDisziplin, RawPositionen, RawQuelle, RawRegelwerk, RawRegelwerkListe } from './schema'
+import type { RawAufbau, RawConfig, RawDisziplin, RawPositionen, RawQuelle, RawRegelwerk, RawRegelwerkListe } from './schema'
 import { aufloesen } from './kurzform'
+import { aufbauYaml, mitEigenen, pruefeEigene, verdeckteEigene, type Pruefung } from './eigene'
 import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
 // Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
@@ -37,6 +38,9 @@ let active: ResolvedConfig | null = null
 // Bezeichnungs-Schema neu zu bauen.
 let rawRegelwerke: RawRegelwerk[] = []
 let rawPositionen: RawPositionen = { positionen: [] }
+// Die Positionsdateien, wie sie geladen wurden, und die eigenen Aufbauten aus dem Browser.
+let rawQuelle: RawQuelle = { positionen: [] }
+let eigene: RawAufbau[] = []
 let auswahl: { regelwerk?: string; sprache?: Sprache; beschriftung?: string } = {}
 
 /** Baut die Konfiguration aus den Rohdaten und der aktuellen Auswahl. */
@@ -58,8 +62,8 @@ function neuBauen(): ResolvedConfig {
 export function mergeAndBuild(regelwerkTexte: string | string[], positionen: string | RawQuelle): ResolvedConfig {
   const texte = Array.isArray(regelwerkTexte) ? regelwerkTexte : [regelwerkTexte]
   rawRegelwerke = texte.map((t) => (yamlLoad(t) as RawRegelwerk) ?? {})
-  rawPositionen =
-    aufloesen(typeof positionen === 'string' ? ((yamlLoad(positionen) as RawQuelle) ?? { positionen: [] }) : positionen)
+  rawQuelle = typeof positionen === 'string' ? ((yamlLoad(positionen) as RawQuelle) ?? { positionen: [] }) : positionen
+  rawPositionen = aufloesen(mitEigenen(rawQuelle, eigene))
   auswahl = {}
   return neuBauen()
 }
@@ -116,6 +120,42 @@ export function defaultAufbauId(): string {
 export function getAufbau(id: string): ResolvedAufbau {
   const a = cfg().aufbauten.find((x) => x.id === id)
   return a ?? cfg().aufbauten[0] ?? { id: 'standard', name: 'Standard', disziplin: 'standard', order: [], zusatz: [] }
+}
+
+/**
+ * Setzt die eigenen Aufbauten aus dem Browser und baut die Konfiguration neu. Sie
+ * stehen hinter denen aus dem Repo; einen mit derselben ID verdeckt der aus dem Repo.
+ */
+export function setzeEigeneAufbauten(liste: RawAufbau[]): void {
+  cfg() // sicherstellen, dass die Rohdaten geladen sind
+  eigene = liste
+  rawPositionen = aufloesen(mitEigenen(rawQuelle, eigene))
+  active = neuBauen()
+}
+
+/** Die gespeicherten eigenen Aufbauten, so wie sie gespeichert sind. */
+export function getEigeneAufbauten(): RawAufbau[] {
+  return eigene
+}
+
+/** Eigene Aufbauten, die es inzwischen im Repo gibt (der aus dem Repo gilt). */
+export function getVerdeckteEigene(): RawAufbau[] {
+  cfg()
+  return verdeckteEigene(rawQuelle, eigene)
+}
+
+/** Prüft eigene Aufbauten aus einer Datei oder einem Link gegen das aktive Regelwerk. */
+export function pruefeEigeneAufbauten(eingabe: unknown): Pruefung {
+  cfg()
+  const regelwerk = rawRegelwerke.find((r) => r.id === auswahl.regelwerk) ?? rawRegelwerke[0] ?? {}
+  return pruefeEigene(eingabe, rawQuelle, regelwerk, eigene)
+}
+
+/** Ein Aufbau als YAML-Datei: eigene mit ihren Positionen, die aus dem Repo mit Verweisen. */
+export function aufbauAlsYaml(id: string, kopf: { datum: string; version: string }): string | undefined {
+  cfg()
+  const aufbau = eigene.find((a) => a.id === id) ?? rawQuelle.aufbauten?.find((a) => a.id === id)
+  return aufbau && aufbauYaml(aufbau, { ...kopf, regelwerk: cfg().regelwerk.label })
 }
 
 /** Das Parcoursbild einer Klasse im Aufbau: die Datei der Kursvariante, sonst Klasse<k>. */

@@ -284,7 +284,34 @@ export function istKurzform(p: RawPosition | RawKurzform): p is RawKurzform {
   return !!p && typeof p === 'object' && !Array.isArray(p.spalten)
 }
 
+/** Ein Eintrag im Aufbau, der eine Position direkt in Kurzform beschreibt (nicht nur abwandelt). */
+export function istInlineKurzform(eintrag: unknown): eintrag is RawKurzform {
+  return !!eintrag && typeof eintrag === 'object' && !Array.isArray(eintrag) && ('bojen' in eintrag || 'aufgaben' in eintrag)
+}
+
+/**
+ * Positionen, die direkt im Aufbau stehen (KONZEPT-POSITIONEN.md §4.1), kommen unter
+ * `positionen`; der Aufbau nennt dann nur ihre ID. Gibt es die ID schon, bleibt die erste.
+ */
+export function hochziehen(quelle: RawQuelle | RawPositionen): RawQuelle {
+  const positionen: RawQuelle['positionen'] = [...(quelle.positionen ?? [])]
+  const ids = new Set(positionen.map((p) => p?.id))
+  const aufbauten = quelle.aufbauten?.map((a) => ({
+    ...a,
+    positionen: (a?.positionen ?? []).map((e) => {
+      if (!istInlineKurzform(e)) return e
+      if (!ids.has(e.id)) {
+        positionen.push(e)
+        ids.add(e.id)
+      }
+      return e.id
+    }),
+  }))
+  return { ...quelle, positionen, ...(aufbauten ? { aufbauten } : {}) }
+}
+
 /** Die Positionen in ausführlicher Form; was schon ausführlich ist, bleibt, wie es ist. */
 export function aufloesen(quelle: RawQuelle | RawPositionen): RawPositionen {
-  return { ...quelle, positionen: (quelle.positionen ?? []).map((p) => (istKurzform(p) ? kurzformPosition(p) : p)) }
+  const q = hochziehen(quelle)
+  return { ...q, positionen: q.positionen.map((p) => (istKurzform(p) ? kurzformPosition(p) : p)) }
 }

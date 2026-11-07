@@ -1,3 +1,5 @@
+import { getAufbau, getEigeneAufbauten } from '../config/active'
+import type { RawAufbau } from '../config/schema'
 import { isSprache } from '../config/sprache'
 import { CLASS_IDS, type AppState, type ClassId, type Lauf, type Sprache } from '../types'
 import { parseClassOrder } from './quickpick'
@@ -40,6 +42,11 @@ export interface ShareConfig {
   /** Klassen-Reihenfolge der Schnellauswahl; fehlt in älteren Links. */
   classOrder?: ClassId[]
   boegen: Array<{ typeId: string; klasse: ClassId; lauf: Lauf }>
+  /**
+   * Ein eigener Aufbau reist mit, sonst kennt ihn der Empfänger nicht (KONZEPT-POSITIONEN.md
+   * §8). Nur dann, wenn der gewählte Aufbau ein eigener ist; geprüft wird er beim Öffnen.
+   */
+  eigenerAufbau?: RawAufbau
 }
 
 /**
@@ -100,7 +107,13 @@ export function toShareConfig(state: AppState): ShareConfig {
     numbers: state.numbers,
     classOrder: state.classOrder,
     boegen: state.boegen.map((b) => ({ typeId: b.typeId, klasse: b.klasse, lauf: b.lauf })),
+    ...(eigenerAufbau(state.aufbau) ? { eigenerAufbau: eigenerAufbau(state.aufbau) } : {}),
   }
+}
+
+/** Die Definition des gewählten Aufbaus, wenn er ein eigener ist. */
+function eigenerAufbau(id: string): RawAufbau | undefined {
+  return getAufbau(id).eigen ? getEigeneAufbauten().find((a) => a.id === id) : undefined
 }
 
 // ---- Base64url (UTF-8-fest) -----------------------------------------------
@@ -131,6 +144,7 @@ export function encodeShareConfig(cfg: ShareConfig): string {
     n: cfg.numbers,
     ...(cfg.classOrder ? { k: cfg.classOrder.join('') } : {}),
     g: boegenToWire(cfg.boegen),
+    ...(cfg.eigenerAufbau ? { x: cfg.eigenerAufbau } : {}),
   }
   return b64urlEncode(JSON.stringify(wire))
 }
@@ -155,6 +169,7 @@ export function decodeShareConfig(param: string): ShareConfig | null {
       numbers: normalizeNumbersMap(wire.n),
       ...(typeof wire.k === 'string' ? { classOrder: parseClassOrder(wire.k) } : {}),
       boegen: boegenFromWire(wire.g),
+      ...(wire.x && typeof wire.x === 'object' && !Array.isArray(wire.x) ? { eigenerAufbau: wire.x as RawAufbau } : {}),
     }
   } catch {
     return null

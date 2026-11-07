@@ -335,6 +335,29 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 - Öffnet jemand einen geteilten Link, hat dessen Konfiguration Vorrang vor dem
   lokal gespeicherten Stand. Die im eigenen Browser gespeicherten Eingaben bleiben
   dabei erhalten (§8e).
+- Ist ein **eigener Aufbau** gewählt (§8h), reist seine Definition im Link mit. Beim
+  Öffnen wird sie geprüft und übernommen; ein lokaler mit derselben ID und anderem Inhalt
+  bleibt als Kopie erhalten.
+
+## 8h. Eigene Aufbauten
+
+Ein Aufbau muss nicht im Repo stehen (KONZEPT-POSITIONEN.md §8):
+
+- **Laden:** „Eigenen Aufbau laden (YAML)“ unter der Aufbau-Auswahl. Die Datei hat die Form
+  aus dem Repo, die Positionen stehen in Kurzform direkt im Aufbau. Vor der Übernahme läuft sie
+  durch dieselbe Prüfung wie die Dateien im Repo; bei Fehlern wird nichts übernommen, Lücken in
+  der Überwachung erscheinen als Hinweis. IDs bestehen aus Kleinbuchstaben und Ziffern und dürfen
+  keinen Aufbau und keine Position aus dem Repo verdecken.
+- **Speichern:** Die eigenen Aufbauten liegen im Browser unter einem eigenen Schlüssel.
+  „Alles zurücksetzen“ löscht sie nicht, „Eigenen Aufbau löschen“ entfernt einen nach Rückfrage.
+  Im Menü tragen sie den Zusatz „(eigener)“.
+- **Weitergeben:** per Einstellungs-Link (§8a) oder „Aufbau als YAML speichern“. Die Datei
+  nennt Datum, App-Version und Regelwerk und kann unverändert ins Repo
+  (`src/config/aufbauten/`, Eintrag in `aufbauten.yaml`).
+- **Bilder:** Eigene Positionen haben keinen vorgebauten Bildordner, der Browser erzeugt ihre
+  Bilder (§12a, „Bilder im Browser“).
+- **Im Repo angekommen:** Gibt es einen Aufbau mit derselben ID im Repo, gilt dieser. Die
+  Bedienleiste weist darauf hin und bietet an, die eigene Kopie zu löschen.
 
 ## 8b. Legende als A4-Blatt
 

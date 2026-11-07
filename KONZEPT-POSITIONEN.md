@@ -473,6 +473,12 @@ dauerhaft in den Prototyp.
 Damit IDs eigener Aufbauten nicht mit späteren aus dem Repo zusammenstoßen, wählt der Assistent sie
 eindeutig: aus dem Namen und einem kurzen Zufallsteil, ohne Trennzeichen (§9), zum Beispiel `sommercupx7k2`.
 
+**Umgesetzt (07./08.11.2026):** `src/config/eigene.ts` (Prüfung, YAML, Vorrang des Links),
+`src/lib/storage.ts` (Schlüssel `fehlerpunkte-prototyp:aufbauten:v1`), `buildInitialState` sortiert
+Bögen mit unbekannter Position aus (§9). Ein Aufbau aus dem Repo verdeckt einen eigenen mit derselben
+ID; abweichende Kopien werden noch nicht umbenannt, sondern nur angezeigt und können gelöscht werden.
+Die IDs vergibt der Assistent (Schritt 8); in Dateien stehen sie schon.
+
 **Fremde Eingaben:** Links und Dateien kommen von anderen. Vor der Übernahme laufen sie durch die Prüfung,
 und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird angezeigt und nichts übernommen.
 
@@ -494,9 +500,9 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
   elektronische Zeit und nur ohne sie den Mittelwert der Stoppuhren.
 - **PDF-Insel:** Sie braucht PNGs. **Umgesetzt:** Im Browser erzeugte Bilder rastert sie per Canvas in
   doppelter Auflösung, wie die PNGs des Builds.
-- **Unbekannte Positionen:** Steht in einem Link eine Bogen-Auswahl mit unbekannter Position, wirft
-  `getSheetDef` laut Code „Unbekannte Position“. `buildInitialState` soll solche Bögen künftig aussortieren.
-  Das ist auch ohne Assistent sinnvoll.
+- **Unbekannte Positionen:** Steht in einem Link eine Bogen-Auswahl mit unbekannter Position, warf
+  `getSheetDef` „Unbekannte Position“. **Umgesetzt:** `buildInitialState` sortiert solche Bögen aus, ebenso
+  das Löschen eines eigenen Aufbaus.
 - **IDs:** Position und Aufbau bekommen beim Anlegen eine feste ID aus `a-z0-9`. Die Zeichen `:`, `/`, `@`
   und `-` sind vergeben (Link, Lauf-Schlüssel, `disq@steg`, `zeit-1`). Die ID steht auch im QR-Code
   (in Großbuchstaben, `FP2.….ZEIT.S1`) und bleibt deshalb bei Änderungen gleich.
@@ -525,7 +531,9 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
    (`src/config/aufbauten/moewe.yaml`, §5.2).
 6. **Bilder im Browser** (§9). Erledigt: `bildImBrowser: true` an einer Position; noch nutzt sie keine
    Position im Repo, die eigenen Aufbauten werden es tun.
-7. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.
+7. **Speicher, Link und YAML** (§8). Erledigt: eigene Aufbauten im Browser, im Einstellungs-Link und als
+   YAML-Datei, bedienbar über „Eigenen Aufbau laden“, „Aufbau als YAML speichern“ und „Löschen“
+   (Lastenheft §8h). Positionen dürfen dafür in Kurzform direkt im Aufbau stehen.
 8. **Assistent** (§7) mit Tabelle und laufender Prüfung.
 9. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg
    ableiten.

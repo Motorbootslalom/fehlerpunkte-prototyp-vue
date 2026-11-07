@@ -1,14 +1,23 @@
 import { computed, inject, reactive, watch, type App, type InjectionKey } from 'vue'
 import type { AppState, Bogen, ClassId, Lauf, SheetTypeId, Sprache, Starter } from '../types'
-import { applyBeschriftung, applyRegelwerk, applySprache, aufbauOrder, getAufbau, positionAllowsClass } from '../config/active'
+import {
+  applyBeschriftung,
+  applyRegelwerk,
+  applySprache,
+  aufbauOrder,
+  getAufbau,
+  positionAllowsClass,
+  setzeEigeneAufbauten,
+} from '../config/active'
+import type { RawAufbau } from '../config/schema'
 import { beispielEingaben, type Zeitnahme } from '../lib/beispielwerte'
 import { aktuellerListenStand } from '../lib/ergebnis'
 import { bereinigeEingaben, bogenLeser, listenUmziehen, setzeWkr, setzeZelle } from '../lib/eingaben'
 import { trennen, zusammenlegen } from '../lib/kombi'
 import { normalizeClassOrder } from '../lib/quickpick'
 import { syncUrlToState } from '../lib/sharelink'
-import { clearState, saveState } from '../lib/storage'
-import { boegenFuerAufbau, buildInitialState, defaultState, uid } from './initState'
+import { clearState, saveState, speichereEigeneAufbauten } from '../lib/storage'
+import { boegenFuerAufbau, buildInitialState, defaultState, ohneUnbekannte, uid } from './initState'
 
 export type Action =
   | { type: 'SET_EVENT'; eventName: string }
@@ -36,6 +45,8 @@ export type Action =
   | { type: 'SET_BEISPIELWERTE'; zeitnahme: Zeitnahme }
   | { type: 'MARK_INITIALIZED' }
   | { type: 'RESET_ALL' }
+  /** Eigene Aufbauten ersetzen (laden, ändern, löschen); mit `aufbau` dorthin wechseln. */
+  | { type: 'SET_EIGENE_AUFBAUTEN'; aufbauten: RawAufbau[]; aufbau?: string }
 
 // Reine Reducer-Funktion (unverändert aus dem React-Prototyp übernommen): nimmt
 // den aktuellen Zustand und eine Aktion, liefert einen NEUEN vollständigen
@@ -171,6 +182,14 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'MARK_INITIALIZED':
       return { ...state, initialized: true }
+
+    case 'SET_EIGENE_AUFBAUTEN': {
+      // Gespeichert wird unter eigenem Schlüssel, nicht mit dem Stand (KONZEPT-POSITIONEN.md §8).
+      speichereEigeneAufbauten(action.aufbauten)
+      setzeEigeneAufbauten(action.aufbauten)
+      const sauber = ohneUnbekannte(state)
+      return action.aufbau ? reducer(sauber, { type: 'SET_AUFBAU', aufbau: action.aufbau }) : sauber
+    }
 
     case 'RESET_ALL': {
       const fresh = defaultState()

@@ -2,7 +2,7 @@ import { load as yamlLoad, YAMLException } from 'js-yaml'
 import { feldKennungen, spaltenKennung } from './feld.ts'
 import { findeKombi, kombiReihenfolge } from './kombi.ts'
 import { abwandlung, aufbauIds, eintragId, GERAETE, mitZeiten, nummerierung } from './zeitnahme.ts'
-import { AUFGABEN, aufloesen, BLICKE, BOJEN_IDS, istKurzform } from './kurzform.ts'
+import { AUFGABEN, aufloesen, BLICKE, BOJEN_IDS, hochziehen, istInlineKurzform, istKurzform } from './kurzform.ts'
 import type {
   RawAufbau,
   RawAufbauEintrag,
@@ -176,7 +176,21 @@ export function ueberwachungsLuecken(raw: ConfigInput): UeberwachungsLuecke[] {
 /** Positionen in Kurzform: Blick, Bojen und Aufgaben müssen zum festen Wortschatz gehören. */
 export function kurzformBefunde(quelle: RawQuelle): ConfigIssue[] {
   const issues: ConfigIssue[] = []
-  ;(quelle?.positionen ?? []).forEach((pos, i) => {
+  // Positionen direkt im Aufbau dürfen keine ID nutzen, die es schon gibt.
+  const ids = new Set((quelle?.positionen ?? []).map((p) => p?.id))
+  for (const a of quelle?.aufbauten ?? [])
+    for (const e of a?.positionen ?? []) {
+      if (!istInlineKurzform(e)) continue
+      if (ids.has(e.id))
+        issues.push({
+          severity: 'error',
+          code: 'KURZFORM_DOPPELT',
+          message: `Die Position "${e.id}" im Aufbau "${a.id}" gibt es schon. Bitte eine andere id wählen.`,
+          where: `aufbauten (id: ${a.id})`,
+        })
+      ids.add(e.id)
+    }
+  ;(hochziehen(quelle).positionen ?? []).forEach((pos, i) => {
     if (!pos || typeof pos !== 'object' || !istKurzform(pos)) return
     const where = `positionen[${i}]${pos.id ? ` (id: ${pos.id})` : ''}`
     const err = (code: string, message: string) => issues.push({ severity: 'error', code, message, where })

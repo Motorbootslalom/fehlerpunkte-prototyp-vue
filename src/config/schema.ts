@@ -284,14 +284,19 @@ export interface RawAufbauEintrag {
 export interface RawAufbau {
   id: string
   name: string
-  /** Positionen in Reihenfolge (auch gemeinsame wie zeit, knoten …), als ID oder abgewandelt. */
-  positionen: Array<string | RawAufbauEintrag>
+  /**
+   * Positionen in Reihenfolge (auch gemeinsame wie zeit, knoten …): als ID, abgewandelt oder
+   * direkt in Kurzform (mit `bojen` oder `aufgaben`, siehe kurzform.ts `hochziehen`).
+   */
+  positionen: Array<string | RawAufbauEintrag | RawKurzform>
   /** Eigene Bojen (z. B. Parallelslalom): Der Überwachungs-Check gilt hier nicht. */
   eigeneStrecke?: boolean
   /** Disziplin mit eigenen Eingaben und Ergebnislisten. Fehlt: die erste aus `disziplinen`. */
   disziplin?: string
   /** Kursvariante des Austragungsorts (`kurse.<id>`), z. B. eigene Parcoursbilder. */
   kurs?: string
+  /** Intern: ein eigener Aufbau aus dem Browser, nicht aus dem Repo (siehe eigene.ts). */
+  eigen?: boolean
 }
 
 /**

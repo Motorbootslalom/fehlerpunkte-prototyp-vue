@@ -29,6 +29,8 @@ export interface ResolvedAufbau {
   kombi?: { positionId: string; ersetzt: string[]; order: string[] }
   /** Kursvariante: eigene Parcoursbilder je Klasse (Dateiname ohne Endung). */
   kurs?: { id: string; name: string; bilder: Record<string, string> }
+  /** Ein eigener Aufbau aus dem Browser, nicht aus dem Repo. */
+  eigen?: boolean
 }
 
 /** Umschaltbares Bezeichnungs-Schema (Bojen-Kürzel), z. B. Rechts/Links. */
@@ -409,6 +411,7 @@ export function buildConfig(
           return {
             id: a.id,
             name: a.name,
+            ...(a.eigen ? { eigen: true } : {}),
             ...(kurs
               ? {
                   kurs: {

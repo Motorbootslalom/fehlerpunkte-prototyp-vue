@@ -252,6 +252,41 @@ body {
   font-weight: 600;
 }
 
+/* Datei wählen, aussehend wie ein Knopf (das Eingabefeld selbst ist versteckt). */
+.control-panel .btn-datei {
+  background: #2b3543;
+  border: 1px solid #3a4557;
+  color: #e9edf3;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.control-panel .btn-datei:hover {
+  border-color: var(--accent);
+}
+
+.eigene-aufbauten {
+  margin-top: 8px;
+}
+
+.eigene-pruefung ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.control-panel .link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: inherit;
+}
+
 .cp-check {
   display: flex;
   align-items: center;

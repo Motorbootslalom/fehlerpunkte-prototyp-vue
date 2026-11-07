@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import {
+  aufbauAlsYaml,
   aufbauOrder,
+  defaultAufbauId,
   getAufbau,
   getAufbauten,
+  getEigeneAufbauten,
+  getVerdeckteEigene,
+  pruefeEigeneAufbauten,
   getBeschriftungen,
   getRegelwerk,
   getRegelwerke,
@@ -77,7 +82,10 @@ const buttonLabels = computed(() =>
   positionButtonLabels(menuOrder.value.map(getSheetDef).map((d) => ({ ...d, title: d.titelDe }))),
 )
 const beschriftungen = computed(() => getBeschriftungen())
-const aufbauten = computed(() => getAufbauten())
+// Die Konfiguration ist nicht reaktiv: `eigeneStand` zeigt an, dass sich die eigenen
+// Aufbauten geändert haben.
+const eigeneStand = ref(0)
+const aufbauten = computed(() => (state.aufbau, eigeneStand.value, getAufbauten()))
 const regelwerke = getRegelwerke()
 // Klassen des gewählten Regelwerks (die aktive Konfiguration ist nicht reaktiv,
 // state.regelwerk zeigt den Wechsel an).
@@ -225,6 +233,54 @@ async function downloadJsPdf() {
   }
 }
 
+// ---- Eigene Aufbauten (KONZEPT-POSITIONEN.md §8) -------------------------
+const istEigen = computed(() => (eigeneStand.value, !!getAufbau(state.aufbau).eigen))
+const verdeckt = computed(() => (eigeneStand.value, getVerdeckteEigene()))
+const pruefung = ref<{ fehler: string[]; hinweise: string[]; geladen: string } | null>(null)
+
+/** Lädt eigene Aufbauten aus einer YAML-Datei; übernommen wird nur, was die Prüfung besteht. */
+async function eigenenAufbauLaden(e: Event) {
+  const input = e.target as HTMLInputElement
+  const datei = input.files?.[0]
+  input.value = ''
+  if (!datei) return
+  const ergebnis = pruefeEigeneAufbauten(await datei.text())
+  pruefung.value = { ...ergebnis, geladen: ergebnis.aufbauten.map((a) => a.name).join('“, „') }
+  if (ergebnis.aufbauten.length === 0) return
+  const neu = new Set(ergebnis.aufbauten.map((a) => a.id))
+  dispatch({
+    type: 'SET_EIGENE_AUFBAUTEN',
+    aufbauten: [...getEigeneAufbauten().filter((a) => !neu.has(a.id)), ...ergebnis.aufbauten],
+    aufbau: ergebnis.aufbauten[0].id,
+  })
+  eigeneStand.value++
+}
+
+/** Der gewählte Aufbau als YAML-Datei: zum Weitergeben oder für die Übernahme ins Repo. */
+function aufbauSpeichern() {
+  const text = aufbauAlsYaml(state.aufbau, { datum: new Date().toISOString().slice(0, 10), version: gitVersion })
+  if (!text) return
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/yaml' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `aufbau-${state.aufbau}.yaml`
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+function eigenenAufbauLoeschen(id: string) {
+  const name = getEigeneAufbauten().find((a) => a.id === id)?.name ?? id
+  const frage = `Den eigenen Aufbau „${name}“ in diesem Browser löschen? Eine gespeicherte YAML-Datei oder ein Einstellungs-Link mit ihm bleiben nutzbar.`
+  if (!confirm(frage)) return
+  dispatch({
+    type: 'SET_EIGENE_AUFBAUTEN',
+    aufbauten: getEigeneAufbauten().filter((a) => a.id !== id),
+    ...(id === state.aufbau ? { aufbau: defaultAufbauId() } : {}),
+  })
+  pruefung.value = null
+  eigeneStand.value++
+}
+
 function resetAll() {
   if (confirm('Alle Eingaben und Einstellungen zurücksetzen?')) {
     dispatch({ type: 'RESET_ALL' })
@@ -302,9 +358,47 @@ const commitDate = __GIT_COMMIT_DATE__
           title="Bei einem Wettkampf genutzter Aufbau; wechseln erzeugt dessen Bögen neu. Die Eingaben bleiben in den entsprechenden Feldern, Parallelslalom hat eigene."
           @change="dispatch({ type: 'SET_AUFBAU', aufbau: ($event.target as HTMLSelectElement).value })"
         >
-          <option v-for="a in aufbauten" :key="a.id" :value="a.id">{{ a.name }}</option>
+          <option v-for="a in aufbauten" :key="a.id" :value="a.id">{{ a.name }}{{ a.eigen ? ' (eigener)' : '' }}</option>
         </select>
       </label>
+      <div class="btn-row eigene-aufbauten">
+        <label class="btn-datei" title="Einen eigenen Aufbau aus einer YAML-Datei laden. Er wird vorher geprüft.">
+          📂 Eigenen Aufbau laden (YAML)
+          <input type="file" accept=".yaml,.yml,text/yaml,application/x-yaml" hidden @change="eigenenAufbauLaden" />
+        </label>
+        <button
+          title="Den gewählten Aufbau als YAML-Datei speichern: zum Weitergeben oder für die Übernahme ins Repo"
+          @click="aufbauSpeichern"
+        >
+          💾 Aufbau als YAML speichern
+        </button>
+        <button v-if="istEigen" class="danger" @click="eigenenAufbauLoeschen(state.aufbau)">
+          Eigenen Aufbau löschen
+        </button>
+      </div>
+      <div v-if="pruefung" class="eigene-pruefung">
+        <div v-if="pruefung.fehler.length > 0" class="cp-scan-fehler">
+          Nicht übernommen:
+          <ul>
+            <li v-for="f in pruefung.fehler" :key="f">{{ f }}</li>
+          </ul>
+        </div>
+        <p v-else class="hint">„{{ pruefung.geladen }}“ übernommen.</p>
+        <div v-if="pruefung.hinweise.length > 0" class="hint">
+          Hinweise:
+          <ul>
+            <li v-for="h in pruefung.hinweise" :key="h">{{ h }}</li>
+          </ul>
+        </div>
+      </div>
+      <p v-for="a in verdeckt" :key="a.id" class="hint">
+        „{{ a.name }}“ gibt es jetzt im Prototyp, die eigene Kopie wird nicht mehr genutzt.
+        <button class="link-btn" @click="eigenenAufbauLoeschen(a.id)">Kopie löschen</button>
+      </p>
+      <p class="hint">
+        Eigene Aufbauten bleiben in diesem Browser, auch nach „Alles zurücksetzen“, und reisen im
+        Einstellungs-Link mit.
+      </p>
       <label
         v-if="kannZusammenlegen"
         class="cp-check"
