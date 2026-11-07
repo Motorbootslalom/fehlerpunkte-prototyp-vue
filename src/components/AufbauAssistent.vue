@@ -214,7 +214,7 @@ function abbrechen() {
         Je Position eine Spalte. Ein Klick in die Tabelle legt fest, welche Boje oder Aufgabe sie
         beobachtet; ▸ klappt ein Tor in seine beiden Bojen auf. Die Bögen unten zeigen den Entwurf.
       </p>
-      <details class="assistent-blick" open>
+      <details class="assistent-blick">
         <summary>Was bedeuten die Blickrichtungen?</summary>
         <div class="assistent-blick-inhalt">
           <BlickErklaerung />

@@ -469,6 +469,14 @@ body {
   color: #aeb8c7;
 }
 
+.weitere-pdf {
+  margin-top: 14px;
+}
+
+.weitere-pdf summary .cp-subhead {
+  display: inline;
+}
+
 .control-panel .danger {
   background: #4a2330;
   border-color: #6d3242;

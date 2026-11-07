@@ -621,14 +621,11 @@ const commitDate = __GIT_COMMIT_DATE__
         >
           🖨 Drucken / Als PDF (empfohlen)
         </button>
-        <button :disabled="busy" @click="downloadPdf">
-          {{ busy ? '… erzeuge PDF' : '⬇ PDF herunterladen (Bild)' }}
-        </button>
       </div>
       <p class="hint">
         <strong>Empfohlen:</strong> Browser-Druck → „Als PDF speichern“ liefert scharfen,
-        markierbaren Text inkl. QR-Codes (Tipp: im Dialog „Kopf- und Fußzeilen“ deaktivieren).
-        Der Download-Button erzeugt eine gerasterte Bild-PDF (unschärfer) - nur als Fallback.
+        markierbaren Text inkl. QR-Codes und Parcoursbildern (Tipp: im Dialog „Kopf- und
+        Fußzeilen“ deaktivieren).
         <br />
         Dateiname: <code>{{ namePreview }} - …Uhr</code>
       </p>
@@ -678,24 +675,34 @@ const commitDate = __GIT_COMMIT_DATE__
         Alle Fehlercodes, Strafen und Disqualifikationen des gewählten Regelwerks auf einem A4-Blatt.
       </p>
 
-      <h3 class="cp-subhead">Vektor-PDF-Wege zum Vergleich</h3>
-      <div class="btn-row">
-        <button :disabled="busyPm" title="Echtes Vektor-PDF via pdfmake (deklaratives Layout)" @click="downloadPdfmake">
-          {{ busyPm ? '… erzeuge PDF' : '⬇ Vektor-PDF (pdfmake)' }}
-        </button>
-        <button :disabled="busyJs" title="Echtes Vektor-PDF via jsPDF + autotable" @click="downloadJsPdf">
-          {{ busyJs ? '… erzeuge PDF' : '⬇ Vektor-PDF (jsPDF)' }}
-        </button>
-      </div>
-      <a class="alt-link" :href="pdfIslandUrl">
-        🧪 react-pdf-Insel öffnen (eigene Seite, Live-Vorschau + Ein-Klick-Download) →
-      </a>
-      <p class="hint">
-        Drei Vektor-Wege zum Vergleich: <strong>pdfmake</strong> und <strong>jsPDF</strong> laden
-        direkt herunter (vereinfachtes Layout, ohne Parcoursbild); die <strong>react-pdf-Insel</strong>
-        (<code>pdf.html</code>) hat Live-Vorschau und das eingebettete Parcoursbild. Alle nutzen die
-        aktuelle Zusammenstellung aus diesem Prototyp.
-      </p>
+      <details class="weitere-pdf">
+        <summary><h3 class="cp-subhead">Weitere PDF-Wege (zum Vergleich)</h3></summary>
+        <p class="hint">
+          <strong>Hinweis:</strong> Hier können die Parcoursbilder nicht oder nicht vollständig
+          angezeigt werden, weil diese Wege die Bilder in einem anderen Format brauchen. Für den
+          Wettkampf „Drucken / Als PDF“ oben nutzen.
+        </p>
+        <div class="btn-row" style="margin-top: 8px">
+          <button :disabled="busy" title="Gerasterte Bild-PDF (unschärfer)" @click="downloadPdf">
+            {{ busy ? '… erzeuge PDF' : '⬇ PDF herunterladen (Bild)' }}
+          </button>
+          <button :disabled="busyPm" title="Echtes Vektor-PDF via pdfmake (deklaratives Layout)" @click="downloadPdfmake">
+            {{ busyPm ? '… erzeuge PDF' : '⬇ Vektor-PDF (pdfmake)' }}
+          </button>
+          <button :disabled="busyJs" title="Echtes Vektor-PDF via jsPDF + autotable" @click="downloadJsPdf">
+            {{ busyJs ? '… erzeuge PDF' : '⬇ Vektor-PDF (jsPDF)' }}
+          </button>
+        </div>
+        <a class="alt-link" :href="pdfIslandUrl">
+          🧪 react-pdf-Insel öffnen (eigene Seite, Live-Vorschau + Ein-Klick-Download) →
+        </a>
+        <p class="hint">
+          Die Bild-PDF rastert die Vorschau. <strong>pdfmake</strong> und <strong>jsPDF</strong> laden
+          ein Vektor-PDF direkt herunter (vereinfachtes Layout); die <strong>react-pdf-Insel</strong>
+          (<code>pdf.html</code>) hat eine Live-Vorschau. Alle nutzen die aktuelle Zusammenstellung aus
+          diesem Prototyp.
+        </p>
+      </details>
     </section>
 
     <section>
