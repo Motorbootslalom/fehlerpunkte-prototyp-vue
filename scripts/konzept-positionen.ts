@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { load as yamlLoad } from 'js-yaml'
 import { feldKennungen } from '../src/config/feld.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
+import { aufbauIds } from '../src/config/zeitnahme.ts'
 import type { RawDisziplin, RawPosition, RawPositionen, RawSpalte } from '../src/config/schema.ts'
 import { deriveDimSet } from './generate-parcours.ts'
 
@@ -298,7 +299,7 @@ console.log(`\nErgebnislisten: ${fehlend.size === 0 ? 'jedes abgeleitete Feld ko
 const doppelt: string[] = []
 for (const a of raw.aufbauten ?? []) {
   if (a.eigeneStrecke) continue
-  const ids = [...new Set(a.positionen)]
+  const ids = [...new Set(aufbauIds(a.positionen))]
   for (const klasse of KLASSEN) {
     const anzahl = new Map<string, string[]>()
     for (const id of ids) for (const f of felderIst(positionVon(id), klasse)) anzahl.set(f, [...(anzahl.get(f) ?? []), id])

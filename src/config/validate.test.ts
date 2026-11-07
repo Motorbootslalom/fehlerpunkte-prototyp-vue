@@ -98,6 +98,16 @@ describe('Konfigurations-Validierung', () => {
       expect(codes(ohneMueb)).toContain('ERGEBNIS_LUECKE')
     })
 
+    it('meldet eine ungültige oder widersprüchliche Abwandlung im Aufbau', () => {
+      const dm26 = '      - { id: zeit, zeiten: [elektronisch] }\n'
+      expect(codes((t) => t.replace(dm26, '      - { id: zeit, zeiten: [sanduhr] }\n'))).toContain('BAD_AUFBAU_EINTRAG')
+      expect(codes((t) => t.replace(dm26, '      - { id: zeit, farbe: rot }\n'))).toContain('BAD_AUFBAU_EINTRAG')
+      // Ein zweiter Aufbau wandelt zeit-1 anders ab als Alcatraz-DM26.
+      const zweiter = (t: string) =>
+        t.replace('aufbauten:\n', 'aufbauten:\n  - { id: probe, name: Probe, positionen: [{ id: zeit, zeiten: [stoppuhr] }, steg] }\n')
+      expect(codes(zweiter)).toContain('ABWANDLUNG_KONFLIKT')
+    })
+
     it('meldet einen Aufbau mit unbekannter Disziplin', () => {
       expect(codes((t) => t.replace('disziplin: parallel', 'disziplin: gibtsnicht'))).toContain('UNKNOWN_DISZIPLIN')
     })

@@ -9,6 +9,9 @@ export type ClassId = 'E' | '1' | '2' | '3' | '4' | '5' | '6' | '7'
 /** Design einer Spalten-Trennlinie. */
 export type TrennerDesign = 'fett' | 'doppelt' | 'gepunktet' | 'gestrichelt'
 
+/** Gerät einer Zeitspalte: elektronische Zeiterfassung (Lichtschranke) oder Stoppuhr. */
+export type Geraet = 'elektronisch' | 'stoppuhr'
+
 export const CLASS_IDS: ClassId[] = ['E', '1', '2', '3', '4', '5', '6', '7']
 
 export type Lauf = 1 | 2 | 3
@@ -82,6 +85,8 @@ export interface Column {
    * Spalte klassenabhängig.
    */
   klassen?: string[]
+  /** Nur 'time': das Gerät. Fehlt = Stoppuhr. */
+  geraet?: Geraet
 }
 
 /** Ein benannter Fehlerblock in der Legende (z. B. Ablegen / Anlegen). */

@@ -1,8 +1,10 @@
 import { load as yamlLoad, YAMLException } from 'js-yaml'
 import { feldKennungen, spaltenKennung } from './feld.ts'
 import { findeKombi, kombiReihenfolge } from './kombi.ts'
+import { abwandlung, aufbauIds, eintragId, GERAETE, mitZeiten, nummerierung } from './zeitnahme.ts'
 import type {
   RawAufbau,
+  RawAufbauEintrag,
   RawBeschriftung,
   RawConfig,
   RawDirektpunkt,
@@ -133,7 +135,7 @@ export function ueberwachungsLuecken(raw: ConfigInput): UeberwachungsLuecke[] {
   const luecken = new Map<string, UeberwachungsLuecke>()
   for (const a of raw.aufbauten ?? []) {
     if (a?.eigeneStrecke || !a?.id) continue
-    const normal = a.positionen ?? []
+    const normal = aufbauIds(a.positionen)
     const kombi = findeKombi(normal, positionen)
     const varianten: Array<[string[], boolean]> = [[normal, false]]
     if (kombi?.ersetzt && kombi.id) varianten.push([kombiReihenfolge(normal, kombi.id, kombi.ersetzt), true])
@@ -168,6 +170,22 @@ export function ueberwachungsLuecken(raw: ConfigInput): UeberwachungsLuecke[] {
  * Liste von Befunden zurück (leer = alles gut). `error` sollte den Build/Commit
  * blocken, `warning` ist ein Hinweis.
  */
+function gueltigeZeiten(zeiten: unknown): boolean {
+  return Array.isArray(zeiten) && zeiten.length > 0 && zeiten.every((g) => GERAETE.includes(g))
+}
+
+/** Ein abgewandelter Eintrag im Aufbau: `{ id, titel?, zeiten? }`. */
+function gueltigerEintrag(e: unknown): e is RawAufbauEintrag {
+  if (!e || typeof e !== 'object') return false
+  const { id, titel, zeiten, ...rest } = e as Record<string, unknown>
+  return (
+    typeof id === 'string' &&
+    Object.keys(rest).length === 0 &&
+    (titel === undefined || typeof titel === 'string') &&
+    (zeiten === undefined || gueltigeZeiten(zeiten))
+  )
+}
+
 export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
   const issues: ConfigIssue[] = []
   const add = (severity: Severity, code: string, message: string, where: string) =>
@@ -273,6 +291,9 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
     if (pos.subTrenner && !VALID_TRENNER.has(pos.subTrenner))
       err('BAD_SUBTRENNER', `subTrenner "${pos.subTrenner}" in "${pos.id}" muss fett | doppelt | gepunktet | gestrichelt sein.`, where)
 
+    if (pos.zeiten !== undefined && !gueltigeZeiten(pos.zeiten))
+      err('BAD_ZEITEN', `zeiten in "${pos.id}" muss eine Liste aus ${GERAETE.join(' | ')} sein.`, where)
+
     // Bildgenerator: braucht ein Ziel (`bild`). Abblenden muss er nichts, den Rahmen der
     // Quelle entfernt er immer.
     if (pos.bildGenerator && !pos.bild)
@@ -329,6 +350,9 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
 
       if (sp.subTrenner && !VALID_TRENNER.has(sp.subTrenner))
         err('BAD_SUBTRENNER', `subTrenner "${sp.subTrenner}" (Spalte "${sp.key}") muss fett | doppelt | gepunktet | gestrichelt sein.`, sw)
+
+      if (sp.geraet !== undefined && (sp.typ !== 'zeit' || !GERAETE.includes(sp.geraet)))
+        err('BAD_GERAET', `geraet "${sp.geraet}" (Spalte "${sp.key}") gibt es nur bei typ: zeit, als ${GERAETE.join(' | ')}.`, sw)
     })
   })
 
@@ -355,9 +379,20 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
       if (pos?.titel && !texte[pos.titel]) fehlt(`Titel "${pos.titel}" (i18n/en.yaml)`, where)
       if (pos?.hinweis && hinweisIds.has(pos.hinweis) && !hinweisTexte[pos.hinweis])
         fehlt(`Hinweis "${pos.hinweis}" (i18n/en.yaml)`, where)
-      for (const sp of pos?.spalten ?? [])
+      const spalten = pos?.zeiten && gueltigeZeiten(pos.zeiten) ? mitZeiten(pos as RawPosition).spalten : (pos?.spalten ?? [])
+      for (const sp of spalten)
         if (sp?.label && !texte[sp.label]) fehlt(`Spaltenname "${sp.label}" (i18n/en.yaml)`, where)
     })
+    for (const a of aufbauten)
+      for (const e of a?.positionen ?? []) {
+        const pos = typeof e === 'object' && e && gueltigerEintrag(e) ? positionen.find((p) => p?.id === e.id) : undefined
+        if (!pos?.spalten || typeof e !== 'object') continue
+        const neu = abwandlung(pos as RawPosition, e)
+        const where = `Aufbau ${a?.id} (${e.id})`
+        if (!texte[neu.titel]) fehlt(`Titel "${neu.titel}" (i18n/en.yaml)`, where)
+        for (const sp of neu.spalten)
+          if (sp.label && !texte[sp.label]) fehlt(`Spaltenname "${sp.label}" (i18n/en.yaml)`, where)
+      }
     for (const b of beschriftungen)
       if (b?.id && !en?.bezeichnungen?.[b.id]) fehlt(`Bezeichnungs-Schema "${b.id}" (i18n/en.yaml)`, 'beschriftungen')
   }
@@ -378,10 +413,39 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
   aufbauten.forEach((a, i) => {
     const where = `aufbauten[${i}]${a?.id ? ` (id: ${a.id})` : ''}`
     if (!a?.id) err('MISSING_AUFBAU_ID', 'Aufbau ohne "id".', where)
-    for (const pid of a?.positionen ?? [])
+    for (const e of a?.positionen ?? []) {
+      if (typeof e !== 'string' && !gueltigerEintrag(e)) {
+        err(
+          'BAD_AUFBAU_EINTRAG',
+          `Aufbau "${a?.id}": Eintrag ${JSON.stringify(e)} braucht eine "id" und darf nur "titel" und "zeiten" (${GERAETE.join(' | ')}) abwandeln.`,
+          where,
+        )
+        continue
+      }
+      const pid = eintragId(e)
       if (!positionIds.has(pid))
         err('UNKNOWN_POSITION_REF', `Aufbau "${a?.id}" verweist auf unbekannte Position "${pid}".`, where)
+    }
   })
+
+  // Eine nummerierte ID (zeit-1 …) gilt in allen Aufbauten gleich. Wandeln zwei Aufbauten
+  // sie verschieden ab, gälte nur die erste.
+  const abwandlungen = new Map<string, { aufbau?: string; json: string }>()
+  for (const a of aufbauten) {
+    const eintraege = (a?.positionen ?? []).filter((e) => typeof e === 'string' || gueltigerEintrag(e))
+    for (const { nid, variante } of nummerierung(eintraege)) {
+      if (!nid) continue
+      const json = JSON.stringify(variante ?? null)
+      const bisher = abwandlungen.get(nid)
+      if (!bisher) abwandlungen.set(nid, { aufbau: a?.id, json })
+      else if (bisher.json !== json)
+        err(
+          'ABWANDLUNG_KONFLIKT',
+          `"${nid}" ist in den Aufbauten "${bisher.aufbau}" und "${a?.id}" verschieden abgewandelt. Es gälte nur die erste.`,
+          `aufbauten (id: ${a?.id})`,
+        )
+    }
+  }
 
   // ---- Ergebnislisten: Stehen alle Punkte einer Disziplin in ihren Spalten? --
   const disziplinen = raw.disziplinen ?? []
@@ -404,7 +468,7 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
         return
       }
       const inSpalten = new Set((d.ergebnisspalten ?? []).flatMap(felderVon))
-      for (const pid of a?.positionen ?? []) {
+      for (const pid of aufbauIds(a?.positionen)) {
         const pos = positionen.find((p) => p?.id === pid)
         if (!pos || pos.lauf === false) continue // Knoten stehen nur auf der Gesamtliste.
         for (const sp of pos.spalten ?? []) {
@@ -420,7 +484,7 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
   // ---- Verwaiste Positionen (in keinem Aufbau, nicht in der Schnellauswahl)
   // - nur Hinweis: sie wären nirgends wählbar.
   if (aufbauten.length > 0) {
-    const used = new Set(aufbauten.flatMap((a) => a?.positionen ?? []))
+    const used = new Set(aufbauten.flatMap((a) => aufbauIds(a?.positionen)))
     for (const p of positionen)
       if (p?.id && !used.has(p.id) && p.schnellauswahl !== true && !p.ersetzt?.length)
         warn(

@@ -1,8 +1,8 @@
 # Konzept: WKR-Positionen einfacher konfigurieren
 
-Stand: 07.11.2026. **Vorschlag zum Abstimmen, noch nicht umgesetzt.** Erledigt sind nur Korrekturen an
-den heutigen Aufbauten: Baden-Württemberg (§6, §5.1), Berlin Rechts (§5.1) und die Reihenfolge der
-Ergebnisliste (§4.3). Offene Fragen stehen in §11.
+Stand: 07.11.2026. **Abgestimmt, in Umsetzung.** Erledigt sind die Korrekturen an den heutigen
+Aufbauten, Baden-Württemberg (§6, §5.1), Berlin Rechts (§5.1) und die Reihenfolge der Ergebnisliste
+(§4.3), sowie die Zeitnahme (§4.5). Den Stand der Schritte zeigt §10.
 Die Prüfung aus §5.1 lässt sich jederzeit wiederholen: `node scripts/konzept-positionen.ts`. §5.2 spielt
 einen neuen Aufbau durch, den Möwe-Parcours in Oranienburg.
 
@@ -196,10 +196,16 @@ Lichtschranke, die Stoppuhren nur bei ihrem Ausfall. Auf den Blättern stand tro
 - **IDs bleiben:** Die Listen heißen weiter `zeit-1` … und die Spalten `zeit1` …. Links, QR-Codes und
   Eingaben von vorher funktionieren also weiter.
 - **Ergebnisliste:** Gibt es eine elektronische Zeit, gilt sie, sonst der Mittelwert der Stoppuhren.
-  Heute rechnet sie den Mittelwert aller eingetragenen Zeiten (Lastenheft §8f), bei der DM 2026 also die
-  Lichtschranke mit den Stoppuhren zusammen.
-- **Beispielwerte:** Die Wahl „Lichtschranke“ füllt die elektronische Spalte, ohne eine solche wie heute
-  die erste.
+  Vorher rechnete sie den Mittelwert aller eingetragenen Zeiten, bei der DM 2026 also die Lichtschranke
+  mit den Stoppuhren zusammen.
+- **Beispielwerte:** Die Wahl „Lichtschranke“ füllt die elektronische Spalte, ohne eine solche die erste.
+  „Stoppuhr“ füllt die Stoppuhr-Spalten.
+
+**Umgesetzt (07.11.2026)** ohne Kurzform: Eine Zeitspalte nennt ihr Gerät (`geraet`), eine Position kann
+`zeiten` haben, und ein Eintrag im Aufbau wandelt sie ab, etwa `{ id: zeit, zeiten: [elektronisch] }`.
+Abwandlungen sind immer nummeriert. Alcatraz-DM26 hat so „Elektronische Zeiterfassung“, „Stoppuhr (1)“
+und „Stoppuhr (2)“ mit je einer Spalte, weiter als `zeit-1` bis `zeit-3`. Die Kurzform übernimmt das
+später für `aufgaben: [zeit]`.
 
 ### 4.6 Einbau
 
@@ -478,8 +484,9 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 2. **Ergebnisliste in der Reihenfolge der Fahrt** (§4.3). Erledigt: MüB vor der Speedrunde, Beschriftung
    „MüB“ statt „SCH“. Ebenso erledigt: Berlin Rechts in dieser Reihenfolge, Wasser 1 und 2 um 180°
    gedreht (§5.1).
-3. **Zeitnahme** (§4.5): Geräte an den Zeitspalten, Titel nach Gerät, elektronische Zeit vor Stoppuhr.
-   Das geht auch ohne Kurzform und betrifft schon Alcatraz-DM26.
+3. **Zeitnahme** (§4.5). Erledigt: Geräte an den Zeitspalten (`geraet`), Titel nach Gerät, elektronische
+   Zeit vor Stoppuhr. Ohne Kurzform wandelt ein Eintrag im Aufbau die Position ab,
+   `{ id: zeit, zeiten: [elektronisch] }`; Alcatraz-DM26 nutzt das für seine drei Zeitlisten.
 4. **Kurzform:** `kurzform.ts` mit Fahrweg und Regeln für die Darstellung. Ein Test verlangt, dass die
    Ableitung die heutigen Listen 1:1 nachbildet; er ersetzt `scripts/konzept-positionen.ts`. Danach ziehen
    die Positionen nach und nach um. Schon das macht neue Aufbauten im Repo zu wenigen Zeilen.

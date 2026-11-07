@@ -66,8 +66,9 @@ Start wird ein Aufbau gewählt:
 
 - **Alcatraz** (Standard, WKR-Blick von **hinten**): Zeit · Vorsteg · Steg · Tore 1/3/5 ·
   Tore 2/4/5 · Tor 5 · Mann-über-Bord · Parcours.
-- **Alcatraz-DM26:** wie Alcatraz mit drei Zeit-Listen. Start und Ziel stehen nicht auf
-  den Tor-Listen, sondern auf der Parcoursliste.
+- **Alcatraz-DM26:** wie Alcatraz mit einer Zeit-Liste je Gerät: „Elektronische
+  Zeiterfassung“, „Stoppuhr (1)“ und „Stoppuhr (2)“, je mit einer Zeit-Spalte. Start und
+  Ziel stehen nicht auf den Tor-Listen, sondern auf der Parcoursliste.
 - **Frontal** (gleiche Bojen, Blick vom **Start/Ziel** = von vorne): Zeit · Steg ·
   Tore 1/3/5 · Tore 2/4/5 · Tor 5 · Mann-über-Bord · Parcours, Tor-Blätter gespiegelt;
   das Parcoursbild ist entsprechend gedreht.
@@ -401,8 +402,10 @@ Veranstaltungsname zählt nicht mit, sonst sähe nach einem Tippfehler jede List
 **Je Lauf zwei Listen**, eine nach Startnummer und eine nach Platz. Es erscheinen nur Läufe
 mit Eingaben.
 
-- **Zeit:** Mittelwert der eingetragenen Zeitnehmer (wie in der Auswertungs-Arbeitsmappe),
-  auf Hundertstel gerundet. Auch mehrere Zeit-Listen (Alcatraz-DM26) fließen ein.
+- **Zeit:** die der elektronischen Zeiterfassung, ohne sie der Mittelwert der Stoppuhren,
+  auf Hundertstel gerundet. So wurde bei der DM 2026 gewertet: die Lichtschranke, die
+  Stoppuhren nur bei ihrem Ausfall. Zeit-Spalten ohne Gerät zählen als Stoppuhr, auch über
+  mehrere Zeit-Listen.
 - **Punkte:** eine Sekunde = ein Punkt. **ges. Punkte** = Punkte + alle Strafpunkte.
 - **Disqualifiziert** ist, wer irgendwo einen Disq-Buchstaben hat, auch „Nicht gestartet“:
   `x` in der Spalte disq. und `disq.` statt ges. Punkte. Die 999,00 der Excel-Listen entfallen:
@@ -449,8 +452,8 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
 
 | | Zeiten je Start und Lauf | Eingabe |
 |---|---|---|
-| **Stoppuhr** | 2 bis 3, die Ergebnisliste rechnet den Mittelwert | `<minuten>,<sekunden><hundertstel>`, z. B. `1,2345` |
-| **Lichtschranke** | genau eine, in der ersten Zeit-Spalte | `<sekunden>,<hundertstel>`, z. B. `85,34` |
+| **Stoppuhr** | 2 bis 3 in den Stoppuhr-Spalten, die Ergebnisliste rechnet den Mittelwert | `<minuten>,<sekunden><hundertstel>`, z. B. `1,2345` |
+| **Lichtschranke** | genau eine, in der Spalte der elektronischen Zeiterfassung, ohne sie in der ersten Zeit-Spalte | `<sekunden>,<hundertstel>`, z. B. `85,34` |
 
 - **Grundlage** sind Kennzahlen je Klasse: die Quartile der Zeit und die Quoten für Bojen,
   Fehlercodes, Disqualifikationen und Knoten. Sie hängen vom gewählten Wettkampf ab:
@@ -568,6 +571,11 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   Wettkampf wird ein Aufbau gewählt; er enthält alle Listen. Gemeinsame Listen werden
   geteilt, nur die Tor-Positionen unterscheiden sich je Aufbau. Steht eine Position
   mehrfach in einem Aufbau (dreimal Zeit), wird sie durchnummeriert: „Zeit (1)“ usw.
+- **Zeitnahme:** Eine Zeit-Spalte nennt ihr Gerät (`geraet: elektronisch | stoppuhr`). Ein
+  Eintrag im Aufbau kann eine Position abwandeln, z. B. `{ id: zeit, zeiten: [elektronisch] }`:
+  je Gerät eine Zeit-Spalte, eine reine Zeit-Liste mit einem Gerät heißt nach ihm.
+  Abwandlungen sind immer nummeriert (zeit-1 …), und `config:check` meldet, wenn zwei
+  Aufbauten dieselbe Nummer verschieden abwandeln.
 - **Bild neben der Legende:** `bildNeben: true` setzt das querliegende Bild rechts neben
   Fehlerpunkte und Beschreibung, die Disqualifikationen stehen darunter über die ganze
   Breite. Das nutzen Berlin und die Tor-5-Parcours-Listen.

@@ -1,9 +1,10 @@
 import { CLASS_IDS } from '../types'
 import type { CellKind, Column, DisqDef, ErrorDef, ErrorGroup, SheetDef, Sprache, TrennerDesign } from '../types'
-import type { RawConfig, RawDisq, RawDisziplin, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
+import type { RawAufbauEintrag, RawConfig, RawDisq, RawDisziplin, RawKatalog, RawPosition, RawRegelwerk, RawSpalte } from './schema'
 import { feldKennungen } from './feld'
 import { findeKombi, kombiReihenfolge } from './kombi'
 import { bogenTexte, uebersetzt, uebersetztBlock, type BogenTexte } from './sprache'
+import { abwandlung, aufbauIds, mitZeiten, nummerierung } from './zeitnahme'
 
 /** Übersetzt einen Text in die Sprache der Konfiguration. */
 type Uebersetzer = (de: string, en?: string) => string
@@ -147,6 +148,7 @@ function toColumn(
     trenner: sp.trenner,
     subTrenner: sp.subTrenner,
     klassen: sp.klassen?.map((k) => String(k)),
+    geraet: sp.geraet,
   }
 }
 
@@ -254,7 +256,7 @@ export function buildConfig(
   const tokens = raw.bezeichnungen ?? {}
   const raeumlich = opts?.raeumlich ?? false
 
-  const positions: SheetDef[] = (raw.positionen ?? []).map((pos) => {
+  function sheetDef(pos: RawPosition): SheetDef {
     const disqTable = resolveDisq(pos, raw.disqualifikationen ?? [], t)
     // Spalten, die es im gewählten Regelwerk nicht gibt (z. B. einzelne Knoten).
     const ohne = raw.ohneSpalten?.[pos.id] ?? []
@@ -337,33 +339,44 @@ export function buildConfig(
       bildBreite: pos.bildBreite,
       bildNeben: pos.bildNeben,
     }
-  })
+  }
 
+  const rohPositionen = new Map((raw.positionen ?? []).map((p) => [p.id, p]))
+  const positions: SheetDef[] = (raw.positionen ?? []).map((pos) => sheetDef(mitZeiten(pos)))
   const known = new Set(positions.map((p) => p.typeId))
 
   // Steht eine Position mehrfach in einem Aufbau (z. B. dreimal Zeit für drei
-  // Zeitnahmen), wird jedes Vorkommen eine eigene, nummerierte Position -
-  // „Zeit (1)“, „Zeit (2)“ … mit eigener ID (zeit-1 …). So unterscheiden sich
-  // Kopf, QR-Code, Laufzettel und Schnellauswahl.
+  // Zeitnahmen) oder ist sie dort abgewandelt, wird jedes Vorkommen eine eigene,
+  // nummerierte Position mit eigener ID (zeit-1 …). So unterscheiden sich Kopf,
+  // QR-Code, Laufzettel und Schnellauswahl. Gleiche Titel werden durchgezählt:
+  // „Zeit (1)“, „Zeit (2)“ oder „Elektronische Zeiterfassung“, „Stoppuhr (1)“ ….
   const instanzen = new Map<string, SheetDef[]>() // Basis-ID → nummerierte Positionen
-  function nummeriert(ids: string[]): string[] {
-    const anzahl = new Map<string, number>()
-    for (const id of ids) anzahl.set(id, (anzahl.get(id) ?? 0) + 1)
-    const bisher = new Map<string, number>()
-    return ids.map((id) => {
-      if ((anzahl.get(id) ?? 0) < 2) return id
-      const n = (bisher.get(id) ?? 0) + 1
-      bisher.set(id, n)
-      const nid = `${id}-${n}`
+  function nummeriert(eintraege: Array<string | RawAufbauEintrag>): string[] {
+    const plan = nummerierung(eintraege).map((e) => ({
+      ...e,
+      basis: !e.nid
+        ? undefined
+        : e.variante
+          ? sheetDef(abwandlung(rohPositionen.get(e.id)!, e.variante))
+          : positions.find((p) => p.typeId === e.id)!,
+    }))
+    const titelAnzahl = new Map<string, number>()
+    for (const { basis } of plan) if (basis) titelAnzahl.set(basis.titelDe, (titelAnzahl.get(basis.titelDe) ?? 0) + 1)
+    const titelBisher = new Map<string, number>()
+    return plan.map(({ id, nid, n, basis }) => {
+      if (!nid || !n || !basis) return id
+      const k = (titelBisher.get(basis.titelDe) ?? 0) + 1
+      titelBisher.set(basis.titelDe, k)
+      const zusatz = (titelAnzahl.get(basis.titelDe) ?? 0) > 1 ? ` (${k})` : ''
       const liste = instanzen.get(id) ?? []
+      // Eine nummerierte ID gilt überall gleich; die Prüfung meldet abweichende Abwandlungen.
       if (!liste.some((d) => d.typeId === nid)) {
-        const basis = positions.find((p) => p.typeId === id)!
         liste.push({
           ...basis,
           typeId: nid,
-          title: `${basis.title} (${n})`,
-          titelDe: `${basis.titelDe} (${n})`,
-          menuLabel: `${basis.menuLabel} (${n})`,
+          title: `${basis.title}${zusatz}`,
+          titelDe: `${basis.titelDe}${zusatz}`,
+          menuLabel: `${basis.menuLabel}${zusatz}`,
           // Jede Zeitnahme erfasst eigene Werte; die erste entspricht der einfachen Liste.
           columns: basis.columns.map((c) => ({
             ...c,
@@ -384,14 +397,15 @@ export function buildConfig(
   const aufbauten: ResolvedAufbau[] =
     raw.aufbauten && raw.aufbauten.length > 0
       ? raw.aufbauten.map((a) => {
-          const order = nummeriert(a.positionen.filter((id) => known.has(id)))
-          const kombi = findeKombi(a.positionen, raw.positionen ?? [])
+          const ids = aufbauIds(a.positionen)
+          const order = nummeriert(a.positionen.filter((_, i) => known.has(ids[i])))
+          const kombi = findeKombi(ids, raw.positionen ?? [])
           return {
             id: a.id,
             name: a.name,
             disziplin: a.disziplin ?? standardDisziplin,
             order,
-            zusatz: schnell.filter((id) => !a.positionen.includes(id)),
+            zusatz: schnell.filter((id) => !ids.includes(id)),
             ...(kombi?.ersetzt
               ? { kombi: { positionId: kombi.id, ersetzt: kombi.ersetzt, order: kombiReihenfolge(order, kombi.id, kombi.ersetzt) } }
               : {}),

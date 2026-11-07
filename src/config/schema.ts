@@ -83,7 +83,7 @@ export interface RawRegelwerkListe {
   regelwerke?: string[]
 }
 
-import type { TrennerDesign } from '../types'
+import type { Geraet, TrennerDesign } from '../types'
 
 // 'trenner' ist keine echte Datenspalte, sondern ein Platzhalter-Eintrag, der
 // zwischen zwei Spalten eine Trennlinie erzeugt (linke Kante der Folgespalte).
@@ -139,6 +139,8 @@ export interface RawSpalte {
    * Ein Bogen gilt genau einer Klasse, daher kann die Spalte je Blatt entfallen.
    */
   klassen?: Array<string | number>
+  /** Nur 'zeit': elektronisch oder stoppuhr (Standard). Die elektronische Zeit geht in der Wertung vor. */
+  geraet?: Geraet
 }
 
 export interface RawPosition {
@@ -214,6 +216,11 @@ export interface RawPosition {
    * Spalte via `subTrenner` überschreibbar.
    */
   subTrenner?: TrennerDesign
+  /**
+   * Geräte der Zeitnahme auf dieser Liste, je Gerät eine Zeitspalte. Ersetzt die
+   * Spalten mit `typ: zeit` (siehe zeitnahme.ts).
+   */
+  zeiten?: Geraet[]
   spalten: RawSpalte[]
 }
 
@@ -236,12 +243,24 @@ export interface RawBeschriftung {
   raeumlich?: boolean
 }
 
+/**
+ * Eine Position im Aufbau, abgewandelt nur hier, z. B. eine Zeitliste mit nur der
+ * elektronischen Zeiterfassung: `{ id: zeit, zeiten: [elektronisch] }`. Abwandlungen
+ * sind immer nummeriert (zeit-1 …), damit sie die Position selbst nicht verdecken.
+ */
+export interface RawAufbauEintrag {
+  id: string
+  /** Fehlt bei einer reinen Zeitliste: aus dem Gerät, z. B. „Elektronische Zeiterfassung“. */
+  titel?: string
+  zeiten?: Geraet[]
+}
+
 /** Ein Aufbau (Setup) bündelt die bei einem Wettkampf genutzten Positionen. */
 export interface RawAufbau {
   id: string
   name: string
-  /** Positions-IDs in Reihenfolge (auch gemeinsame wie zeit, knoten …). */
-  positionen: string[]
+  /** Positionen in Reihenfolge (auch gemeinsame wie zeit, knoten …), als ID oder abgewandelt. */
+  positionen: Array<string | RawAufbauEintrag>
   /** Eigene Bojen (z. B. Parallelslalom): Der Überwachungs-Check gilt hier nicht. */
   eigeneStrecke?: boolean
   /** Disziplin mit eigenen Eingaben und Ergebnislisten. Fehlt: die erste aus `disziplinen`. */

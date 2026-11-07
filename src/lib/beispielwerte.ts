@@ -187,13 +187,19 @@ function laufzeit(grund: number, k: Kennzahlen, zufall: Zufall): number {
   return Math.round((grund + normal(zufall) * k.laufStreuung + patzer) * 100)
 }
 
-/** Erst die ersten Spalten aller Zeit-Listen („zeit1“, „zeit1~2“, „zeit2“ …). */
+/**
+ * Die Lichtschranke schreibt in die elektronische Spalte, die Stoppuhren in die übrigen. Fehlt
+ * die passende Spalte, nehmen sie die anderen. Erst die ersten Spalten aller Zeit-Listen
+ * („zeit1“, „zeit1~2“, „zeit2“ …).
+ */
 function zeitWerte(felder: Feld[], zeit: number, zeitnahme: Zeitnahme, zufall: Zufall): Record<string, string> {
   const sortiert = [...felder].sort((a, b) => (a.kennung < b.kennung ? -1 : 1))
-  if (zeitnahme === 'lichtschranke') return { [sortiert[0].kennung]: formatSeconds(zeit) }
+  const elektronisch = sortiert.filter((f) => f.geraet === 'elektronisch')
+  const stoppuhren = sortiert.filter((f) => f.geraet !== 'elektronisch')
+  if (zeitnahme === 'lichtschranke') return { [(elektronisch[0] ?? sortiert[0]).kennung]: formatSeconds(zeit) }
   const anzahl = zufall() < DRITTE_ZEIT ? 3 : 2
   return Object.fromEntries(
-    sortiert
+    (stoppuhren.length > 0 ? stoppuhren : sortiert)
       .slice(0, anzahl)
       .map((f) => [f.kennung, formatMinutenEingabe(zeit + Math.round(normal(zufall) * STOPPUHR_STREUUNG * 100))]),
   )
@@ -283,7 +289,7 @@ export function beispielEingaben(state: Stand, zeitnahme: Zeitnahme, zufall: Zuf
     const schluessel = `${klasse}/${nr}`
     const bekannt = grundzeiten.get(schluessel)
     if (bekannt !== undefined) return bekannt
-    const felder = felderJeKennung(klasse)
+    const felder = felderJeKennung(klasse, aufbauOrder(state.aufbau, state.tor5MitParcours))
     const bisher = LAEUFE.map((l) => laufSchluessel(disziplin, klasse, l))
       .filter((s) => !hatZeit(s))
       .flatMap((s) => mittlereZeit(state.eingaben[s]?.[nr] ?? {}, felder) ?? [])

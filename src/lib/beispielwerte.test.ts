@@ -70,15 +70,12 @@ describe('Zeiten', () => {
     for (const nr of nummern(20)) expect(Object.keys(danach[lauf1()][nr])).toEqual(['zeit1'])
   })
 
-  it('verteilt die Stoppuhr-Zeiten bei drei Zeit-Listen zuerst auf alle Listen', () => {
+  it('schreibt bei Alcatraz-DM26 die Stoppuhr-Zeiten auf die Stoppuhr-Listen, die Lichtschranke auf ihre', () => {
     const state = { ...stand(['zeit-1', 'zeit-2', 'zeit-3'].map((t) => bogen(t))), aufbau: 'alcatrazdm26' }
-    const zeilen = beispielEingaben(state, 'stoppuhr', zufallAus(5))[lauf1()]
-    for (const nr of nummern(20)) {
-      const kennungen = Object.keys(zeilen[nr])
-      expect(kennungen).toContain('zeit1')
-      expect(kennungen).toContain('zeit1~2')
-      expect(kennungen.every((k) => k.startsWith('zeit1'))).toBe(true)
-    }
+    const stoppuhr = beispielEingaben(state, 'stoppuhr', zufallAus(5))[lauf1()]
+    for (const nr of nummern(20)) expect(Object.keys(stoppuhr[nr]).sort()).toEqual(['zeit1~2', 'zeit1~3'])
+    const lichtschranke = beispielEingaben(state, 'lichtschranke', zufallAus(5))[lauf1()]
+    for (const nr of nummern(20)) expect(Object.keys(lichtschranke[nr])).toEqual(['zeit1'])
   })
 
   it('trifft die Zeiten der Klasse aus der DM 2026', () => {

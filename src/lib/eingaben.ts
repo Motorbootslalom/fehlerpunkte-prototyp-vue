@@ -1,5 +1,5 @@
 import { aufbauOrder, getAufbau, getAufbauten, getPositions, getSheetDef, positionAllowsClass } from '../config/active'
-import type { AppState, Bogen, CellKind, Eingaben, ErrorDef, SheetDef } from '../types'
+import type { AppState, Bogen, CellKind, Eingaben, ErrorDef, Geraet, SheetDef } from '../types'
 import { normalizeCodeCell } from './codes'
 import { allowedSet, sanitizeBuoy, sanitizeDisq } from './disq'
 import { NR_SPALTE, columnCellKeys, defFuerKlasse } from './scoring'
@@ -25,6 +25,8 @@ export interface Feld {
   kind: CellKind
   /** Fehler-Katalog der Spalte (nur `code`). */
   katalog?: ErrorDef[]
+  /** Gerät der Zeitspalte (nur `time`); fehlt = Stoppuhr. */
+  geraet?: Geraet
   /** Der noch gültige Teil des Werts, '' wenn nichts mehr gilt. */
   gueltig: (wert: string) => string
 }
@@ -93,6 +95,7 @@ function felderVon(typeId: string, klasse: string): ListenFelder {
       kennung: col.felder?.[i] ?? col.key,
       kind: col.kind,
       katalog,
+      geraet: col.geraet,
       gueltig,
     }))
   })

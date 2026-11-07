@@ -115,16 +115,22 @@ describe('Ergebnisliste eines Laufs', () => {
     expect(z.gesamt).toBe(8169 + 5500)
   })
 
-  it('mittelt die Zeiten der Zeitnehmer, auch über mehrere Zeit-Listen', () => {
+  it('mittelt die Stoppuhren einer Zeit-Liste', () => {
     const eineListe = eintragen(basis('401'), 1, '401', { zeit: { zeit1: '81,00', zeit2: '82,00', zeit3: '83,00' } })
     expect(ergebnis(eineListe).laeufe[0].nachNummer[0].zeit).toBe(8200)
+  })
 
-    const dreiListen = eintragen(reducer(basis('401'), { type: 'SET_AUFBAU', aufbau: 'alcatrazdm26' }), 1, '401', {
+  it('nimmt die elektronische Zeit, ohne sie den Mittelwert der Stoppuhren', () => {
+    const dm26 = reducer(basis('401'), { type: 'SET_AUFBAU', aufbau: 'alcatrazdm26' })
+    const alle = eintragen(dm26, 1, '401', {
       'zeit-1': { zeit1: '81,00' },
       'zeit-2': { zeit1: '82,00' },
       'zeit-3': { zeit1: '84,00' },
     })
-    expect(ergebnis(dreiListen).laeufe[0].nachNummer[0].zeit).toBe(8233)
+    expect(ergebnis(alle).laeufe[0].nachNummer[0].zeit).toBe(8100)
+
+    const ohneLichtschranke = eintragen(dm26, 1, '401', { 'zeit-2': { zeit1: '82,00' }, 'zeit-3': { zeit1: '84,00' } })
+    expect(ergebnis(ohneLichtschranke).laeufe[0].nachNummer[0].zeit).toBe(8300)
   })
 
   it('sortiert nach Startnummer und nach Platz', () => {

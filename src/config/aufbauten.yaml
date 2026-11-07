@@ -23,6 +23,10 @@ sprachen: [en]
 #
 # ---- AUFBAU-Parameter (je Eintrag unter `aufbauten:`) ----------------
 #   positionen   Listen des Aufbaus in Reihenfolge; mehrfach = nummeriert (Zeit (1) …).
+#                Ein Eintrag darf eine Position für diesen Aufbau abwandeln:
+#                `{ id: zeit, zeiten: [elektronisch], titel: … }`. Abwandlungen sind immer
+#                nummeriert (zeit-1 …); eine reine Zeitliste mit einem Gerät heißt nach ihm
+#                („Elektronische Zeiterfassung“, „Stoppuhr“), sofern `titel` fehlt.
 #   eigeneStrecke true = eigene Bojen, der Überwachungs-Check gilt nicht.
 #   disziplin    Verweis auf disziplinen.<id>; fehlt: die erste (Manövrieren). Aufbauten
 #                einer Disziplin teilen sich die Eingaben und die Ergebnislisten.
@@ -75,6 +79,8 @@ sprachen: [en]
 #   summeSpalte  key der Spalte (typ: summe), die die Zeilen-Σ zeigt.
 #   subTrenner   Standard-Design der Linien ZWISCHEN den sub-Spalten aller
 #                Spalten dieser Position (je Spalte via `subTrenner` überschreibbar).
+#   zeiten       [elektronisch, stoppuhr, …] = je Gerät eine Zeitspalte statt der Spalten
+#                mit `typ: zeit`. Mit mehreren Geräten heißt jede Spalte nach ihrem Gerät.
 #
 # ---- SPALTEN-Parameter (je Eintrag unter `spalten:`) ----------------
 #   key          Zell-Schlüssel, in der Position eindeutig. Pflicht (außer trenner).
@@ -103,6 +109,8 @@ sprachen: [en]
 #   trenner      Kurzform: hervorgehobene Linie am LINKEN Rand dieser Spalte.
 #   subTrenner   Design der Linien zwischen den sub-Spalten DIESER Spalte
 #                (überschreibt den Positions-Standard, z. B. Tor 5 "doppelt").
+#   geraet       Nur `typ: zeit`: elektronisch | stoppuhr (Standard). In der Ergebnisliste
+#                gilt die elektronische Zeit, ohne sie der Mittelwert der Stoppuhren.
 #
 # ---- Spalten-Typen (typ) --------------------------------------------
 #   boje  - Punkte direkt eintragen (5, 10, 15 …); ein Disq-Buchstabe markiert

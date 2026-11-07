@@ -9,8 +9,8 @@ import { formatSeconds, parseTime } from './time'
 
 // Ergebnislisten aus den Eingaben, nachgebaut nach den Auswertungs-Listen der DM 2026.
 //
-// Lauf: Die Zeit ist der Mittelwert der eingetragenen Zeitnehmer, eine Sekunde zählt einen
-// Punkt, dazu die Strafpunkte. Disqualifiziert steht ein Starter ohne Punkte hinter allen
+// Lauf: Die Zeit ist die der elektronischen Zeiterfassung, ohne sie der Mittelwert der
+// Stoppuhren. Eine Sekunde zählt einen Punkt, dazu die Strafpunkte. Disqualifiziert steht ein Starter ohne Punkte hinter allen
 // anderen; die 999,00 der Excel-Listen sollten dort nur die Sortierung erzwingen. Gleiche Punkte
 // teilen sich den Platz.
 //
@@ -149,13 +149,19 @@ function bewerte(werte: Werte, kennungen: Iterable<string>, felder: Map<string, 
   return { punkte, disqs, codes }
 }
 
-/** Die Zeit eines Laufs: Mittelwert der eingetragenen Zeitnehmer, auf Hundertstel gerundet. */
+/**
+ * Die Zeit eines Laufs, auf Hundertstel gerundet: die elektronische Zeiterfassung, ohne sie der
+ * Mittelwert der Stoppuhren. Zeitspalten ohne Gerät zählen als Stoppuhr.
+ */
 export function mittlereZeit(werte: Werte, felder: Map<string, Feld>): number | null {
   const zeiten = Object.entries(werte).flatMap(([kennung, wert]) => {
-    const zeit = felder.get(kennung)?.kind === 'time' ? parseTime(wert) : null
-    return zeit ? [zeit.centis] : []
+    const feld = felder.get(kennung)
+    const zeit = feld?.kind === 'time' ? parseTime(wert) : null
+    return zeit ? [{ centis: zeit.centis, elektronisch: feld?.geraet === 'elektronisch' }] : []
   })
-  return zeiten.length > 0 ? Math.round(zeiten.reduce((a, b) => a + b, 0) / zeiten.length) : null
+  const elektronisch = zeiten.filter((z) => z.elektronisch)
+  const gewertet = elektronisch.length > 0 ? elektronisch : zeiten
+  return gewertet.length > 0 ? Math.round(gewertet.reduce((a, z) => a + z.centis, 0) / gewertet.length) : null
 }
 
 /** „J“ oder „5, J“: die Punkte einer Zelle, dahinter ihre Buchstaben. */

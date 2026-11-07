@@ -10,7 +10,19 @@ aufbauten:
     positionen: [zeit, vorsteg, steg, gate135, gate245, tor5, mueb, parcours]
   - id: alcatrazdm26
     name: Alcatraz-DM26
-    positionen: [zeit, zeit, zeit, vorsteg, steg, gate135os, gate245os, tor5, mueb, parcoursms]
+    # Je Gerät eine Zeitliste: Gewertet wird die elektronische Zeit, die Stoppuhren nur
+    # bei ihrem Ausfall. Die Listen heißen weiter zeit-1 bis zeit-3.
+    positionen:
+      - { id: zeit, zeiten: [elektronisch] }
+      - { id: zeit, zeiten: [stoppuhr] }
+      - { id: zeit, zeiten: [stoppuhr] }
+      - vorsteg
+      - steg
+      - gate135os
+      - gate245os
+      - tor5
+      - mueb
+      - parcoursms
 
 positionen:
   # === Aufbau ALCATRAZ: Tor-Positionen (Bild um 90° gedreht) ===
