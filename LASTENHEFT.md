@@ -347,7 +347,8 @@ Ein Aufbau muss nicht im Repo stehen (KONZEPT-POSITIONEN.md §8):
   Bögen (Konzept §7). Name, Vorlage (ein vorhandener Aufbau oder leer), Kursvariante, Vorsteg,
   Steg und Knoten; je Position eine Spalte mit Name, Blick, Zeitnahme und „Bild klein“. Ein Klick
   in die Tabelle legt fest, welche Boje oder Aufgabe die Position beobachtet, ▸ klappt ein Tor in
-  seine beiden Bojen auf. Rot markiert, was keine Liste beobachtet, gelb, was auf mehreren steht.
+  seine beiden Bojen auf. Eine Grafik erklärt die Blickrichtungen (von vorne, hinten, rechts, links
+  mit der jeweiligen Bilddrehung). Rot markiert, was keine Liste beobachtet, gelb, was auf mehreren steht.
   Die Bögen darunter zeigen den Entwurf live für eine wählbare Klasse; gespeichert wird erst mit
   „Speichern“, „Abbrechen“ stellt den Stand davor wieder her. Die ID entsteht beim ersten
   Speichern aus dem Namen und einem kurzen Zufallsteil und bleibt danach gleich.

@@ -27,6 +27,7 @@ import {
   type Zeile,
 } from '../lib/assistent'
 import { konfigStand } from '../state/konfig'
+import BlickErklaerung from './BlickErklaerung.vue'
 import { useStore } from '../state/store'
 import type { ClassId } from '../types'
 
@@ -213,6 +214,18 @@ function abbrechen() {
         Je Position eine Spalte. Ein Klick in die Tabelle legt fest, welche Boje oder Aufgabe sie
         beobachtet; ▸ klappt ein Tor in seine beiden Bojen auf. Die Bögen unten zeigen den Entwurf.
       </p>
+      <details class="assistent-blick" open>
+        <summary>Was bedeuten die Blickrichtungen?</summary>
+        <div class="assistent-blick-inhalt">
+          <BlickErklaerung />
+          <p>
+            Gemeint ist, von wo die Person überwiegend auf den Kurs schaut. Danach richten sich die
+            Reihenfolge der Bojen auf der Liste und die Drehung des Bildes, damit die Liste zum
+            eigenen Blick passt. Listen ohne Bojen, etwa die Zeitliste oder die Parcoursüberwachung,
+            brauchen keinen Blick.
+          </p>
+        </div>
+      </details>
     </header>
 
     <div class="assistent-felder">

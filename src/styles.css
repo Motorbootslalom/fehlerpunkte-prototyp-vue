@@ -1786,6 +1786,73 @@ body {
   font-weight: 700;
 }
 
+.assistent-blick {
+  margin: 0 0 12px;
+}
+
+.assistent-blick summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+}
+
+.assistent-blick-inhalt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.assistent-blick-inhalt p {
+  flex: 1 1 260px;
+  margin: 0;
+  color: #555;
+  max-width: 420px;
+}
+
+.blick-erklaerung {
+  width: 660px;
+  max-width: 100%;
+  color: var(--accent);
+}
+
+.blick-erklaerung .blick-wasser {
+  fill: #eef4fb;
+}
+
+.blick-erklaerung .blick-pfeil line,
+.blick-erklaerung .blick-hinfahrt {
+  stroke: currentColor;
+  stroke-width: 6;
+}
+
+.blick-erklaerung .blick-hinfahrt {
+  stroke: #888;
+  stroke-width: 3;
+  stroke-dasharray: 10 8;
+  color: #888;
+}
+
+.blick-erklaerung text {
+  font-family: inherit;
+  fill: #222;
+}
+
+.blick-erklaerung .blick-titel {
+  font-size: 26px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.blick-erklaerung .blick-klein {
+  font-size: 21px;
+}
+
+.blick-erklaerung .blick-grau {
+  fill: #777;
+}
+
 @media print {
   @page {
     size: A4 portrait;
