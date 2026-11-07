@@ -11,6 +11,7 @@ import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } f
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml'
+import { aufloesen } from '../src/config/kurzform.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -32,7 +33,8 @@ for (const name of KOPIEN) {
 }
 
 const dateien = quellDateien(quelle('aufbauten.yaml'))
-const positionen = mergePositionen(dateien.map((name) => yamlLoad(quelle(`${name}.yaml`))))
+// Positionen in Kurzform werden ausgeschrieben: Die App und der Bildgenerator lesen die ausführliche Form.
+const positionen = aufloesen(mergePositionen(dateien.map((name) => yamlLoad(quelle(`${name}.yaml`)))))
 writeFileSync(
   resolve(root, 'public/config', ERZEUGT),
   '# Generiert von scripts/sync-config.ts aus src/config - nicht von Hand ändern.\n' +

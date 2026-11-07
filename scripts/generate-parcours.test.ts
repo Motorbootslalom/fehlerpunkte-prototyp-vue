@@ -12,12 +12,13 @@ import {
   RAHMEN_ID,
   ZIFFERN_IDS,
 } from './generate-parcours.ts'
+import { aufloesen } from '../src/config/kurzform.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
 /** Die Positionen aus allen Quelldateien unter src/config. */
 function allePositionen() {
   const dateien = quellDateien(readFileSync('src/config/aufbauten.yaml', 'utf8'))
-  return mergePositionen(dateien.map((n) => yamlLoad(readFileSync(`src/config/${n}.yaml`, 'utf8')))).positionen
+  return aufloesen(mergePositionen(dateien.map((n) => yamlLoad(readFileSync(`src/config/${n}.yaml`, 'utf8'))))).positionen
 }
 
 describe('deriveDimSet', () => {

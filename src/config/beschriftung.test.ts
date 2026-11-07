@@ -23,7 +23,8 @@ describe('Bezeichnungs-Schemata (live umschaltbar)', () => {
     expect(colSub('blinks', 't2a')).toEqual(['H I', 'H A'])
     expect(colSub('blinks', 't4b')).toEqual(['R I', 'R A'])
     // Tor 5 und Start/Ziel bleiben bei R/L.
-    expect(colSub('blinks', 't5')).toEqual(['H R', 'H L', 'R R', 'R L'])
+    expect(colSub('blinks', 't5a')).toEqual(['H R', 'H L'])
+    expect(colSub('blinks', 't5b')).toEqual(['R R', 'R L'])
     expect(colSub('bstartziel', 'start')).toEqual(['H R', 'H L'])
   })
 

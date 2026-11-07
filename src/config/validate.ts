@@ -2,6 +2,7 @@ import { load as yamlLoad, YAMLException } from 'js-yaml'
 import { feldKennungen, spaltenKennung } from './feld.ts'
 import { findeKombi, kombiReihenfolge } from './kombi.ts'
 import { abwandlung, aufbauIds, eintragId, GERAETE, mitZeiten, nummerierung } from './zeitnahme.ts'
+import { AUFGABEN, aufloesen, BLICKE, BOJEN_IDS, istKurzform } from './kurzform.ts'
 import type {
   RawAufbau,
   RawAufbauEintrag,
@@ -15,7 +16,7 @@ import type {
   RawKatalog,
   RawLegendeHinweis,
   RawPosition,
-  RawPositionen,
+  RawQuelle,
   RawRegelwerk,
   RawRegelwerkListe,
   RawSpalte,
@@ -170,6 +171,29 @@ export function ueberwachungsLuecken(raw: ConfigInput): UeberwachungsLuecke[] {
  * Liste von Befunden zurück (leer = alles gut). `error` sollte den Build/Commit
  * blocken, `warning` ist ein Hinweis.
  */
+/** Positionen in Kurzform: Blick, Bojen und Aufgaben müssen zum festen Wortschatz gehören. */
+export function kurzformBefunde(quelle: RawQuelle): ConfigIssue[] {
+  const issues: ConfigIssue[] = []
+  ;(quelle?.positionen ?? []).forEach((pos, i) => {
+    if (!pos || typeof pos !== 'object' || !istKurzform(pos)) return
+    const where = `positionen[${i}]${pos.id ? ` (id: ${pos.id})` : ''}`
+    const err = (code: string, message: string) => issues.push({ severity: 'error', code, message, where })
+    if (pos.blick !== undefined && !BLICKE.includes(pos.blick))
+      err('KURZFORM_BLICK', `Blick "${pos.blick}" in "${pos.id}" muss ${BLICKE.join(' | ')} sein.`)
+    if (pos.bojen !== undefined && !Array.isArray(pos.bojen)) err('KURZFORM_BOJEN', `bojen in "${pos.id}" muss eine Liste sein.`)
+    for (const b of Array.isArray(pos.bojen) ? pos.bojen : [])
+      if (!BOJEN_IDS.includes(b)) err('KURZFORM_BOJE', `Unbekannte Boje "${b}" in "${pos.id}" (erlaubt: ${BOJEN_IDS.join(', ')}).`)
+    if (pos.aufgaben !== undefined && !Array.isArray(pos.aufgaben)) err('KURZFORM_AUFGABEN', `aufgaben in "${pos.id}" muss eine Liste sein.`)
+    for (const a of Array.isArray(pos.aufgaben) ? pos.aufgaben : [])
+      if (!AUFGABEN.includes(a)) err('KURZFORM_AUFGABE', `Unbekannte Aufgabe "${a}" in "${pos.id}" (erlaubt: ${AUFGABEN.join(', ')}).`)
+    if (!pos.bojen?.length && !pos.aufgaben?.length)
+      err('KURZFORM_LEER', `Position "${pos.id}" hat weder "spalten" noch "bojen" oder "aufgaben".`)
+    if (pos.zeiten !== undefined && !pos.aufgaben?.includes('zeit'))
+      err('KURZFORM_ZEITEN', `Position "${pos.id}" nennt "zeiten", aber nicht die Aufgabe "zeit".`)
+  })
+  return issues
+}
+
 function gueltigeZeiten(zeiten: unknown): boolean {
   return Array.isArray(zeiten) && zeiten.length > 0 && zeiten.every((g) => GERAETE.includes(g))
 }
@@ -538,6 +562,7 @@ export function validateConfigTexts(texte: ConfigTexts): ConfigIssue[] {
   const positionen = parseYaml(texte.positionen, 'positionen.yaml')
   const issues = [...liste.issues, ...positionen.issues]
   if (liste.data === null || positionen.data === null) return issues
+  issues.push(...kurzformBefunde(positionen.data as RawQuelle))
 
   const ids = (liste.data as RawRegelwerkListe).regelwerke ?? []
   if (ids.length === 0)
@@ -564,7 +589,7 @@ export function validateConfigTexts(texte: ConfigTexts): ConfigIssue[] {
       issues.push({ severity: 'error', code: 'BAD_REGELWERK_ID', message: `id "${rw.id}" passt nicht zum Dateinamen "${id}".`, where: file })
     if (!rw.name || rw.version === undefined)
       issues.push({ severity: 'error', code: 'MISSING_REGELWERK_NAME', message: 'Regelwerk ohne "name" oder "version".', where: file })
-    const raw: RawConfig = { ...rw, ...(positionen.data as RawPositionen) }
+    const raw: RawConfig = { ...rw, ...aufloesen(positionen.data as RawQuelle) }
     for (const issue of validateRawConfig(raw)) {
       const schluessel = `${issue.code}|${issue.where}|${issue.message}`
       if (gesehen.has(schluessel)) continue

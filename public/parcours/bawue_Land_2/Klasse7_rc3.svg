@@ -202,14 +202,14 @@
              rx="11.141887"
              ry="11.141891" /></g></g><g
          transform="translate(-40.520309,61.513771)"
-         id="StartZiel"
+         id="StartZiel" opacity="0.2"
          style="display:inline"><path
            style="fill:#ffff00;stroke:#000000;stroke-width:1.05575"
            d="m 309.39338,536.69343 c 0,-3.88326 -3.14878,-7.0317 -7.03118,-7.0317 -3.88134,0 -7.03118,3.14844 -7.03118,7.0317 0,3.88327 3.14984,7.03066 7.03118,7.03066 3.8824,0 7.03118,-3.14739 7.03118,-7.03066 z"
-           id="StartZiel_oben" opacity="0.2" /><path
+           id="StartZiel_oben" /><path
            style="fill:#ffff00;stroke:#000000;stroke-width:1.05575"
            d="m 309.39338,597.16588 c 0,-3.88329 -3.14879,-7.0317 -7.03118,-7.0317 -3.88134,0 -7.03118,3.14841 -7.03118,7.0317 0,3.88327 3.14984,7.03065 7.03118,7.03065 3.88239,0 7.03118,-3.14738 7.03118,-7.03065 z"
-           id="StartZiel_unten" opacity="0.2" /></g></g></g><g
+           id="StartZiel_unten" /></g></g></g><g
      transform="translate(-215.4445,-435.39547)"
      style="display:inline"
      id="ParcoursLabel"><defs

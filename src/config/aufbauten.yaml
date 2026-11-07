@@ -42,6 +42,22 @@ sprachen: [en]
 #                Feld-Kennung: <key>|<sub> bei Bojen („t1a|hin seiteA“), katalog:<id> bei
 #                Fehlern, sonst <key>. Jedes Bojen- und Fehlerfeld muss vorkommen (Check).
 #
+# ---- KURZFORM (KONZEPT-POSITIONEN.md §4, src/config/kurzform.ts) ------
+# Eine Position ohne `spalten` ist eine Kurzform: Sie nennt nur, was sie beobachtet und von
+# wo aus. Spalten, Unter-Spalten, Trennlinien, Abblendung im Bild, Drehung, gespiegelte Pfeile,
+# Disqualifikationen, Katalog, Hinweis und Zusatzspalten (Disq., Σ, Bemerkung) folgen aus dem
+# Fahrweg. Jeder Positions-Parameter darf zusätzlich stehen und gewinnt dann.
+#   blick        hinten | vorne | rechts | links: von wo die Person überwiegend schaut.
+#                Bild: hinten 90°, vorne -90°, rechts 0°, links 180°. Von vorne liegt die
+#                obere Boje links und Tor 5 zeigt zuerst die Rückfahrt.
+#   bojen        IDs aus dem Parcoursbild: ganze Tore (StartZiel, Tor1 … Tor5) oder
+#                Einzelbojen (Tor1_innen, Tor2_aussen, Tor5_oben, StartZiel_unten …) und
+#                Speedboje_oben (Speed 1), Speedboje_unten (Speed 2).
+#   aufgaben     zeit | tor5 (Fehler Tor 5) | mueb (Mann-über-Bord) | parcours (Fahrweg).
+#   zeiten       Geräte der Aufgabe zeit, siehe unten.
+#   bild         Ordner der erzeugten Bilder (Standard: die id).
+#   hinweis      keiner = ohne den Hinweis, den die Kurzform sonst setzt.
+#
 # ---- POSITIONS-Parameter (je Eintrag unter `positionen:`) -----------
 #   id           Eindeutige Kennung (von den Aufbauten referenziert). Pflicht.
 #   titel        Kurzname im Kopf (links). Pflicht.

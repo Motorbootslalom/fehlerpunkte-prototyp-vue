@@ -571,6 +571,13 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   Wettkampf wird ein Aufbau gewählt; er enthält alle Listen. Gemeinsame Listen werden
   geteilt, nur die Tor-Positionen unterscheiden sich je Aufbau. Steht eine Position
   mehrfach in einem Aufbau (dreimal Zeit), wird sie durchnummeriert: „Zeit (1)“ usw.
+- **Kurzform:** Eine Position ohne `spalten` nennt nur `blick`, `bojen` und `aufgaben`
+  (KONZEPT-POSITIONEN.md §4). `src/config/kurzform.ts` leitet Spalten, Trennlinien,
+  Abblendung, Drehung, Disqualifikationen und Katalog aus dem Fahrweg ab, der dort einmal
+  steht; jedes Feld der ausführlichen Form gewinnt gegen die Regel. `config:sync` schreibt die
+  ausführliche Form nach `public/config/positionen.yaml`. Alle Tor-, Tor-5-, MüB- und
+  Parcours-Listen stehen so in den Quelldateien; ein Test hält fest, dass sie dieselben Felder
+  und Bilder ergeben wie vorher die handgeschriebenen.
 - **Zeitnahme:** Eine Zeit-Spalte nennt ihr Gerät (`geraet: elektronisch | stoppuhr`). Ein
   Eintrag im Aufbau kann eine Position abwandeln, z. B. `{ id: zeit, zeiten: [elektronisch] }`:
   je Gerät eine Zeit-Spalte, eine reine Zeit-Liste mit einem Gerät heißt nach ihm.

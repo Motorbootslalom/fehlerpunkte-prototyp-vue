@@ -9,7 +9,8 @@ import {
   type ResolvedAufbau,
   type ResolvedConfig,
 } from './build'
-import type { RawConfig, RawDisziplin, RawPositionen, RawRegelwerk, RawRegelwerkListe } from './schema'
+import type { RawConfig, RawDisziplin, RawPositionen, RawQuelle, RawRegelwerk, RawRegelwerkListe } from './schema'
+import { aufloesen } from './kurzform'
 import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
 // Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
@@ -54,11 +55,11 @@ function neuBauen(): ResolvedConfig {
  * Parst die YAML-Texte und baut die Konfiguration. Das erste Regelwerk ist der
  * Standard; die Auswahl beginnt wieder bei den Standardwerten.
  */
-export function mergeAndBuild(regelwerkTexte: string | string[], positionen: string | RawPositionen): ResolvedConfig {
+export function mergeAndBuild(regelwerkTexte: string | string[], positionen: string | RawQuelle): ResolvedConfig {
   const texte = Array.isArray(regelwerkTexte) ? regelwerkTexte : [regelwerkTexte]
   rawRegelwerke = texte.map((t) => (yamlLoad(t) as RawRegelwerk) ?? {})
   rawPositionen =
-    typeof positionen === 'string' ? ((yamlLoad(positionen) as RawPositionen) ?? { positionen: [] }) : positionen
+    aufloesen(typeof positionen === 'string' ? ((yamlLoad(positionen) as RawQuelle) ?? { positionen: [] }) : positionen)
   auswahl = {}
   return neuBauen()
 }

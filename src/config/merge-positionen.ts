@@ -1,5 +1,5 @@
 import { load as yamlLoad } from 'js-yaml'
-import type { RawPositionen } from './schema'
+import type { RawQuelle } from './schema'
 
 // Die Konfiguration der Positionen liegt unter src/config auf mehrere Dateien
 // verteilt. Dieses Modul führt sie zusammen: für den Build (scripts/sync-config.ts,
@@ -17,8 +17,11 @@ export function quellDateien(aufbautenText: string): string[] {
   ]
 }
 
-/** Listen werden aneinandergehängt, benannte Einträge zusammengelegt. */
-export function mergePositionen(teile: unknown[]): RawPositionen {
+/**
+ * Listen werden aneinandergehängt, benannte Einträge zusammengelegt. Positionen in
+ * Kurzform bleiben, wie sie sind; aufloesen() in kurzform.ts schreibt sie aus.
+ */
+export function mergePositionen(teile: unknown[]): RawQuelle {
   const out: Record<string, unknown> = { positionen: [] }
   for (const teil of teile) {
     for (const [key, wert] of Object.entries((teil ?? {}) as Record<string, unknown>)) {
@@ -28,5 +31,5 @@ export function mergePositionen(teile: unknown[]): RawPositionen {
       else out[key] = wert
     }
   }
-  return out as unknown as RawPositionen
+  return out as unknown as RawQuelle
 }

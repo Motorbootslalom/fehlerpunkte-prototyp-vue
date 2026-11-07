@@ -83,8 +83,8 @@ describe('Aufbau-Wechsel', () => {
     const next = wechsel(start, 'berlin')
     expect(zellen(next, 'bstartziel')).toEqual({ '12:start#0': '5', '12:start#1': '20' })
     expect(zellen(next, 'brechts')).toEqual({ '12:t1a#0': '10', '12:disq': 'G' })
-    expect(zellen(next, 'blinks')).toEqual({ '12:t5#2': '15', '12:fehler': '1' })
-    expect(zellen(next, 'brechts', '4')).toEqual({ '12:mueb': '13' })
+    expect(zellen(next, 'blinks')).toEqual({ '12:t5b#0': '15', '12:fehler': '1' })
+    expect(zellen(next, 'brechts', '4')).toEqual({ '12:fehler': '13' })
     // Ohne entsprechende Liste bleibt die Bemerkung gespeichert und kommt beim Zurückwechseln wieder.
     expect(zellen(wechsel(next, 'alcatraz'), 'parcours')).toEqual({ '12:bemerkung': 'nur dort' })
     expect(zellen(wechsel(next, 'alcatraz'), 'gate135')).toEqual(zellen(start, 'gate135'))

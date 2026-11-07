@@ -78,19 +78,11 @@ positionen:
       - { key: disq, label: "Disq.", typ: disq }
       - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
 
+  # Tor 5, Mann-über-Bord und Parcours in Kurzform (KONZEPT-POSITIONEN.md §4).
   - id: tor5
     titel: "Tor 5"
     menue: "Tor 5 (Einfahrt)"
-    ausrichtung: hoch
-    summeSpalte: sum
-    disq: parcours
-    katalog: tor5
-    spalten:
-      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
-      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+    aufgaben: [tor5]
 
   # Option „Tor 5 übernimmt die Parcoursüberwachung“: Eine Person macht beides, die
   # extra Parcoursliste entfällt. `ersetzt` legt fest, in welchen Aufbauten das geht.
@@ -98,20 +90,9 @@ positionen:
     titel: "Tor 5 + Parcours"
     menue: "Tor 5 (Einfahrt + Parcoursüberwachung)"
     ersetzt: [tor5, parcours]
-    ausrichtung: hoch
-    bild: alcatraz_Parcours_klein
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt, das kleine Bild ohne Ziffern
+    aufgaben: [tor5, parcours]
+    bild: alcatraz_Parcours_klein   # das kleine Bild ohne Ziffern
     bildNeben: true
-    summeSpalte: sum
-    disq: parcours
-    hinweis: parcours
-    katalog: tor5
-    spalten:
-      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
-      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
 
   # Dasselbe für Aufbauten, deren Tor-Listen kein Start/Ziel haben (Alcatraz-DM26):
   # Dort steckt es in der Parcoursliste und muss hier erhalten bleiben.
@@ -119,72 +100,32 @@ positionen:
     titel: "Tor 5 + Parcours"
     menue: "Tor 5 (Einfahrt + Parcoursüberwachung mit Start und Ziel)"
     ersetzt: [tor5, parcoursms]
-    ausrichtung: hoch
+    bojen: [StartZiel]
+    aufgaben: [tor5, parcours]
     bild: alcatraz_Parcours_klein
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt, das kleine Bild ohne Ziffern
     bildNeben: true
-    summeSpalte: sum
-    disq: parcours
-    hinweis: parcours
-    katalog: tor5
-    spalten:
-      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
-      - { key: fp, label: "F-Pkt.", typ: summe, einzeln: true }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 2 }
 
+  # Mann-über-Bord gibt es ab Klasse 4; das folgt aus dem Fahrweg.
   - id: mueb
     titel: "Mann-über-Bord"
     menue: "Mann-über-Bord / Schikane"
-    ausrichtung: hoch
-    bild: mueb
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt
-    # Beobachtet wird nur die Schikane (MüB): alle Tore, Start/Ziel, die Speedbojen
-    # und die übrigen Nummern werden abgeblendet. Sichtbar bleiben der Fahrweg, die
-    # Zeitnahme (zur Orientierung) und die „6“ der Schikane.
-    abblenden: [Tor1, Tor2, Tor3, Tor4, Tor5, StartZiel, Speedboje_unten, Speedboje_oben]
-    bildDrehung: 90
-    bildBreite: 50         # die lange MüB-Legende gibt den Platz ohnehin her
-    klassen: [4, 5, 6, 7]   # Mann-über-Bord erst ab Klasse 4
-    summeSpalte: sum
-    disq: mueb
-    katalog: mueb
-    spalten:
-      - { key: fehler, label: "Fehler", typ: code, punkteSpalte: fp, breite: 1 }
-      - { key: fp, label: "Fehlerpunkte", typ: summe, einzeln: true }
-      - { key: sum, label: "Σ", typ: summe }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 3 }
+    blick: hinten
+    aufgaben: [mueb]
+    bildBreite: 50   # die lange MüB-Legende gibt den Platz ohnehin her
 
   - id: parcours
     titel: "Parcours"
     menue: "Parcours einfach (nur Fahrweg)"
-    ausrichtung: hoch
-    bild: alcatraz_Parcours_gross
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt: das ganze Bild, nur ohne den Rahmen der Quelle
-    disq: parcours
-    hinweis: parcours
-    spalten:
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
-      - { key: disq, label: "Disq.", typ: disq }
+    aufgaben: [parcours]
+    bild: alcatraz_Parcours_gross   # das ganze Bild, nur ohne den Rahmen der Quelle
 
   - id: parcoursms
     titel: "Parcours"
     menue: "Parcours einfach mit Start und Ziel"
-    schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
-    ausrichtung: hoch
+    schnellauswahl: true
+    bojen: [StartZiel]
+    aufgaben: [parcours]
     bild: alcatraz_Parcours_gross
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt: das ganze Bild, nur ohne den Rahmen der Quelle
-    disq: parcours
-    hinweis: parcours
-    spalten:
-      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: bemerkung, label: "Bemerkung", typ: text, breite: 4 }
-      - { key: disq, label: "Disq.", typ: disq }
 
   - id: knoten
     titel: "Knoten"

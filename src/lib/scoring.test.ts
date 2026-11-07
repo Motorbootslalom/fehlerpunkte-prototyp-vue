@@ -127,12 +127,12 @@ describe('columnsForClass - Speed/MüB je Klasse, Tor-Bojen immer', () => {
   })
 
   it('Berlin Rechts: MüB erst ab Klasse 4', () => {
-    expect(keys('brechts', '3')).not.toContain('mueb')
-    expect(keys('brechts', '4')).toContain('mueb')
+    expect(keys('brechts', '3')).not.toContain('fehler')
+    expect(keys('brechts', '4')).toContain('fehler')
   })
 
   it('Tor-Bojen bleiben in jeder Klasse (auch E)', () => {
-    expect(keys('blinks', 'E')).toEqual(expect.arrayContaining(['t2a', 't4a', 't5', 't2b']))
+    expect(keys('blinks', 'E')).toEqual(expect.arrayContaining(['t2a', 't4a', 't5a', 't5b', 't2b']))
     expect(keys('brechts', 'E')).toEqual(expect.arrayContaining(['t1a', 't3a', 't1b']))
   })
 
@@ -179,9 +179,9 @@ describe('Fehlerpunkte einzeln', () => {
 
   it('Berlin Rechts: F-Pkt. einzeln, Σ inklusive der Bojen', () => {
     const def = getSheetDef('brechts')
-    expect(def.columns.find((c) => c.key === 'mp')?.label).toBe('F-Pkt.')
-    const r = scoreRow(def, nr, getter({ [cellKey(nr, 'mueb')]: '13, 14', [cellKey(nr, 't1a', 0)]: '5' }))
-    expect(summenText(r, 'mp')).toBe('5 + 5')
+    expect(def.columns.find((c) => c.key === 'fp')?.label).toBe('F-Pkt.')
+    const r = scoreRow(def, nr, getter({ [cellKey(nr, 'fehler')]: '13, 14', [cellKey(nr, 't1a', 0)]: '5' }))
+    expect(summenText(r, 'fp')).toBe('5 + 5')
     expect(summenText(r, 'sum')).toBe('15')
   })
 
@@ -198,9 +198,9 @@ describe('Fehlerpunkte einzeln', () => {
       expect(summenText(r, 'sum'), id).toBe('25')
     }
     const land2 = getSheetDef('bawueland2')
-    expect(land2.columns.find((c) => c.key === 'dfsum')?.label).toBe('F-Pkt.')
-    const r = scoreRow(land2, nr, getter({ [cellKey(nr, 'dffehler')]: '1, 2' }))
-    expect(summenText(r, 'dfsum')).toBe('20 + 5')
+    expect(land2.columns.find((c) => c.key === 'fp')?.label).toBe('F-Pkt.')
+    const r = scoreRow(land2, nr, getter({ [cellKey(nr, 'fehler')]: '1, 2' }))
+    expect(summenText(r, 'fp')).toBe('20 + 5')
     expect(summenText(r, 'sum')).toBe('25')
   })
 })

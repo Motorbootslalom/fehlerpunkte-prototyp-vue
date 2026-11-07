@@ -2,8 +2,8 @@
 
 Stand: 07.11.2026. **Abgestimmt, in Umsetzung.** Erledigt sind die Korrekturen an den heutigen
 Aufbauten, Baden-Württemberg (§6, §5.1), Berlin Rechts (§5.1) und die Reihenfolge der Ergebnisliste
-(§4.3), sowie die Zeitnahme (§4.5). Den Stand der Schritte zeigt §10.
-Die Prüfung aus §5.1 lässt sich jederzeit wiederholen: `node scripts/konzept-positionen.ts`. §5.2 spielt
+(§4.3), die Zeitnahme (§4.5) und die Kurzform (§4, §5.1). Den Stand der Schritte zeigt §10.
+Die Prüfung aus §5.1 läuft als Test mit (`src/config/kurzform.test.ts`). §5.2 spielt
 einen neuen Aufbau durch, den Möwe-Parcours in Oranienburg.
 
 Eine Veranstaltung hat wenige Personen und oft eigene Standorte am Kurs. Eine neue Verteilung der
@@ -19,7 +19,7 @@ und einen Weg, das Ergebnis zu speichern und weiterzugeben (§8).
   `KONZEPT-UIM.md`. Die ausführliche Form bleibt überall gültig.
 - Steg, Vorsteg und Knoten bleiben feste Bausteine. Ihre Spalten hängen nicht davon ab, wo jemand
   steht, deshalb werden sie nur ausgewählt, nicht abgeleitet. Zeit ist dagegen eine Aufgabe wie
-  Einfahrt oder MüB und kann mit Bojen auf einer Liste stehen (§4.5).
+  die Fehler an Tor 5 oder MüB und kann mit Bojen auf einer Liste stehen (§4.5).
 - Fehlerpunkte und Disqualifikationen bleiben im Regelwerk und sind nicht Teil davon.
 - Der Assistent speichert keine Personennamen. Die WKR-Namen bleiben wie bisher am Bogen und damit
   außerhalb des Einstellungs-Links.
@@ -44,7 +44,8 @@ Spalten, Bojen-Seiten, `innen`, `hebt`, `abblenden` und die Bilddrehung. Daraus 
 |---|---|
 | Kurzform | Beschreibung einer Position durch ihre Bojen, Aufgaben und ihren Blick. |
 | Boje | ID aus dem Parcoursbild: ein ganzes Tor (`Tor1`) oder eine Einzelboje (`Tor1_innen`, `Tor5_oben`). |
-| Aufgabe | Was keine Boje ist: `zeit`, `tor5` (Einfahrt), `mueb`, `parcours`. |
+| Aufgabe | Was keine Boje ist: `zeit`, `tor5` (Fehler Tor 5), `mueb`, `parcours`. |
+| Fehler Tor 5 | Die Fehlercodes an Tor 5, in der Ausschreibung unter „Einfahrt Tor 5“. Nicht „Einfahrt“ oder „Rückwärtstor“: Die Klassen E und 1 fahren vorwärts durch Tor 5. |
 | Blick | Von welcher Seite die Person überwiegend auf den Kurs schaut: `hinten`, `vorne`, `rechts`, `links` (§4.2). |
 | Baustein | Feste Liste, die nur gewählt wird: Steg, Vorsteg, Knoten. |
 | Zeitnahme | Ein Gerät, das die Zeit misst: `elektronisch` (Lichtschranke) oder `stoppuhr` (§4.5). |
@@ -110,7 +111,7 @@ wird damit zu zwei Zeilen: dieselben Bojen wie oben, nur `blick: vorne`.
 | `pfeileSpiegeln` | `blick`, `bojen` | Nur bei `hinten` mit Bojen. |
 | `disq` | `aufgaben` | `mueb` bei Mann-über-Bord, sonst `parcours`. |
 | `katalog` | `aufgaben` | `mueb` oder `tor5`. |
-| `subTrenner`, Trennlinien | Fahrweg | Gepunktet zwischen den beiden Bojen eines Tores, bei jedem Blick. Doppelt, wo die Hinfahrt endet und die Rückfahrt beginnt; steht die Einfahrt dazwischen, liegt sie zwischen zwei doppelten Linien. |
+| `subTrenner`, Trennlinien | Fahrweg | Gepunktet zwischen den beiden Bojen eines Tores, bei jedem Blick. Doppelt, wo die Hinfahrt endet und die Rückfahrt beginnt. Die Fehler an Tor 5 zählen noch zur Hinfahrt: Tor 5 Hin, Fehler Tor 5 ‖ Tor 5 Rück. |
 | Zeitspalten | `zeiten` | Eine Spalte je Gerät (§4.5). |
 
 **Warum der Blick nur vier Werte hat:** Er steuert die Bilddrehung in 90°-Schritten (mehr passt nicht
@@ -133,7 +134,7 @@ Der Kurs steht genau einmal im Code und gilt für alle Positionen:
 | Start | `start` | `StartZiel` | alle |
 | Tore 1 bis 4, Hinfahrt | `t1a` … `t4a` | `Tor1` … `Tor4` | alle |
 | Tor 5, Hinfahrt | `t5` | `Tor5` | alle |
-| Einfahrt Tor 5 | Katalog `tor5` | – | alle |
+| Fehler Tor 5 | Katalog `tor5` | – | alle |
 | Tor 5, Rückfahrt | `t5` | `Tor5` | alle |
 | Tore 4 bis 2, Rückfahrt | `t4b` … `t2b` | `Tor4` … `Tor2` | alle |
 | Tor 1, Rückfahrt | `t1b` | `Tor1` | alle außer 4 |
@@ -214,12 +215,23 @@ Ein neues Modul `src/config/kurzform.ts` wandelt eine Kurzform in die heutige Ro
 Build, in den Prüfungen und im Browser. Der Aufruf gehört vor `buildConfig`. Alles danach bleibt
 unverändert: Bögen, Eingaben, Ergebnislisten, Laufzettel, QR-Code und Prüfungen.
 
+**Umgesetzt (07.11.2026):** Eine Position ohne `spalten` ist eine Kurzform. Sie steht wie jede Position
+unter `positionen:` und braucht `id` und `titel`; die Aufbauten nennen sie per ID. `aufloesen()` schreibt
+sie aus: in `config:sync` (die App und der Bildgenerator lesen die ausführliche Form), in
+`mergeAndBuild` und in der Prüfung, die vorher Blick, Bojen und Aufgaben gegen den festen Wortschatz
+prüft. Die Abblendung entsteht in der Form, die der Generator schon kannte: ein Tor als Ganzes, wenn
+keine seiner Bojen beobachtet wird, sonst die einzelne Boje. Kurzformen direkt im Aufbau, wie in §4.1,
+kommen mit den eigenen Aufbauten (§8).
+
 ## 5. Prüfung
 
 ### 5.1 Gegen die heutige Konfiguration
 
-`scripts/konzept-positionen.ts` leitet 19 Positionen je Klasse aus der Kurzform ab und vergleicht sie
-mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
+Vor dem Umbau leitete ein Skript 19 Positionen je Klasse aus der Kurzform ab und verglich sie mit den
+handgeschriebenen Quelldateien. Seit die Positionen selbst in Kurzform stehen (§10, Schritt 4), hält
+`src/config/kurzform.test.ts` das fest: Ein Snapshot, aufgenommen von den handgeschriebenen Listen, nennt
+je Position die Felder je Klasse in ihrer Reihenfolge, Disq.- und Bemerkungsfelder, `innen`, Bild,
+Abblendung, Drehung, Pfeile, Disqualifikationen und Katalog. Die Kurzform muss ihn treffen.
 
 **Ergebnis:**
 
@@ -245,23 +257,26 @@ mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
 | Position | Heute | Aus dem Fahrweg | Vorschlag |
 |---|---|---|---|
 | Wasser 2 | `katalog: tor5`, aber keine Fehlerspalte | kein Katalog | Angabe entfällt; laut Lastenheft §4a steht ohne Fehlerspalte ohnehin kein Fehlerblock auf dem Bogen. |
-| Berlin Links | Fehlerspalte hinter allen vier Bojen von Tor 5 | zwischen Hin- und Rückfahrt | Regel: Tor 5 mit beiden Bojen bleibt eine Gruppe, die Fehlerspalte folgt dahinter. |
+| Berlin Links | Fehlerspalte hinter allen vier Bojen von Tor 5 | zwischen Hin- und Rückfahrt | Der Fahrweg gilt, auch mit beiden Bojen von Tor 5 (umgesetzt). |
 | Tor 5 + Parcours mit Start und Ziel | Start und Ziel, dann Fehler | Fehler dazwischen | Regel: Bei der Parcoursüberwachung stehen die Bojen vorn. |
 
-**Nicht geprüft und noch nicht abgeleitet** ist die Darstellung. Das Skript listet sie je Position auf.
-Dafür braucht es Standardwerte und einzelne Überschreibungen:
+**Die Darstellung** prüft der Snapshot nicht, sie folgt Regeln. So ist sie umgesetzt (07.11.2026):
 
-| Angabe | Vorschlag |
+| Angabe | Regel |
 |---|---|
-| `subTrenner`, Trennlinien | Abgestimmt als Regel (§4.2). Dass Berlin heute keine Trennlinien hat, ist Handarbeit und entfällt mit der Kurzform. |
-| Beschriftung | Standard aus dem Fahrweg. Abweichungen wie „Sp. 1“, „Tor 5 tief“ oder „MüB Fehler“ werden angeglichen. |
-| Disq., Σ, Bemerkung | Disq. immer, Σ bei Punkten, Bemerkung bei Fehlerlisten. Das deckt noch nicht alles ab: Tor-Listen haben heute keine Bemerkung, die Parcours-Listen keine Σ, auch wenn sie Bojen haben. |
-| `bildNeben`, `bildBreite`, `breite` | Bleiben Überschreibungen. |
-| `hinweis` | Standard `blickrichtung` bei Bojen, `parcours` bei Parcoursüberwachung. Baden-Württemberg zeigt heute keinen. |
+| `subTrenner`, Trennlinien | Wie in §4.2. Berlin und die Listen mit Start und Ziel bekommen damit Linien, die sie vorher nicht hatten. |
+| Beschriftung | „Tor 1“ …, „Start“, „Ziel“, „Sp. 1“, „Sp. 2“. Fehler allein auf der Liste heißen „Fehler“ mit „Fehlerpunkte“. Neben Bojen oder anderen Fehlern heißen sie „Fehler Tor 5“ und „Fehler MüB“ mit „F-Pkt.“, wie beim Steg „Fehler AB“. Menüs, Legende („Einfahrt Tor 5“) und Ergebnisliste („E“) bleiben bei „Einfahrt“. „Sp. 1“ statt „Speed 1“, weil die Spalten bei Berlin Links sonst zu schmal sind, und so steht es auch auf der Papierliste Alcatraz 2. |
+| Disq., Σ, Bemerkung | Mit Punkten: Disq., Σ, dann Bemerkung. Ohne Punkte: Bemerkung, Disq. Bemerkung gibt es bei der Parcoursüberwachung und auf Fehlerlisten ohne Bojen. Neu: Σ auf der Parcoursliste mit Start und Ziel, bei MüB Disq. vor Σ. |
+| `hinweis` | `blickrichtung` bei Bojen, `parcours` bei Parcoursüberwachung. Baden-Württemberg setzt `hinweis: keiner`: Mit dem Hinweis passt Wasser 1 nicht mehr auf eine Seite. |
+| `bild` | Bleibt eine Angabe, damit die erzeugten Ordner ihre Namen behalten. Ohne sie heißt der Ordner wie die Position. |
+| `bildNeben`, `bildBreite`, `menue` | Bleiben Angaben. |
 
-Zum Umfang: Die vier Dateien mit den Tor-Positionen haben samt Kommentaren 23.513 Zeichen, die
-Kurzform dieser 13 Positionen 1.075 Zeichen. Der Vergleich schmeichelt, denn Titel und Darstellung
-fehlen in der Kurzform noch.
+Alle anderen Felder und Bilder stimmen. Bei Land 2 und Wasser 2 ändert sich nur der Text der
+SVG-Bilder: Die Kurzform blendet Start/Ziel als Ganzes ab statt beide Bojen einzeln, die PNGs bleiben
+gleich. Wasser 2 verliert die Angabe `katalog: tor5`, die keine Spalte hatte.
+
+Zum Umfang: Die vier Dateien mit den Tor-Positionen hatten samt Kommentaren rund 24.000 Zeichen, jetzt
+rund 5.700, Titel, Menü und Bildordner eingeschlossen.
 
 ### 5.2 Neuer Aufbau: Möwe-Parcours
 
@@ -269,7 +284,7 @@ Der WSC „Möwe“ Oranienburg hat eigene Parcoursbilder für Klasse 5 bis 7 (R
 Vor Ort gilt:
 
 - Eine Person steht auf Höhe von Tor 5 und schaut eher von hinten: Tor 1, Tor 3, Tor 5 rechts und die
-  Einfahrt.
+  Fehler an Tor 5.
 - Eine Person steht auf Höhe von Tor 2 und schaut von der linken Seite: Tor 2, Tor 4, Tor 5 links und
   Speed 1.
 - Mann-über-Bord hat eine eigene Position.
@@ -298,7 +313,7 @@ Bild, B die obere, ‖ eine doppelte Linie:
 
 | Liste | Spalten | Bild |
 |---|---|---|
-| Tor 1 / 3 / 5 | Tor 1 (A, B) · Tor 3 (A, B) · Tor 5 Hin (A) ‖ Einfahrt ‖ Tor 5 Rück (A) · Tor 3 · Tor 1 · Speed 2 · Tor 1 Speedrunde | 90°, wie Alcatraz |
+| Tor 1 / 3 / 5 | Tor 1 (A, B) · Tor 3 (A, B) · Tor 5 Hin (A) · Fehler Tor 5 ‖ Tor 5 Rück (A) · Tor 3 · Tor 1 · Speed 2 · Tor 1 Speedrunde | 90°, wie Alcatraz |
 | Tor 2 / 4 / 5 | Tor 2 (A, B) · Tor 4 (A, B) · Tor 5 Hin ‖ Rück (B) · Tor 4 · Tor 2 · Speed 1 | 180°, wie Berlin Links |
 | Mann-über-Bord | Fehler | 90°, nur die Schikane hell |
 | Elektronische Zeiterfassung | Zeit · Start (A, B) · Ziel (A, B) | Start/Ziel hell, wie Berlin Start/Ziel |
@@ -381,7 +396,7 @@ echten Bögen und ist damit schon die Kontrolle.
    Tor 5 oben                         ●
    Speed 1 (ab Kl. 5)                 ●
    Speed 2 (Kl. 7)        ●
-   Einfahrt Tor 5                              ●
+   Fehler Tor 5                                ●
    Mann-über-Bord (ab 4)                               ●
    Parcoursüberwachung                                          ●
    ```
@@ -487,9 +502,9 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 3. **Zeitnahme** (§4.5). Erledigt: Geräte an den Zeitspalten (`geraet`), Titel nach Gerät, elektronische
    Zeit vor Stoppuhr. Ohne Kurzform wandelt ein Eintrag im Aufbau die Position ab,
    `{ id: zeit, zeiten: [elektronisch] }`; Alcatraz-DM26 nutzt das für seine drei Zeitlisten.
-4. **Kurzform:** `kurzform.ts` mit Fahrweg und Regeln für die Darstellung. Ein Test verlangt, dass die
-   Ableitung die heutigen Listen 1:1 nachbildet; er ersetzt `scripts/konzept-positionen.ts`. Danach ziehen
-   die Positionen nach und nach um. Schon das macht neue Aufbauten im Repo zu wenigen Zeilen.
+4. **Kurzform.** Erledigt: `src/config/kurzform.ts` mit Fahrweg und Regeln für die Darstellung, alle 19
+   Positionen aus §5.1 stehen in Kurzform. `config:sync` schreibt sie aus, `config:check` prüft Blick,
+   Bojen und Aufgaben. Der Test aus §5.1 ersetzt das Prüfskript.
 5. **Kursvariante** (§4.4) mit Möwe als erstem Aufbau im Repo (§5.2).
 6. **Bilder im Browser** (§9), zuerst nur für eigene Aufbauten.
 7. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.

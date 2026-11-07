@@ -9,121 +9,37 @@ aufbauten:
     name: Baden-Württemberg
     positionen: [zeit, steg, bawueland1, bawueland2, bawuewasser1, bawuewasser2, knoten]
 
+# Blick von den Seiten (Kurzform, siehe KONZEPT-POSITIONEN.md §4): Land beobachtet die
+# untere Boje jedes Tores (seiteA), Wasser die obere (seiteB) und sieht den Kurs um 180°
+# gedreht. Ohne den Hinweis zur Bojen-Bezeichnung: Mit ihm passt Wasser 1 (MüB-Legende und
+# Bild) nicht mehr auf eine Seite.
 positionen:
-  # === Aufbau BADEN-WÜRTTEMBERG: Tor-Positionen (Blick von den Seiten) ===
   - id: bawueland1
     titel: "Land 1"
-    menue: "Land 1"
-    ausrichtung: hoch
+    blick: rechts
+    bojen: [StartZiel_unten, Tor1_aussen, Tor2_innen, Tor3_aussen]
     bild: bawue_Land_1
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt; seiteA = untere Boje wie überall
-    # Land-Seite beobachtet seiteA. Tor 1-3: je die seiteA-Boje (aus `innen`
-    # abgeleitet). Start/Ziel seiteA = untere Boje. Tor 4/5, Schikane und
-    # Speedbojen gehören nicht zu dieser Position → abgeblendet.
-    abblenden: [Tor1_innen, Tor2_aussen, Tor3_innen, Tor4, Tor5, StartZiel_oben, Schikane, Speedboje_oben, Speedboje_unten]
-    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
-    summeSpalte: sum
-    disq: parcours
-    # hinweis: blickrichtung
-    spalten:
-      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA"] }
-      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteA"], innen: seiteB }
-      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteA"], innen: seiteA }
-      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteA"], innen: seiteB }
-      - { typ: trenner, design: "doppelt" }
-      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA"], innen: seiteB }
-      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteA"], innen: seiteA }
-      # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteB, klassen: ["E", 1, 2, 3, 5, 6, 7] }
-      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA"], innen: seiteB, klassen: [7] }
-      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA"] }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
+    hinweis: keiner
 
   - id: bawueland2
     titel: "Land 2"
-    menue: "Land 2"
-    ausrichtung: hoch
+    blick: rechts
+    bojen: [Tor4_innen, Tor5_unten, Speedboje_unten]
+    aufgaben: [tor5]
     bild: bawue_Land_2
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt; seiteA = untere Boje wie überall
-    # Land-Seite, hinterer Kursteil: Tor 4 (seiteA = innen) + Tor 5 = untere Boje
-    # + untere Speedboje (Speedboje_unten). Tore 1-3, Start/Ziel, Schikane und die
-    # obere Speedboje (Speedboje_oben) abgeblendet.
-    abblenden: [Tor1, Tor2, Tor3, Tor4_aussen, Tor5_oben, StartZiel_oben, StartZiel_unten, Schikane, Speedboje_oben]
-    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
-    summeSpalte: sum
-    disq: parcours
-    # hinweis: blickrichtung
-    katalog: tor5
-    spalten:
-      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteA"], innen: seiteA }
-      - { key: t5a, label: "Tor 5", typ: boje, sub: ["hin seiteA"] }
-      - { typ: trenner, design: "doppelt" }
-      - { key: dffehler, label: "Tor 5 tief", typ: code, punkteSpalte: dfsum, breite: 1 }
-      - { key: dfsum, label: "F-Pkt.", typ: summe, einzeln: true }
-      - { typ: trenner, design: "doppelt" }
-      - { key: t5b, label: "Tor 5", typ: boje, sub: ["rueck seiteA"] }
-      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteA"], innen: seiteA }
-      - { key: speed2, label: "Speed 2", typ: boje, klassen: [7] }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
+    hinweis: keiner
 
   - id: bawuewasser1
     titel: "Wasser 1"
-    menue: "Wasser 1"
-    ausrichtung: hoch
+    blick: links
+    bojen: [StartZiel_oben, Tor1_innen, Tor2_aussen, Tor3_innen]
+    aufgaben: [mueb]
     bild: bawue_wasser_1
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt; seiteA = untere Boje wie überall
-    # Wasser-Seite beobachtet seiteB (Gegenseite zu Land 1). Tor 1-3: je die
-    # seiteB-Boje. Start/Ziel seiteB = obere Boje. Schikane (MüB) wird hier
-    # beobachtet → bleibt hell. Tor 4/5 + Speedbojen abgeblendet.
-    abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, StartZiel_unten, Speedboje_oben, Speedboje_unten]
-    bildDrehung: 180       # Bilder immer aus Sicht der Position: von der Wasserseite gedreht
-    summeSpalte: sum
-    disq: mueb
-    # hinweis: blickrichtung
-    katalog: mueb
-    spalten:
-      - { key: start, label: "Start", typ: boje, sub: ["hin seiteB"] }
-      - { key: t1a, label: "Tor 1", typ: boje, sub: ["hin seiteB"], innen: seiteB }
-      - { key: t2a, label: "Tor 2", typ: boje, sub: ["hin seiteB"], innen: seiteA }
-      - { key: t3a, label: "Tor 3", typ: boje, sub: ["hin seiteB"], innen: seiteB }
-      - { typ: trenner, design: "doppelt" }
-      - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteB"], innen: seiteB }
-      - { key: t2b, label: "Tor 2", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
-      - { key: fehler4, label: "MüB Fehler", typ: code, punkteSpalte: fp4, breite: 1, klassen: [4] }
-      - { key: fp4, label: "MüB Punkte", typ: summe, einzeln: true, klassen: [4] }
-      - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteB, klassen: ["E", 1, 2, 3, 5, 6, 7] }
-      - { key: fehler, label: "MüB Fehler", typ: code, punkteSpalte: fp, breite: 1, klassen: [5, 6, 7] }
-      - { key: fp, label: "MüB Punkte", typ: summe, einzeln: true, klassen: [5, 6, 7] }
-      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteB"], innen: seiteB, klassen: [7] }
-      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteB"] }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
+    hinweis: keiner
 
   - id: bawuewasser2
     titel: "Wasser 2"
-    menue: "Wasser 2"
-    ausrichtung: hoch
+    blick: links
+    bojen: [Tor4_aussen, Tor5_oben, Speedboje_oben]
     bild: bawue_wasser_2
-    bildGenerator: true    # aus alcatraz_Parcours erzeugt; seiteA = untere Boje wie überall
-    # Wasser-Seite, hinterer Kursteil: Tor 4 (seiteB = außen) + Tor 5 = obere Boje
-    # + nur die obere Speedboje (Speedboje_oben). Tore 1-3, Start/Ziel, Schikane und die
-    # untere Speedboje (Speedboje_unten) abgeblendet.
-    abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, StartZiel_oben, StartZiel_unten, Schikane, Speedboje_unten]
-    bildDrehung: 180       # Bilder immer aus Sicht der Position: von der Wasserseite gedreht
-    summeSpalte: sum
-    disq: parcours
-    # hinweis: blickrichtung
-    katalog: tor5
-    spalten:
-      - { key: t4a, label: "Tor 4", typ: boje, sub: ["hin seiteB"], innen: seiteA }
-      # - { typ: trenner, design: "gepunktet" }
-      - { key: t5a, label: "Tor 5", typ: boje, sub: ["hin seiteB"] }
-      - { typ: trenner, design: "doppelt" }
-      - { key: t5b, label: "Tor 5", typ: boje, sub: ["rueck seiteB"] }
-      # - { typ: trenner, design: "gepunktet" }
-      - { key: t4b, label: "Tor 4", typ: boje, sub: ["rueck seiteB"], innen: seiteA }
-      - { key: speed1, label: "Speed 1", typ: boje, klassen: [5, 6, 7] }
-      - { key: disq, label: "Disq.", typ: disq }
-      - { key: sum, label: "Σ", typ: summe }
+    hinweis: keiner

@@ -5,7 +5,8 @@ import { dump as yamlDump, load as yamlLoad } from 'js-yaml'
 import bundledListe from './regelwerke.yaml?raw'
 import bundledAufbauten from './aufbauten.yaml?raw'
 import { mergePositionen, quellDateien } from './merge-positionen'
-import type { RawPositionen } from './schema'
+import { aufloesen } from './kurzform'
+import type { RawQuelle } from './schema'
 
 const bundledRegelwerke = Object.fromEntries(
   Object.entries(
@@ -118,7 +119,8 @@ describe('Konfigurations-Validierung', () => {
   })
 
   describe('Überwachung', () => {
-    const roh = (aendern?: (t: string) => string) => yamlLoad(positionenText(aendern)) as Parameters<typeof ueberwachungsLuecken>[0]
+    const roh = (aendern?: (t: string) => string) =>
+      aufloesen(yamlLoad(positionenText(aendern)) as RawQuelle) as Parameters<typeof ueberwachungsLuecken>[0]
     const luecken = (raw: Parameters<typeof ueberwachungsLuecken>[0], aufbau: string) =>
       ueberwachungsLuecken(raw).filter((l) => l.aufbau === aufbau)
 
@@ -132,15 +134,12 @@ describe('Konfigurations-Validierung', () => {
     })
 
     it('meldet eine Boje, die mit zusammengelegter Tor-5-Liste nicht mehr überwacht wird', () => {
-      // Ohne die Start-Spalte der DM26-Liste geht Start beim Zusammenlegen verloren.
-      const ohneStart = roh((t) =>
-        t.replace(`      - { key: start, label: "Start", typ: boje, sub: ["hin seiteA", "hin seiteB"] }
-      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: fehler,`, `      - { key: ziel, label: "Ziel", typ: boje, sub: ["rueck seiteA", "rueck seiteB"] }
-      - { key: fehler,`),
+      // Ohne Start/Ziel auf der DM26-Liste gehen sie beim Zusammenlegen verloren.
+      const ohneStartZiel = roh((t) =>
+        t.replace('    bojen: [StartZiel]\n    aufgaben: [tor5, parcours]\n', '    aufgaben: [tor5, parcours]\n'),
       )
-      const l = luecken(ohneStart, 'alcatrazdm26')
-      expect(l.map((x) => x.element)).toEqual(['Start (hin seiteA)', 'Start (hin seiteB)'])
+      const l = luecken(ohneStartZiel, 'alcatrazdm26')
+      expect(l.map((x) => x.element)).toEqual(['Start (hin seiteA)', 'Start (hin seiteB)', 'Ziel (rueck seiteA)', 'Ziel (rueck seiteB)'])
       expect(l.every((x) => x.nurZusammengelegt)).toBe(true)
       expect(l[0].klassen).toHaveLength(8)
     })
@@ -242,7 +241,7 @@ describe('Konfigurations-Validierung', () => {
 
 describe('Fehlerpunkte-Spalten', () => {
   it('neben jeder Fehler-Spalte steht eine Punkte-Spalte, die die Punkte einzeln zeigt', () => {
-    for (const pos of (yamlLoad(positionenText()) as RawPositionen).positionen ?? []) {
+    for (const pos of aufloesen(yamlLoad(positionenText()) as RawQuelle).positionen) {
       const spalten = pos.spalten ?? []
       for (const sp of spalten.filter((s) => s.typ === 'code')) {
         const ziel = spalten.find((s) => s.key === sp.punkteSpalte)

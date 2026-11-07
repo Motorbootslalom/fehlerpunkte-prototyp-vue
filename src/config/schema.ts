@@ -224,6 +224,25 @@ export interface RawPosition {
   spalten: RawSpalte[]
 }
 
+/** Von wo eine Person überwiegend auf den Kurs schaut (KONZEPT-POSITIONEN.md §4.2). */
+export type Blick = 'hinten' | 'vorne' | 'rechts' | 'links'
+
+/** Was eine Position außer Bojen beobachtet: Zeit, Fehler an Tor 5, Mann-über-Bord, Fahrweg. */
+export type Aufgabe = 'zeit' | 'tor5' | 'mueb' | 'parcours'
+
+/**
+ * Eine Position in Kurzform: ohne `spalten`, beschrieben durch ihre Bojen, Aufgaben und
+ * ihren Blick. kurzform.ts leitet daraus die ausführliche Form ab; jedes Feld der
+ * ausführlichen Form darf zusätzlich stehen und gewinnt dann gegen die Regel.
+ */
+export interface RawKurzform extends Omit<RawPosition, 'spalten'> {
+  spalten?: undefined
+  blick?: Blick
+  /** IDs aus dem Parcoursbild: ganzes Tor (Tor1) oder Einzelboje (Tor1_innen, Tor5_oben). */
+  bojen?: string[]
+  aufgaben?: Aufgabe[]
+}
+
 /**
  * Ein auf der Seite umschaltbares Bezeichnungs-Schema (z. B. Rechts/Links,
  * Land/See, Hafen/Kai). `tokens` überschreibt die globalen `bezeichnungen`
@@ -342,6 +361,11 @@ export interface RawPositionen {
   ueberwachung?: RawUeberwachung[]
   /** Alle Positionen (werden von den Aufbauten per ID referenziert). */
   positionen: RawPosition[]
+}
+
+/** Die Positions-Dateien, wie sie in src/config stehen: Positionen auch in Kurzform. */
+export interface RawQuelle extends Omit<RawPositionen, 'positionen'> {
+  positionen: Array<RawPosition | RawKurzform>
 }
 
 /** Zusammengeführte Roh-Konfiguration (ein Regelwerk + Positionen). */
