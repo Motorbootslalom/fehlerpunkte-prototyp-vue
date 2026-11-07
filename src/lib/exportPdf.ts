@@ -77,7 +77,7 @@ function replaceQrWithCanvas(doc: Document): void {
     const canvas = doc.createElement('canvas')
     canvas.width = size
     canvas.height = size
-    canvas.className = 'qr'
+    canvas.className = img.className // z. B. „qr lz-qr“ (Laufzettel: rechts oben)
     canvas.style.width = `${cssSize}px`
     canvas.style.height = `${cssSize}px`
 

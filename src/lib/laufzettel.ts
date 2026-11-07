@@ -19,6 +19,18 @@ export interface Laufzettel {
 }
 
 /**
+ * Bögen in der Reihenfolge des Aufbaus; Positionen außerhalb folgen am Ende,
+ * gleiche Positionen behalten ihre Reihenfolge (wie auf dem Laufzettel).
+ */
+export function nachAufbau(boegen: Bogen[], order: SheetTypeId[]): Bogen[] {
+  const rank = (t: SheetTypeId) => {
+    const i = order.indexOf(t)
+    return i < 0 ? Number.POSITIVE_INFINITY : i
+  }
+  return [...boegen].sort((a, b) => rank(a.typeId) - rank(b.typeId))
+}
+
+/**
  * Bildet die Laufzettel aus der Bögen-Liste.
  *
  * - Ein Laufzettel je Klasse/Lauf, in der Reihenfolge ihres ersten Auftretens.
@@ -34,10 +46,6 @@ export function buildLaufzettel(
   titleOf: (typeId: SheetTypeId) => string,
   pagesOf: (bogenId: string) => number,
 ): Laufzettel[] {
-  const rank = (t: SheetTypeId) => {
-    const i = order.indexOf(t)
-    return i < 0 ? Number.POSITIVE_INFINITY : i
-  }
   const groups = new Map<string, { klasse: ClassId; lauf: Lauf; boegen: Bogen[] }>()
   for (const b of boegen) {
     const key = `${b.klasse}:${b.lauf}`
@@ -48,16 +56,14 @@ export function buildLaufzettel(
   return [...groups.values()].map(({ klasse, lauf, boegen: gb }) => ({
     klasse,
     lauf,
-    zeilen: [...gb]
-      .sort((a, b) => rank(a.typeId) - rank(b.typeId))
-      .flatMap((b) => {
-        const title = titleOf(b.typeId)
-        const n = Math.max(1, pagesOf(b.id))
-        if (n === 1) return [{ key: b.id, label: title }]
-        return Array.from({ length: n }, (_, i) => ({
-          key: `${b.id}:${i}`,
-          label: `${title} (Seite ${i + 1} von ${n})`,
-        }))
-      }),
+    zeilen: nachAufbau(gb, order).flatMap((b) => {
+      const title = titleOf(b.typeId)
+      const n = Math.max(1, pagesOf(b.id))
+      if (n === 1) return [{ key: b.id, label: title }]
+      return Array.from({ length: n }, (_, i) => ({
+        key: `${b.id}:${i}`,
+        label: `${title} (Seite ${i + 1} von ${n})`,
+      }))
+    }),
   }))
 }

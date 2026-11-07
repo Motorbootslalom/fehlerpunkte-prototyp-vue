@@ -36,6 +36,7 @@ import {
 import { buildShareUrl } from '../lib/sharelink'
 import { formatStarter, parseStarter } from '../lib/starter'
 import { ergebnisKlasse, showErgebnisse, showGesamtliste, showLaufzettel, showLegende } from '../state/laufzettel'
+import { scanFehler, verarbeiteScan } from '../state/scan'
 import { useStore } from '../state/store'
 import type { ClassId, Lauf, SheetTypeId, Sprache } from '../types'
 
@@ -48,6 +49,17 @@ const busy = ref(false)
 const busyPm = ref(false)
 const busyJs = ref(false)
 const copied = ref(false)
+// Scan-Feld: Handscanner oder getippter Code (Enter). Gelesen wird in state/scan.
+const scanText = ref('')
+function scanAbschicken() {
+  if (verarbeiteScan(scanText.value)) scanText.value = ''
+}
+function scanMitTab(e: KeyboardEvent) {
+  // Manche Scanner schließen mit Tab statt Enter ab.
+  if (!scanText.value.trim()) return
+  e.preventDefault()
+  scanAbschicken()
+}
 
 // Basis-URL der react-pdf-Insel (eigene Seite pdf.html, Vektor-PDF via react-pdf).
 const pdfIslandUrl = `${import.meta.env.BASE_URL}pdf.html`
@@ -240,6 +252,27 @@ const commitDate = __GIT_COMMIT_DATE__
       Prototyp der WKR-Eingabemasken (Vue). Eingabe und Ausdruck sind dieselbe Ansicht - so lässt
       sich jede Eintragung direkt kontrollieren. Alle Daten bleiben lokal im Browser.
     </p>
+
+    <section>
+      <label class="field">
+        <span>Blatt scannen</span>
+        <input
+          v-model="scanText"
+          data-scan-feld
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="QR-Code scannen oder eintippen, dann Enter"
+          title="Zeigt die Listen zum QR-Code eines Laufzettels oder einer Liste, z. B. FP2.DM2026.ALCATRAZ.3.1"
+          @keydown.enter.prevent="scanAbschicken"
+          @keydown.tab="scanMitTab"
+        />
+      </label>
+      <p v-if="scanFehler" class="cp-scan-fehler">{{ scanFehler.fehler }}</p>
+      <p class="hint">
+        Ein Handscanner wirkt auch ohne Klick in dieses Feld. Den Code eines Blatts zeigt die Vorschau,
+        wenn die Maus auf seinem QR-Code steht.
+      </p>
+    </section>
 
     <section>
       <label class="field">

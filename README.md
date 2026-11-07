@@ -42,8 +42,9 @@ ein Reload.
   Stoppuhr- oder Lichtschranken-Zeiten
   ([Lastenheft §8g](./LASTENHEFT.md)).
 - **Parcoursbilder** (SVG) je Klasse auf den Tor-/Parcours-Bögen.
-- **QR-Code** je Bogen für die spätere automatische Scanner-Zuordnung
-  (Listentyp/Klasse/Lauf).
+- **QR-Codes** auf jeder Druckseite und jedem Laufzettel (Regelwerk, Aufbau, Klasse,
+  Lauf, Position, Seite). Ein Handscanner oder das Feld „Blatt scannen“ zeigt damit
+  genau die passenden Listen ([Lastenheft §9](./LASTENHEFT.md)).
 - **Vier Export-Wege zum Vergleich** (siehe unten): Browser-Druck (Vektor),
   Raster-PDF (html2canvas + jsPDF) sowie zwei Vektor-PDF-Generatoren (pdfmake und
   jsPDF + autotable). Dazu die **react-pdf-Insel** (`pdf.html`) mit Live-Vorschau
@@ -212,7 +213,7 @@ npm run preview  # Build lokal ansehen
 
 ## Tests
 
-Die Kernlogik (Zeit-Parsing, Punkte-/Disq-Berechnung, QR-Payload) und ein
+Die Kernlogik (Zeit-Parsing, Punkte-/Disq-Berechnung, QR-Codes lesen und schreiben) und ein
 UI-Render-Smoke-Test sind mit **Vitest** abgedeckt.
 
 ```bash

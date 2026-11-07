@@ -11,6 +11,7 @@ import type { Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
 import { hasDescription } from '../lib/backside'
 import { wkrVon } from '../lib/eingaben'
 import { fitCells, fitEventTarget } from '../lib/fitText'
+import { bogenCode } from '../lib/qr'
 import CourseImage from './CourseImage.vue'
 import Legend from './Legend.vue'
 import SheetHeader from './SheetHeader.vue'
@@ -276,6 +277,7 @@ function fitAusEreignis(e: Event) {
 <template>
   <div
     ref="sheetEl"
+    :data-seite="pageIndex + 1"
     :class="`sheet sheet--${def.orientation}${gedreht && !state.descriptionOnBack ? ' sheet--rotated' : ''}${def.bildNeben && !state.descriptionOnBack ? ' sheet--bild-neben' : ''}`"
     :style="def.bildBreite ? { '--bild-breite': `${def.bildBreite}mm` } : undefined"
   >
@@ -307,6 +309,7 @@ function fitAusEreignis(e: Event) {
               :bogen="bogen"
               :event-name="state.eventName"
               :wkr="wkrVon(state, bogen)"
+              :qr="bogenCode(state, bogen, pageIndex + 1)"
               @wkr="onWkr"
             />
           </th>

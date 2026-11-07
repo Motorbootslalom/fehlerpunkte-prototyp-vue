@@ -327,8 +327,8 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
   `getSheetDef` laut Code „Unbekannte Position“. `buildInitialState` soll solche Bögen künftig aussortieren.
   Das ist auch ohne Assistent sinnvoll.
 - **IDs:** Position und Aufbau bekommen beim Anlegen eine feste ID aus `a-z0-9`. Die Zeichen `:`, `/`, `@`
-  und `-` sind vergeben (Link, Lauf-Schlüssel, `disq@steg`, `zeit-1`). Die ID steht auch im QR-Code (`t=`)
-  und bleibt deshalb bei Änderungen gleich.
+  und `-` sind vergeben (Link, Lauf-Schlüssel, `disq@steg`, `zeit-1`). Die ID steht auch im QR-Code
+  (in Großbuchstaben, `FP2.….ZEIT.S1`) und bleibt deshalb bei Änderungen gleich.
 - **Prüfungen:** `validate.ts` hängt nicht an Node und läuft auch im Browser. Neu kommt die Warnung für
   doppelte Felder dazu, auch in `config:check`.
 - **Nicht geprüft:** Regelwerks-Wechsel auf UIM mit einem eigenen Aufbau. Vorschlag: Den Assistenten gibt

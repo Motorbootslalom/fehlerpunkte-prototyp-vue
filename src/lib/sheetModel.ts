@@ -1,7 +1,7 @@
 import { getSheetDef } from '../config/active'
 import { bogenLeser } from './eingaben'
 import { pageChunks } from './paging'
-import { bogenPayload } from './qr'
+import { bogenCode } from './qr'
 import { cellKey, columnsForClass, defFuerKlasse, formatDisqs, scoreRow, summenText } from './scoring'
 import { formatTimeDisplay, parseTime } from './time'
 import type { AppState, Bogen, CellKind, Column, SheetDef } from '../types'
@@ -138,7 +138,7 @@ export function buildBogenPages(state: AppState, bogen: Bogen): SheetModelPage[]
       lauf: bogen.lauf,
       showLauf: def.showLauf !== false,
       orientation: def.orientation,
-      qrPayload: bogenPayload(state.eventName, bogen),
+      qrPayload: bogenCode(state, bogen, pageIndex + 1),
       columns,
       leaves,
       twoRow,

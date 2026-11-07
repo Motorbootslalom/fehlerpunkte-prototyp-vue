@@ -14,7 +14,7 @@ export function QrPdf({ payload, size }: { payload: string; size: number }) {
     }
   }
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${total} ${total}`}>
+    <Svg width={size} height={size} style={{ width: size, height: size }} viewBox={`0 0 ${total} ${total}`}>
       <Rect x={0} y={0} width={total} height={total} fill="#ffffff" />
       <Path d={d} fill="#000000" />
     </Svg>

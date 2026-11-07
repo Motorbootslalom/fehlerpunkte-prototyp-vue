@@ -5,7 +5,7 @@ import { bogenLeser, wkrVon } from '../lib/eingaben'
 import { cellKey, columnsForClass, defFuerKlasse, scoreRow, summenText } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
-import { bogenPayload } from '../lib/qr'
+import { bogenCode } from '../lib/qr'
 import type { AppState, Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
 import { QrPdf } from './Qr'
 
@@ -39,7 +39,7 @@ const s = StyleSheet.create({
     paddingVertical: 3,
   },
   eventTitle: { fontSize: 15, fontWeight: 'bold' },
-  qrWrap: { position: 'absolute', right: 3, top: 3 },
+  qrWrap: { position: 'absolute', right: 3, top: 3, width: 40, height: 40 },
   headerBody: { flexDirection: 'row' },
   headerLeft: { width: 110, borderRightWidth: 1.4, borderColor: INK },
   hlCell: { borderBottomWidth: 1, borderColor: INK, paddingVertical: 3, textAlign: 'center', fontSize: 9 },
@@ -226,7 +226,7 @@ function SheetPage({
     <Page size="A4" orientation={def.orientation} style={s.page}>
       {/* Kopf + Spaltenüberschriften wiederholen sich auf JEDER Seite. */}
       <View fixed>
-        <Header state={state} bogen={bogen} def={def} />
+        <Header state={state} bogen={bogen} def={def} ersteSeite={pageIndex + 1} />
         <View style={[s.table, { borderBottomWidth: 0 }]}>
           <HeaderRows def={viewDef} />
         </View>
@@ -278,14 +278,28 @@ function SheetPage({
   )
 }
 
-function Header({ state, bogen, def }: { state: AppState; bogen: Bogen; def: SheetDef }) {
+function Header({
+  state,
+  bogen,
+  def,
+  ersteSeite,
+}: {
+  state: AppState
+  bogen: Bogen
+  def: SheetDef
+  /** Seite dieses <Page>; bricht react-pdf selbst um, zählt subPageNumber weiter. */
+  ersteSeite: number
+}) {
   return (
     <View style={s.headerBox}>
       <View style={s.eventBar}>
         <Text style={s.eventTitle}>{state.eventName}</Text>
-        <View style={s.qrWrap}>
-          <QrPdf payload={bogenPayload(state.eventName, bogen)} size={40} />
-        </View>
+        <View
+          style={s.qrWrap}
+          render={({ subPageNumber }) => (
+            <QrPdf payload={bogenCode(state, bogen, ersteSeite + subPageNumber - 1)} size={40} />
+          )}
+        />
       </View>
       <View style={s.headerBody}>
         <View style={s.headerLeft}>

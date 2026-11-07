@@ -32,9 +32,10 @@ beschriebenen Punkte beispielhaft um.
    sichtbar ist, **wo und warum** disqualifiziert wurde.
 4. **Druck / PDF.** Die Bögen lassen sich per Knopfdruck als PDF ausgeben und
    drucken.
-5. **Scanner-Vorbereitung.** Die Bögen tragen maschinenlesbare Codes (QR), damit
-   sie später automatisch der richtigen Position, Klasse und Lauf zugeordnet
-   werden können.
+5. **Scannen.** Bögen und Laufzettel tragen QR-Codes. Ein Handscanner holt damit in
+   der App das richtige Blatt nach vorn (§9). Eingescannte oder fotografierte Blätter
+   lassen sich später automatisch der richtigen Position, Klasse, Lauf und Seite
+   zuordnen.
 6. **Schnelle Zeiteingabe** über das Numpad, robust gegenüber verschiedenen
    Stoppuhr-Anzeigen.
 
@@ -340,8 +341,9 @@ Vorschau, werden aber nicht gedruckt.
 
 Je Klasse/Lauf der Bögen-Liste gibt es ein A4-Querblatt, das auf A5 gefaltet wird: rechts
 am Falz Klasse und Lauf, daneben eine Checkbox je gedruckter Seite in der Reihenfolge des
-Aufbaus, darunter die Arbeitsschritte der Auswertung (`einstellungen.yaml`). Die
-Seitenzahlen kommen aus der Vorschau. Gedruckt wird über „Nur Laufzettel drucken“.
+Aufbaus, darunter die Arbeitsschritte der Auswertung (`einstellungen.yaml`). Oben rechts
+steht ein QR-Code für Klasse und Lauf (§9). Die Seitenzahlen kommen aus der Vorschau.
+Gedruckt wird über „Nur Laufzettel drucken“.
 
 ## 8d. Beschreibung auf der Rückseite
 
@@ -469,14 +471,40 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   nur, wenn deren Liste angezeigt ist; eine einzelne Liste hat also nicht die Quote eines
   ganzen Laufs. Es erscheinen nur Codes und Buchstaben, die das gewählte Regelwerk dort zulässt.
 
-## 9. Scanner-Erfassung (spätere Ausbaustufe)
+## 9. QR-Codes und Scannen
 
-- Jeder Bogen trägt einen **QR-Code** im Kopf. Inhalt (kompakt, scannerfreundlich):
-  `FP1;e=<event>;t=<listentyp>;k=<klasse>;l=<lauf>`.
-- Damit kann ein eingescannter Bogen automatisch der richtigen **Position
-  (Listentyp), Klasse und Lauf** zugeordnet werden.
-- Optional später erweiterbar um Bogen-/Seiten-ID und Formmarken für die
-  Feld-Erkennung (OMR).
+- **Zweck:** Ein Handscanner holt in der App das richtige Blatt nach vorn. Später sollen
+  eingescannte oder fotografierte Blätter damit sicher zugeordnet werden. Ein Link ist
+  nicht nötig, der Code ist reiner Text.
+- **Wo:** Jede Druckseite eines Bogens trägt einen QR-Code im Kopf, jeder Laufzettel oben
+  rechts auf der Vorderseite (§8c).
+- **Format** `FP2` („Fehlerpunkte“, Format 2), Teile durch Punkte getrennt:
+  - Laufzettel: `FP2.<REGELWERK>.<AUFBAU>.<KLASSE>.<LAUF>`, z. B. `FP2.DM2026.ALCATRAZ.3.1`
+  - Liste: `FP2.<REGELWERK>.<AUFBAU>.<KLASSE>.<LAUF>.<POSITION>[.<NR>].S<SEITE>`, z. B.
+    `FP2.DM2026.ALCATRAZDM26.3.1.ZEIT.2.S1`. `<NR>` unterscheidet mehrfach vorhandene
+    Positionen (dreimal Zeit), `S<SEITE>` die Druckseiten einer Liste.
+  - Regelwerk und Aufbau stehen drin, damit die angezeigte Seite zum Ausdruck passt. Die
+    Veranstaltung steht nicht drin.
+- **Zeichen:** nur Großbuchstaben, Ziffern und Punkt. Ein Handscanner tippt wie eine
+  Tastatur; ist er auf eine andere Belegung eingestellt als der PC (US/DE), kommen
+  Zeichen wie `;`, `=` oder `-` falsch an. Bei Buchstaben, Ziffern und Punkt sind dann
+  höchstens Y und Z vertauscht, das erkennt die App. Außerdem nutzt der QR-Code so den platzsparenden alphanumerischen
+  Modus und hat bei gleicher Größe gröbere Kästchen.
+- **Scannen in der App:** Der Scanner wirkt überall: Die App erkennt einen Code am Anfang
+  `FP2.` und daran, dass die Zeichen viel schneller kommen, als ein Mensch tippt. Stand der
+  Cursor gerade in einer Zelle, bleibt deren Inhalt unverändert. Codes lassen sich auch von
+  Hand in das Feld „Blatt scannen“ tippen; den Code eines Blatts zeigt die Vorschau, wenn
+  die Maus auf dem QR-Code steht.
+- **Anzeige:** Ein Laufzettel-Code zeigt alle Listen der Klasse und des Laufs, in der
+  Reihenfolge des Laufzettels. Ein Listen-Code zeigt diese Liste und springt zur gescannten
+  Seite. Ein Balken über der Vorschau nennt, was gezeigt wird, und führt zurück zu allen
+  Bögen. Stehen die Listen nicht in der Bögen-Liste, bildet die Vorschau sie aus dem Aufbau;
+  die Eingaben landen trotzdem richtig (§8e). Passen Regelwerk oder Aufbau nicht zum
+  eingestellten Stand, zeigt die App keine Listen, sondern bietet das Umstellen an.
+- **Grenzen:** Ob „Tor 5 übernimmt die Parcoursüberwachung“ an war, steht nur in den
+  Listen-Codes (als eigene Position), nicht im Laufzettel-Code. Codes im alten Format
+  `FP1` erkennt die App nicht mehr.
+- **Später:** Formmarken für die Feld-Erkennung (OMR) auf gescannten Blättern.
 
 ## 10. Startnummern / Verzahnung
 

@@ -49,6 +49,77 @@ body {
   margin-top: 40px;
 }
 
+/* Hinweisbalken nach einem Scan: bleibt beim Blättern oben stehen. */
+.scan-hinweis {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  align-self: stretch;
+  max-width: 297mm;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fff8d9;
+  border: 1px solid #e0c96a;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.scan-hinweis p {
+  margin: 0;
+}
+
+.scan-zeile,
+.scan-warnung {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scan-warnung {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e0c96a;
+  color: #8a2a00;
+}
+
+.scan-info {
+  margin-top: 6px !important;
+  color: #555;
+}
+
+.scan-fehler {
+  color: #a01800;
+}
+
+.scan-fehler + .scan-zeile {
+  margin-top: 8px;
+}
+
+.scan-hinweis button {
+  flex: none;
+  padding: 5px 10px;
+  border: 1px solid #b59a2e;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.scan-hinweis button:hover {
+  background: #fdf0b8;
+}
+
+.scan-code {
+  margin-top: 4px !important;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  color: #777;
+}
+
 /* ---------- Steuerleiste ----------------------------------- */
 
 .control-panel {
@@ -195,6 +266,12 @@ body {
   width: auto;
   margin: 0;
   padding: 0;
+}
+
+.cp-scan-fehler {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #ffb4a8;
 }
 
 .hint {
@@ -1360,6 +1437,23 @@ body {
   border-left: 0.4mm solid #000;
 }
 
+/* Titel und Seiten-Liste füllen den Platz über den Arbeitsschritten (feste
+   Höhe, damit LaufzettelPage messen kann, ob die Liste zweispaltig werden muss). */
+.lz-oben {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* QR-Code (Klasse/Lauf für den Handscanner) oben rechts. Die Zeilen der Liste
+   weichen ihm aus (Flex-Zeilen überlappen keine Floats), es bleibt keine Lücke. */
+.lz-qr {
+  float: right;
+  width: 24mm;
+  height: 24mm;
+  margin: 0 0 2mm 4mm;
+}
+
 .lz-title {
   margin: 0 0 4mm;
   font-size: 11pt;
@@ -1382,14 +1476,6 @@ body {
   break-inside: avoid;
 }
 
-/* Seiten-Liste füllt den Platz über den Arbeitsschritten (feste Höhe, damit
-   LaufzettelPage messen kann, ob sie zweispaltig werden muss). */
-.lz-pages {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
 /* Arbeitsschritte der Auswertung unten auf der Vorderseite. */
 .lz-steps {
   flex: none;
@@ -1408,11 +1494,22 @@ body {
   font-size: 12pt;
 }
 
-/* Viele Seiten: zweispaltig und etwas kleiner, damit alles aufs Blatt passt. */
+/* Viele Seiten: zweispaltig und etwas kleiner, damit alles aufs Blatt passt. Die
+   linke Spalte beginnt unter dem Titel, die rechte unter dem QR-Code (Aufteilung
+   gemessen in LaufzettelPage). */
 .lz-list--2 {
-  columns: 2;
-  column-gap: 6mm;
   font-size: 12pt;
+}
+
+.lz-spalte-links {
+  float: left;
+  width: calc(50% - 3mm);
+  margin-right: 6mm;
+}
+
+.lz-spalte-rechts {
+  clear: right;
+  margin-left: calc(50% + 3mm);
 }
 
 .lz-list--2 li {
@@ -1441,6 +1538,7 @@ body {
   }
 
   .control-panel,
+  .scan-hinweis,
   .sheet-overflow-note,
   .sheet-page-end {
     display: none !important;

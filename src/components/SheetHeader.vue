@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { getBogenTexte } from '../config/active'
-import { bogenPayload } from '../lib/qr'
 import type { Bogen, SheetDef } from '../types'
 import QrTag from './QrTag.vue'
 
 // Kopfbereich eines Bogens: Event-Titel, Listentyp/Klasse/Lauf, WKR-Feld, QR.
-const props = defineProps<{
+defineProps<{
   def: SheetDef
   bogen: Bogen
   eventName: string
   wkr: string
+  /** Inhalt des QR-Codes dieser Druckseite (lib/qr). */
+  qr: string
 }>()
 const emit = defineEmits<{ (e: 'wkr', name: string): void }>()
 // Bögen werden bei einem Sprachwechsel neu aufgebaut (Key in App.vue).
@@ -20,7 +21,7 @@ const texte = getBogenTexte()
   <div class="sheet-header">
     <div class="event-bar">
       <span class="event-title">{{ eventName }}</span>
-      <QrTag :payload="bogenPayload(eventName, bogen)" :size="62" />
+      <QrTag :payload="qr" :size="62" />
     </div>
     <div class="header-body">
       <div class="header-left">
