@@ -91,8 +91,10 @@ describe('Aufbau-Wechsel', () => {
   })
 
   it('findet Tor 5 auch auf zwei Spalten verteilt', () => {
+    // Tore 1/3/5 beobachtet die untere Boje von Tor 5, in Baden-Württemberg ist das Land 2.
     const next = wechsel(mitEingaben({ gate135: { '12:t5#0': '5', '12:t5#1': '10' } }), 'bawue')
-    expect(zellen(next, 'bawuewasser2')).toEqual({ '12:t5a#0': '5', '12:t5b#0': '10' })
+    expect(zellen(next, 'bawueland2')).toEqual({ '12:t5a#0': '5', '12:t5b#0': '10' })
+    expect(zellen(next, 'bawuewasser2')).toEqual({})
   })
 
   it('zeigt beim Wechsel zu Alcatraz-DM26 Zeit, Start und Parcours richtig', () => {

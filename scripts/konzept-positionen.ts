@@ -5,8 +5,8 @@
 // Das Skript leitet je Klasse ab und vergleicht mit den echten Quelldateien unter src/config.
 //
 // Es ändert nichts und gehört nicht zu `npm run check`, denn die App kennt die Kurzform noch
-// nicht. Exit-Code 1 nur, wenn Bojen oder Abblendung abweichen, ohne dass es der bekannte
-// Seitentausch ist.
+// nicht. Exit-Code 1, wenn Bojen oder Abblendung abweichen. Auch vertauschte Seiten zählen,
+// seit Baden-Württemberg korrigiert ist (KONZEPT-POSITIONEN.md §6).
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -258,7 +258,7 @@ for (const [id, k] of Object.entries(KURZFORM)) {
   const dimSoll = menge(abblendungAbgeleitet(k))
   const abblendung = hatBild !== hatBildAbgeleitet(k) ? 'BILD?' : !hatBild ? '-' : gleich(dimIst, dimSoll) ? 'ok' : 'ABWEICHUNG'
   if (abblendung !== 'ok' && abblendung !== '-') details.push(`  ${id}: Abblendung ist ${dimIst.join(' ')} | soll ${dimSoll.join(' ')}`)
-  if (bojen.urteil === 'ABWEICHUNG' || (abblendung !== 'ok' && abblendung !== '-')) fehler++
+  if (bojen.urteil !== 'ok' || (abblendung !== 'ok' && abblendung !== '-')) fehler++
 
   const drehungIst = p.bildDrehung ?? 0
   const drehungSoll = k.blick ? DREHUNG[k.blick] : 0

@@ -1,6 +1,6 @@
 # Konzept: WKR-Positionen einfacher konfigurieren
 
-Stand: 07.11.2026. **Vorschlag zum Abstimmen, noch nicht umgesetzt.** Offene Fragen stehen in §11.
+Stand: 07.11.2026. **Vorschlag zum Abstimmen, noch nicht umgesetzt.** Nur die Korrektur in Baden-Württemberg (§6) ist erledigt. Offene Fragen stehen in §11.
 Die Prüfung aus §5 lässt sich jederzeit wiederholen: `node scripts/konzept-positionen.ts`.
 
 Eine Veranstaltung hat wenige Personen und oft eigene Standorte am Kurs. Eine neue Verteilung der
@@ -31,7 +31,7 @@ Spalten, Bojen-Seiten, `innen`, `hebt`, `abblenden` und die Bilddrehung. Daraus 
 - **Varianten vervielfachen sich.** „Frontal ohne Start/Ziel“ braucht zwei neue Blöcke mit je rund
   25 Zeilen und einen neuen Aufbau, dazu Commit, Build und Deploy, weil die Bilder beim Build entstehen.
 - **Der Kurs steht dreimal im Repo:** in den Positionen, in `ergebnisspalten` und in `ueberwachung`.
-- **Handarbeit läuft auseinander**, siehe den Befund zu Baden-Württemberg in §6.
+- **Handarbeit läuft auseinander**, siehe den Befund zu Baden-Württemberg in §6 (inzwischen korrigiert).
 
 ## 3. Begriffe
 
@@ -148,10 +148,10 @@ mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
 
 | Prüfung | Ergebnis |
 |---|---|
-| Bojenfelder, ihre Reihenfolge und Klassen | 15 von 19 gleich, 4 nur mit vertauschten Seiten (Baden-Württemberg, §6) |
+| Bojenfelder, ihre Reihenfolge und Klassen | alle 19 gleich, seit Baden-Württemberg korrigiert ist (§6) |
 | Abblendung im Bild, Bild ja oder nein | alle gleich |
 | `pfeileSpiegeln`, `disq` | alle gleich |
-| `innen` | gleich, nur in Baden-Württemberg vertauscht (§6) |
+| `innen` | alle gleich |
 | `bildDrehung` | gleich außer bei Wasser 1 und 2 |
 | Jedes abgeleitete Feld kommt in den Ergebnislisten vor | ja |
 | Dasselbe Feld auf zwei Listen eines Aufbaus | kommt heute nicht vor |
@@ -160,9 +160,9 @@ mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
 
 | Position | Heute | Aus dem Fahrweg | Vorschlag |
 |---|---|---|---|
-| Wasser 1, Wasser 2 | Bild 0° | 180°, wie von dieser Seite gesehen | Frage 2 in §11 |
+| Wasser 1, Wasser 2 | Bild 0° | 180°, wie von dieser Seite gesehen | Frage 1 in §11 |
 | Wasser 2 | `katalog: tor5`, aber keine Fehlerspalte | kein Katalog | Angabe entfällt; laut Lastenheft §4a steht ohne Fehlerspalte ohnehin kein Fehlerblock auf dem Bogen. |
-| Berlin Rechts | Kl. 7: MüB hinter der zweiten Durchfahrt von Tor 1 | MüB davor | Frage 3 in §11 |
+| Berlin Rechts | Kl. 7: MüB hinter der zweiten Durchfahrt von Tor 1 | MüB davor | Frage 2 in §11 |
 | Berlin Links | Fehlerspalte hinter allen vier Bojen von Tor 5 | zwischen Hin- und Rückfahrt | Regel: Tor 5 mit beiden Bojen bleibt eine Gruppe, die Fehlerspalte folgt dahinter. |
 | Tor 5 + Parcours mit Start und Ziel | Start und Ziel, dann Fehler | Fehler dazwischen | Regel: Bei der Parcoursüberwachung stehen die Bojen vorn. |
 
@@ -181,29 +181,50 @@ Zum Umfang: Die vier Dateien mit den Tor-Positionen haben samt Kommentaren 23.51
 Kurzform dieser 13 Positionen 1.075 Zeichen. Der Vergleich schmeichelt, denn Titel und Darstellung
 fehlen in der Kurzform noch.
 
-## 6. Befund Baden-Württemberg
+## 6. Befund Baden-Württemberg (korrigiert)
 
-Alle vier Positionen vertauschen die Seiten gegenüber den anderen Aufbauten. Laut den Kommentaren in
-den Quelldateien ist `seiteB` in `alcatraz.yaml` die obere Boje, in `bawue.yaml` die untere. Alle
-Angaben zu `innen` sind dort passend mitgedreht, und `bawue.yaml` trägt den Vermerk „ENTWURF, Seiten
-prüfen“. Es ist also wohl ein Fehler, aber noch nicht bestätigt.
+Alle vier Positionen hatten die Seiten gegenüber den anderen Aufbauten vertauscht: `seiteB` war in
+`alcatraz.yaml` die obere Boje, in `bawue.yaml` die untere. Die Angaben zu `innen` waren passend
+mitgedreht, und `bawue.yaml` trug den Vermerk „ENTWURF, Seiten prüfen“.
 
-| Auswirkung | Stimmt das heute? |
+| Auswirkung | Vor der Korrektur |
 |---|---|
-| Punkte, Summen, Abblendung im Bild | ja |
-| Kürzel Innen/Außen | ja, weil `innen` mitgedreht ist |
-| Kürzel R/L auf dem Bogen und in der Ergebnisliste | Dieselbe Boje heißt dort „L“ und sonst „R“. |
-| Aufbau-Wechsel | Ein Eintrag bleibt im selben Feld und springt damit auf die gegenüberliegende Boje. |
+| Punkte, Summen, Abblendung im Bild | stimmten |
+| Kürzel Innen/Außen | stimmten, weil `innen` mitgedreht war |
+| Kürzel R/L auf dem Bogen und in der Ergebnisliste | Dieselbe Boje hieß dort „L“ und sonst „R“. |
+| Aufbau-Wechsel | Ein Eintrag blieb im selben Feld und sprang damit auf die gegenüberliegende Boje. |
 
-**Korrektur, wenn bestätigt:** in `bawue.yaml` `seiteA` und `seiteB` tauschen, auch bei `innen`. Das
-geht unabhängig vom Assistenten, und mit der Kurzform kann der Fehler gar nicht mehr entstehen, weil die
-Seite aus der Bild-ID folgt. Welche Seite „Land“ heißt, bleibt eine Frage der Beschriftung (`ls` oder
-`sl`). Land unten im Bild ist nach der Korrektur `ls`.
+**Korrektur (07.11.2026):** In `bawue.yaml` sind `seiteA` und `seiteB` getauscht, auch bei `innen` und
+in den Kommentaren. Land beobachtet jetzt `seiteA`, die untere Boje, Wasser `seiteB`, die obere. Die
+Bilder ändern sich dadurch nicht. Mit der Beschriftung „Land / See“ (`ls`) heißt die untere Seite jetzt
+auf allen Listen „L“.
+
+**Folgen:**
+
+- Beim Aufbau-Wechsel landet ein Eintrag jetzt auf der Liste, die dieselbe Boje beobachtet. Beispiel aus
+  dem Test: Tor 5 von „Tore 1/3/5“ (untere Boje) geht nach Land 2, vorher ging es nach Wasser 2.
+- Einträge, die vor der Korrektur auf einer BaWü-Liste im Browser standen, erscheinen jetzt auf der
+  Gegenseite (Land 1 ↔ Wasser 1, Land 2 ↔ Wasser 2). Eine Umrechnung gibt es nicht, weil es im Prototyp
+  nur Test- und Beispielwerte gibt.
+
+Mit der Kurzform kann der Fehler gar nicht mehr entstehen, weil die Seite aus der Bild-ID folgt.
 
 ## 7. Der Assistent
 
-Annahme: Ihn bedient die Auswertung oder der WKR-Kommissar vor der WKR-Besprechung, am eigenen
-Rechner und ohne Repo-Zugang. Die WKR selbst arbeiten auf Papier.
+**Wer ihn nutzt:** Der Prototyp ist frei zugänglich, also kann jede Person den Assistenten nutzen, ohne
+Anmeldung und ohne Repo-Zugang. Typisch ist die Auswertung oder der WKR-Kommissar vor der
+WKR-Besprechung. Die WKR selbst arbeiten auf Papier. Ist ein Aufbau für andere wichtig oder wird er
+öfter genutzt, kommt er als YAML ins Repo und steht dann allen im Menü (§8, „Übernahme ins Repo“).
+
+Daraus folgt:
+
+- **Ohne Anleitung bedienbar:** Klartext statt Fachbegriffen aus der YAML, die Vorschau als Kontrolle und
+  verständliche Meldungen bei der Prüfung.
+- **Nichts verlässt den Browser von selbst.** Es gibt keinen Server. Weitergabe geht nur über Link oder
+  Datei, und die Person entscheidet selbst darüber.
+- **Fremde Links und Dateien werden geprüft** (§8), denn jede Person kann sie erstellen.
+- **Eigene Aufbauten sind erkennbar** und gehen nicht mit denen aus dem Repo durcheinander, auch nicht in
+  Link und QR-Code.
 
 Er gehört direkt in die App, als Bereich „Eigener Aufbau“. Die Vorschau rechts bleibt, sie zeigt die
 echten Bögen und ist damit schon die Kontrolle.
@@ -275,6 +296,21 @@ Kurzform fällt also kaum auf. Wie in Lastenheft §8a hat der Link Vorrang: Unbe
 **YAML:** Export und Import nutzen die Form aus §4.1. Ein Aufbau lässt sich dadurch ohne Umbau ins Repo
 übernehmen: Datei nach `src/config/aufbauten/` legen und in `aufbauten.yaml` eintragen.
 
+**Übernahme ins Repo:** Ist ein eigener Aufbau für andere wichtig oder wird er öfter genutzt, kommt er
+dauerhaft in den Prototyp.
+
+1. Die Person lädt die YAML herunter und schickt sie an das Repo-Team, zum Beispiel per E-Mail oder als
+   GitHub-Issue. Ein Kopf in der Datei nennt Datum, App-Version und Regelwerk.
+2. Das Repo-Team legt die Datei unter `src/config/aufbauten/` ab, trägt sie in `aufbauten.yaml` ein und
+   prüft mit `npm run check`. Der Build erzeugt dabei die Bilder.
+3. Die ID bleibt gleich. So funktionieren Links und QR-Codes von vorher weiter.
+4. Findet die App danach einen eigenen Aufbau mit derselben ID wie einen aus dem Repo, gilt der aus dem
+   Repo. Sie zeigt einen Hinweis und bietet an, die eigene Kopie zu löschen. Weichen beide voneinander
+   ab, bleibt die Kopie unter neuem Namen erhalten.
+
+Damit IDs eigener Aufbauten nicht mit späteren aus dem Repo zusammenstoßen, wählt der Assistent sie
+eindeutig: aus dem Namen und einem kurzen Zufallsteil, ohne Trennzeichen (§9), zum Beispiel `sommercupx7k2`.
+
 **Fremde Eingaben:** Links und Dateien kommen von anderen. Vor der Übernahme laufen sie durch die Prüfung,
 und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird angezeigt und nichts übernommen.
 
@@ -304,7 +340,7 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
 
 Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 
-1. **Baden-Württemberg klären** (§6). Das ist unabhängig vom Rest.
+1. **Baden-Württemberg klären** (§6). Erledigt: Die Seiten sind angeglichen.
 2. **Kurzform:** `kurzform.ts` mit Fahrweg und Regeln für die Darstellung. Ein Test verlangt, dass die
    Ableitung die heutigen Listen 1:1 nachbildet; er ersetzt `scripts/konzept-positionen.ts`. Danach ziehen
    die Positionen nach und nach um. Schon das macht neue Aufbauten im Repo zu wenigen Zeilen.
@@ -318,13 +354,21 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 
 ## 11. Offene Fragen
 
-1. **Wer bedient den Assistenten?** Angenommen ist die Auswertung oder der WKR-Kommissar ohne Repo-Zugang
-   (§7). Pflegt nur eine Person die Aufbauten im Repo, reichen vielleicht die Schritte 1 und 2.
-2. **Baden-Württemberg:** Sollen die Seiten angeglichen werden (§6)? Sollen die Wasser-Bilder wie bei
-   Berlin um 180° gedreht werden, so wie die Person den Kurs sieht? Heute stehen alle vier bei 0°.
-3. **Berlin Rechts, Klasse 7:** Darf MüB an den Platz im Fahrweg rücken, also vor die zweite Durchfahrt von
+**Geklärt (07.11.2026):**
+
+- **Wer den Assistenten bedient:** jede Person, denn der Prototyp ist frei zugänglich. Wichtige oder
+  häufige Aufbauten kommen als YAML ins Repo (§7, §8).
+- **Baden-Württemberg, Seiten:** angeglichen (§6).
+
+**Offen:**
+
+1. **Baden-Württemberg, Bilder:** Sollen die Wasser-Bilder wie bei Berlin um 180° gedreht werden, so wie
+   die Person den Kurs sieht? Heute stehen alle vier bei 0°.
+2. **Berlin Rechts, Klasse 7:** Darf MüB an den Platz im Fahrweg rücken, also vor die zweite Durchfahrt von
    Tor 1? Vorschlag: ja, das entspricht der Fahrt und vermeidet eine Ausnahme.
-4. **„Alles zurücksetzen“:** Sollen eigene Aufbauten das überleben? Vorschlag: ja, mit eigenem Knopf zum
+3. **„Alles zurücksetzen“:** Sollen eigene Aufbauten das überleben? Vorschlag: ja, mit eigenem Knopf zum
    Löschen.
-5. **Beschriftungen:** Sind „Sp. 1“, „Tor 5 tief“ und „MüB Fehler“ gewollt oder können sie vereinheitlicht
+4. **Beschriftungen:** Sind „Sp. 1“, „Tor 5 tief“ und „MüB Fehler“ gewollt oder können sie vereinheitlicht
    werden?
+5. **Übernahme ins Repo:** Wer entscheidet, ob ein Aufbau übernommen wird, und auf welchem Weg kommt die
+   Datei an (E-Mail, GitHub-Issue)?
