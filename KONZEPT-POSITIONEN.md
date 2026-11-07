@@ -1,7 +1,10 @@
 # Konzept: WKR-Positionen einfacher konfigurieren
 
-Stand: 07.11.2026. **Vorschlag zum Abstimmen, noch nicht umgesetzt.** Nur die Korrektur in Baden-Württemberg (§6) ist erledigt. Offene Fragen stehen in §11.
-Die Prüfung aus §5 lässt sich jederzeit wiederholen: `node scripts/konzept-positionen.ts`.
+Stand: 07.11.2026. **Vorschlag zum Abstimmen, noch nicht umgesetzt.** Erledigt sind nur Korrekturen an
+den heutigen Aufbauten: Baden-Württemberg (§6, §5.1), Berlin Rechts (§5.1) und die Reihenfolge der
+Ergebnisliste (§4.3). Offene Fragen stehen in §11.
+Die Prüfung aus §5.1 lässt sich jederzeit wiederholen: `node scripts/konzept-positionen.ts`. §5.2 spielt
+einen neuen Aufbau durch, den Möwe-Parcours in Oranienburg.
 
 Eine Veranstaltung hat wenige Personen und oft eigene Standorte am Kurs. Eine neue Verteilung der
 WKR-Positionen braucht heute Repo, Build und Deploy. Das Konzept schlägt drei Dinge vor, die
@@ -10,11 +13,13 @@ und einen Weg, das Ergebnis zu speichern und weiterzugeben (§8).
 
 ## 1. Abgrenzung
 
-- Es geht um das normale DM-Umfeld: Regelwerk DM 2026, Disziplin Manövrieren, ein Kurs, Klassen E
-  und 1 bis 7.
+- Es geht um das normale DM-Umfeld: Regelwerk DM 2026, Disziplin Manövrieren, ein Kurs mit örtlichen
+  Varianten (§4.4), Klassen E und 1 bis 7.
 - Parallelslalom hat eigene Bojen und bleibt in der ausführlichen Form, ebenso alles aus
   `KONZEPT-UIM.md`. Die ausführliche Form bleibt überall gültig.
-- Zeit, Steg, Vorsteg und Knoten bleiben feste Bausteine. Sie werden nur ausgewählt, nicht abgeleitet.
+- Steg, Vorsteg und Knoten bleiben feste Bausteine. Ihre Spalten hängen nicht davon ab, wo jemand
+  steht, deshalb werden sie nur ausgewählt, nicht abgeleitet. Zeit ist dagegen eine Aufgabe wie
+  Einfahrt oder MüB und kann mit Bojen auf einer Liste stehen (§4.5).
 - Fehlerpunkte und Disqualifikationen bleiben im Regelwerk und sind nicht Teil davon.
 - Der Assistent speichert keine Personennamen. Die WKR-Namen bleiben wie bisher am Bogen und damit
   außerhalb des Einstellungs-Links.
@@ -40,9 +45,11 @@ Spalten, Bojen-Seiten, `innen`, `hebt`, `abblenden` und die Bilddrehung. Daraus 
 | Kurzform | Beschreibung einer Position durch ihre Bojen, Aufgaben und ihren Blick. |
 | Boje | ID aus dem Parcoursbild: ein ganzes Tor (`Tor1`) oder eine Einzelboje (`Tor1_innen`, `Tor5_oben`). |
 | Aufgabe | Was keine Boje ist: `zeit`, `tor5` (Einfahrt), `mueb`, `parcours`. |
-| Blick | Wo die Person steht: `hinten`, `vorne`, `rechts`, `links`. |
-| Baustein | Feste Liste, die nur gewählt wird: Zeit, Steg, Vorsteg, Knoten. |
+| Blick | Von welcher Seite die Person überwiegend auf den Kurs schaut: `hinten`, `vorne`, `rechts`, `links` (§4.2). |
+| Baustein | Feste Liste, die nur gewählt wird: Steg, Vorsteg, Knoten. |
+| Zeitnahme | Ein Gerät, das die Zeit misst: `elektronisch` (Lichtschranke) oder `stoppuhr` (§4.5). |
 | Fahrweg | Die Bojen und Aufgaben in der Reihenfolge, in der das Boot sie passiert. |
+| Kursvariante | Was ein Austragungsort am Kurs anders macht: eigene Bilder je Klasse (§4.4). |
 | Eigener Aufbau | Ein Aufbau, der im Browser liegt, nicht im Repo. |
 
 ## 4. Die Kurzform
@@ -54,9 +61,9 @@ aufbauten:
   - id: alcatrazdm26
     name: Alcatraz-DM26
     positionen:
-      - zeit
-      - zeit
-      - zeit
+      - { aufgaben: [zeit], zeiten: [elektronisch] }
+      - { aufgaben: [zeit], zeiten: [stoppuhr] }
+      - { aufgaben: [zeit], zeiten: [stoppuhr] }
       - vorsteg
       - steg
       - { titel: "Tor 1 / 3 / 5", blick: hinten, bojen: [Tor1, Tor3, Tor5_unten, Speedboje_unten] }
@@ -103,6 +110,15 @@ wird damit zu zwei Zeilen: dieselben Bojen wie oben, nur `blick: vorne`.
 | `pfeileSpiegeln` | `blick`, `bojen` | Nur bei `hinten` mit Bojen. |
 | `disq` | `aufgaben` | `mueb` bei Mann-über-Bord, sonst `parcours`. |
 | `katalog` | `aufgaben` | `mueb` oder `tor5`. |
+| `subTrenner`, Trennlinien | Fahrweg | Gepunktet zwischen den beiden Bojen eines Tores, bei jedem Blick. Doppelt, wo die Hinfahrt endet und die Rückfahrt beginnt; steht die Einfahrt dazwischen, liegt sie zwischen zwei doppelten Linien. |
+| Zeitspalten | `zeiten` | Eine Spalte je Gerät (§4.5). |
+
+**Warum der Blick nur vier Werte hat:** Er steuert die Bilddrehung in 90°-Schritten (mehr passt nicht
+ins A4-Layout), welche Boje eines Tores links steht, ob bei Tor 5 Hin- oder Rückfahrt zuerst kommt und
+ob die Pfeile gespiegelt werden. Eine Gradzahl müsste dafür wieder gerundet werden. Sie würde auch
+nicht genauer: Wer bei Möwe auf Höhe von Tor 2 steht, sieht Tor 2 von der Seite und Tor 4 und 5 schräg
+von vorne. Gefragt wird deshalb, von wo die Person überwiegend schaut. Bei der Wahl hilft: Zwischen `hinten` und
+`rechts` ändert sich nur das Bild, zwischen `vorne` und `links` auch die Spalten.
 
 Jedes Feld der ausführlichen Form darf zusätzlich angegeben werden und gewinnt dann gegen die Regel,
 wie `bildNeben` im Beispiel. So bleibt für jede Besonderheit ein Ausweg, ohne die Position wieder ganz
@@ -120,26 +136,81 @@ Der Kurs steht genau einmal im Code und gilt für alle Positionen:
 | Einfahrt Tor 5 | Katalog `tor5` | – | alle |
 | Tor 5, Rückfahrt | `t5` | `Tor5` | alle |
 | Tore 4 bis 2, Rückfahrt | `t4b` … `t2b` | `Tor4` … `Tor2` | alle |
-| Speed 1 | `speed1` | `Speedboje_oben` | 5, 6, 7 |
 | Tor 1, Rückfahrt | `t1b` | `Tor1` | alle außer 4 |
 | Mann-über-Bord | Katalog `mueb` | `Schikane` | 4, 5, 6, 7 |
+| Speed 1 | `speed1` | `Speedboje_oben` | 5, 6, 7 |
 | Speed 2 | `speed2` | `Speedboje_unten` | 7 |
-| Tor 1, zweite Durchfahrt | `t1c` | `Tor1` | 7 |
+| Tor 1, Ende der Speedrunde | `t1c` | `Tor1` | 7 |
 | Ziel | `ziel` | `StartZiel` | alle |
+
+Klasse 7 passiert Tor 1 also dreimal: auf der Hinfahrt, auf der Rückfahrt vor Mann-über-Bord und am
+Ende der Speedrunde um Speed 1 und Speed 2.
+
+**Korrigiert (07.11.2026):** Speed 1 stand hier und in den Ergebnisspalten (`gemeinsam.yaml`) vor
+Tor 1 Rückfahrt, übernommen aus der DM-Liste 2026. Gefahren wird die Speedrunde aber erst nach
+Mann-über-Bord. Die Ergebnisliste folgt jetzt der Fahrt und schreibt „MüB“ statt „SCH“, wie es in der
+DM-Liste noch heißt. Die Prüfung in §5.1 konnte das nicht finden, weil keine heutige Liste Speed 1
+zusammen mit Tor 1 oder MüB hat. Bei Möwe wäre es aufgefallen (§5.2).
 
 Die Seite einer Boje ist physisch festgelegt: `seiteA` ist die untere Boje im Bild, `seiteB` die obere.
 R/L, Land/See und die anderen Kürzel bleiben reine Beschriftung (`beschriftungen`).
 
 `rechts` meint die rechte Seite auf der Hinfahrt. Das ist im Bild unten, so wie bei Berlin „Rechts“.
 
-### 4.4 Einbau
+### 4.4 Kursvarianten
+
+Ein Austragungsort kann vom Kurs abweichen, ohne dass sich der Fahrweg ändert. Eine Kursvariante nennt
+nur ihre Abweichungen und wird am Aufbau gewählt:
+
+```yaml
+kurse:
+  - id: moewe
+    name: Möwe-Parcours
+    bilder: { 5: Klasse5_Moewe, 6: Klasse6_Moewe, 7: Klasse7_Moewe }   # aus alcatraz_Parcours
+```
+
+- **`bilder`:** eigene Quellbilder je Klasse, die übrigen Klassen nutzen die Standardbilder. Das gilt für
+  alle Positionen des Aufbaus, auch für MüB und Parcours. Bei Möwe läuft in Klasse 5 und 6 die Speedrunde
+  andersherum, die Felder bleiben dieselben.
+- **Fehlt eine Boje vor Ort, bleiben ihre Felder.** Beispiele sind Tonne 8 bei Möwe oder Start und Ziel
+  als Linie ohne Bojen. Die WKR lassen die Spalte leer. So hat jeder Aufbau dieselben Felder, und Listen,
+  Prüfung auf Lücken und Ergebnisliste brauchen keine Ausnahme. Nur das Bild zeigt, was vor Ort liegt:
+  Bei Möwe fehlt Tonne 8 schon im Quellbild.
+- Die Bilder der Variante müssen dieselben Element-IDs haben. Bei Möwe stimmt das: Nur in Klasse 7 fehlt
+  `Speedboje_unten`, und das ist heute schon bei allen Klassen ohne Speed 2 so. Das Abblenden funktioniert
+  deshalb unverändert.
+
+### 4.5 Zeitnahme
+
+Bei der DM 2026 gab es drei Zeit-Blätter: eine Lichtschranke und zwei Stoppuhren. Gewertet wurde die
+Lichtschranke, die Stoppuhren nur bei ihrem Ausfall. Auf den Blättern stand trotzdem nur „Zeit 1“ bis
+„Zeit 3“. Möwe hat nur die elektronische Zeiterfassung.
+
+- **Zeit ist eine Aufgabe.** Jede Liste mit `aufgaben: [zeit]` bekommt Zeitspalten, auch zusammen mit
+  Bojen wie bei Berlin Start/Ziel.
+- **`zeiten`** nennt die Geräte der Liste, je Gerät eine Spalte, zum Beispiel `[elektronisch]` oder
+  `[stoppuhr, stoppuhr]`. Ohne Angabe gelten drei Stoppuhren wie heute.
+- **Der Titel nennt das Gerät:** „Elektronische Zeiterfassung“ oder „Stoppuhr“, mehrfach nummeriert wie
+  heute „Zeit (1)“. Ein eigener `titel` gewinnt.
+- **`- zeit`** bleibt als Kurzschrift für eine Liste nur mit Zeit erhalten.
+- **IDs bleiben:** Die Listen heißen weiter `zeit-1` … und die Spalten `zeit1` …. Links, QR-Codes und
+  Eingaben von vorher funktionieren also weiter.
+- **Ergebnisliste:** Gibt es eine elektronische Zeit, gilt sie, sonst der Mittelwert der Stoppuhren.
+  Heute rechnet sie den Mittelwert aller eingetragenen Zeiten (Lastenheft §8f), bei der DM 2026 also die
+  Lichtschranke mit den Stoppuhren zusammen.
+- **Beispielwerte:** Die Wahl „Lichtschranke“ füllt die elektronische Spalte, ohne eine solche wie heute
+  die erste.
+
+### 4.6 Einbau
 
 Ein neues Modul `src/config/kurzform.ts` wandelt eine Kurzform in die heutige Roh-Position
 (`RawPosition`) um. Es braucht keinen Bundler, wie `feld.ts` und `kombi.ts`, und läuft dadurch im
 Build, in den Prüfungen und im Browser. Der Aufruf gehört vor `buildConfig`. Alles danach bleibt
 unverändert: Bögen, Eingaben, Ergebnislisten, Laufzettel, QR-Code und Prüfungen.
 
-## 5. Prüfung gegen die heutige Konfiguration
+## 5. Prüfung
+
+### 5.1 Gegen die heutige Konfiguration
 
 `scripts/konzept-positionen.ts` leitet 19 Positionen je Klasse aus der Kurzform ab und vergleicht sie
 mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
@@ -152,17 +223,22 @@ mit den echten Quelldateien. Die Schreibweise im Skript entspricht §4.1.
 | Abblendung im Bild, Bild ja oder nein | alle gleich |
 | `pfeileSpiegeln`, `disq` | alle gleich |
 | `innen` | alle gleich |
-| `bildDrehung` | gleich außer bei Wasser 1 und 2 |
+| `bildDrehung` | alle gleich, seit Wasser 1 und 2 gedreht sind |
 | Jedes abgeleitete Feld kommt in den Ergebnislisten vor | ja |
 | Dasselbe Feld auf zwei Listen eines Aufbaus | kommt heute nicht vor |
+
+**Korrigiert (07.11.2026):**
+
+- **Wasser 1 und 2:** Bild um 180° gedreht wie bei Berlin Links. Bilder zeigen den Kurs immer aus der
+  Sicht der Position.
+- **Berlin Rechts, Klasse 7:** MüB steht jetzt zwischen der zweiten und der dritten Durchfahrt von Tor 1,
+  vorher stand es dahinter.
 
 **Diese Ausnahmen brauchen eine Regel oder eine Entscheidung:**
 
 | Position | Heute | Aus dem Fahrweg | Vorschlag |
 |---|---|---|---|
-| Wasser 1, Wasser 2 | Bild 0° | 180°, wie von dieser Seite gesehen | Frage 1 in §11 |
 | Wasser 2 | `katalog: tor5`, aber keine Fehlerspalte | kein Katalog | Angabe entfällt; laut Lastenheft §4a steht ohne Fehlerspalte ohnehin kein Fehlerblock auf dem Bogen. |
-| Berlin Rechts | Kl. 7: MüB hinter der zweiten Durchfahrt von Tor 1 | MüB davor | Frage 2 in §11 |
 | Berlin Links | Fehlerspalte hinter allen vier Bojen von Tor 5 | zwischen Hin- und Rückfahrt | Regel: Tor 5 mit beiden Bojen bleibt eine Gruppe, die Fehlerspalte folgt dahinter. |
 | Tor 5 + Parcours mit Start und Ziel | Start und Ziel, dann Fehler | Fehler dazwischen | Regel: Bei der Parcoursüberwachung stehen die Bojen vorn. |
 
@@ -171,8 +247,8 @@ Dafür braucht es Standardwerte und einzelne Überschreibungen:
 
 | Angabe | Vorschlag |
 |---|---|
-| `subTrenner`, Trennlinien | Gepunktet zwischen zwei Bojen bei `hinten` und `vorne`, doppelt an der Wende bei Einzelbojen. Berlin weicht davon ab. |
-| Beschriftung | Standard aus dem Fahrweg. Abweichungen wie „Sp. 1“ oder „Tor 5 tief“ prüfen und möglichst vereinheitlichen. |
+| `subTrenner`, Trennlinien | Abgestimmt als Regel (§4.2). Dass Berlin heute keine Trennlinien hat, ist Handarbeit und entfällt mit der Kurzform. |
+| Beschriftung | Standard aus dem Fahrweg. Abweichungen wie „Sp. 1“, „Tor 5 tief“ oder „MüB Fehler“ werden angeglichen. |
 | Disq., Σ, Bemerkung | Disq. immer, Σ bei Punkten, Bemerkung bei Fehlerlisten. Das deckt noch nicht alles ab: Tor-Listen haben heute keine Bemerkung, die Parcours-Listen keine Σ, auch wenn sie Bojen haben. |
 | `bildNeben`, `bildBreite`, `breite` | Bleiben Überschreibungen. |
 | `hinweis` | Standard `blickrichtung` bei Bojen, `parcours` bei Parcoursüberwachung. Baden-Württemberg zeigt heute keinen. |
@@ -180,6 +256,55 @@ Dafür braucht es Standardwerte und einzelne Überschreibungen:
 Zum Umfang: Die vier Dateien mit den Tor-Positionen haben samt Kommentaren 23.513 Zeichen, die
 Kurzform dieser 13 Positionen 1.075 Zeichen. Der Vergleich schmeichelt, denn Titel und Darstellung
 fehlen in der Kurzform noch.
+
+### 5.2 Neuer Aufbau: Möwe-Parcours
+
+Der WSC „Möwe“ Oranienburg hat eigene Parcoursbilder für Klasse 5 bis 7 (Repo Parcours, `*_Moewe`).
+Vor Ort gilt:
+
+- Eine Person steht auf Höhe von Tor 5 und schaut eher von hinten: Tor 1, Tor 3, Tor 5 rechts und die
+  Einfahrt.
+- Eine Person steht auf Höhe von Tor 2 und schaut von der linken Seite: Tor 2, Tor 4, Tor 5 links und
+  Speed 1.
+- Mann-über-Bord hat eine eigene Position.
+- Start und Ziel sind eine Linie über die ganze Flussbreite, ohne Bojen. Die Zeit misst nur die
+  elektronische Zeiterfassung. Start und Ziel stehen trotzdem auf der Zeitliste und bleiben leer, wenn es
+  nichts einzutragen gibt. So hat jeder Aufbau dieselben Felder.
+- Tonne 8 (Speed 2, Klasse 7) wird nicht ausgelegt. Die Starter kennen ihren Platz, die Spalte bleibt
+  auf der Liste und wird ignoriert.
+
+```yaml
+aufbauten:
+  - id: moewe
+    name: Möwe
+    kurs: moewe   # §4.4
+    positionen:
+      - { bojen: [StartZiel], aufgaben: [zeit], zeiten: [elektronisch] }
+      - steg
+      - { titel: "Tor 1 / 3 / 5", blick: hinten, bojen: [Tor1, Tor3, Tor5_unten, Speedboje_unten], aufgaben: [tor5] }
+      - { titel: "Tor 2 / 4 / 5", blick: links, bojen: [Tor2, Tor4, Tor5_oben, Speedboje_oben] }
+      - { titel: "Mann-über-Bord", blick: hinten, aufgaben: [mueb] }
+      - { titel: "Parcours", aufgaben: [parcours] }
+```
+
+Abgeleitet für Klasse 7, mit den Regeln aus §4.2 und dem Fahrweg aus §4.3. A ist die untere Boje im
+Bild, B die obere, ‖ eine doppelte Linie:
+
+| Liste | Spalten | Bild |
+|---|---|---|
+| Tor 1 / 3 / 5 | Tor 1 (A, B) · Tor 3 (A, B) · Tor 5 Hin (A) ‖ Einfahrt ‖ Tor 5 Rück (A) · Tor 3 · Tor 1 · Speed 2 · Tor 1 Speedrunde | 90°, wie Alcatraz |
+| Tor 2 / 4 / 5 | Tor 2 (A, B) · Tor 4 (A, B) · Tor 5 Hin ‖ Rück (B) · Tor 4 · Tor 2 · Speed 1 | 180°, wie Berlin Links |
+| Mann-über-Bord | Fehler | 90°, nur die Schikane hell |
+| Elektronische Zeiterfassung | Zeit · Start (A, B) · Ziel (A, B) | Start/Ziel hell, wie Berlin Start/Ziel |
+
+In den anderen Klassen fällt weg, was sie nicht fahren. Jede Boje und Aufgabe steht in jeder Klasse auf
+genau einer Liste. Start und Ziel könnten statt auf der Zeitliste auch auf der Parcoursliste stehen, wie
+bei `parcoursms`.
+
+**Was das Konzept dafür gebraucht hat:** die Kursvariante (§4.4), Zeit mit einem Gerät (§4.5) und den
+richtigen Fahrweg. Beim Durchspielen mit Speed 1 auf „Tor 1 / 3 / 5“ stand Speed 1 noch vor Tor 1. So
+fiel der Fehler in §4.3 auf. Ohne Kurzform bräuchte Möwe fünf neue handgeschriebene Positionen, denn
+auch MüB und Parcours zeigen andere Bilder, dazu einen eigenen Ordner mit Quellbildern und einen Build.
 
 ## 6. Befund Baden-Württemberg (korrigiert)
 
@@ -229,10 +354,13 @@ Daraus folgt:
 Er gehört direkt in die App, als Bereich „Eigener Aufbau“. Die Vorschau rechts bleibt, sie zeigt die
 echten Bögen und ist damit schon die Kontrolle.
 
-1. **Vorlage wählen:** ein vorhandener Aufbau oder leer. Die meisten Fälle sind kleine Änderungen.
-2. **Bausteine wählen:** Anzahl der Zeitnahmen, Vorsteg ja oder nein, Steg, Knoten.
-3. **Positionen anlegen:** Name und Standort, in Klartext: „hinter Tor 5“ (`hinten`), „am Start/Ziel“
-   (`vorne`), „rechte Seite“, „linke Seite“.
+1. **Vorlage wählen:** ein vorhandener Aufbau oder leer. Die meisten Fälle sind kleine Änderungen. Dazu
+   der Kurs: Standard oder eine Variante wie Möwe.
+2. **Zeitnahme und Bausteine wählen:** welche Geräte es gibt (elektronisch, Stoppuhren) und ob jedes ein
+   eigenes Blatt bekommt; Vorsteg ja oder nein, Steg, Knoten.
+3. **Positionen anlegen:** Name und Standort. Gefragt wird, von wo die Person überwiegend schaut, in
+   Klartext: „von hinten, hinter Tor 5“ (`hinten`), „von vorne, vom Start/Ziel“ (`vorne`), „von der
+   rechten Seite“, „von der linken Seite“.
 4. **Zuordnen:** Eine Tabelle mit Bojen und Aufgaben als Zeilen und Positionen als Spalten. Ein Klick
    setzt den Punkt. Standard sind ganze Tore, Einzelbojen lassen sich aufklappen.
 
@@ -286,7 +414,9 @@ denn die Person am Druckplatz ist oft eine andere als die, die den Aufbau anlegt
 
 **Browser:** Eigene Aufbauten liegen unter einem eigenen Schlüssel, zum Beispiel
 `fehlerpunkte-prototyp:aufbauten:v1`, getrennt vom Stand `fehlerpunkte-prototyp:v1`. So löscht „Alles
-zurücksetzen“ sie nicht. Beim Start kommen sie zu den Roh-Positionen, bevor die Konfiguration gebaut wird.
+zurücksetzen“ sie nicht. Gelöscht wird ein eigener Aufbau einzeln, mit einem eigenen Knopf im Bereich
+„Eigener Aufbau“ und einer Rückfrage. Beim Start kommen sie zu den Roh-Positionen, bevor die
+Konfiguration gebaut wird.
 
 **Link:** Die Definition kommt als neues Feld in den Parameter `c`, nur bei eigenen Aufbauten. Bei einer
 ganzen DM ist der Link heute schon rund 5.400 Zeichen lang (geschätzt mit 12 Startern je Klasse), die
@@ -299,8 +429,8 @@ Kurzform fällt also kaum auf. Wie in Lastenheft §8a hat der Link Vorrang: Unbe
 **Übernahme ins Repo:** Ist ein eigener Aufbau für andere wichtig oder wird er öfter genutzt, kommt er
 dauerhaft in den Prototyp.
 
-1. Die Person lädt die YAML herunter und schickt sie an das Repo-Team, zum Beispiel per E-Mail oder als
-   GitHub-Issue. Ein Kopf in der Datei nennt Datum, App-Version und Regelwerk.
+1. Die Person lädt die YAML herunter und schickt sie an das Repo-Team, per GitHub-Issue oder E-Mail.
+   Ein Kopf in der Datei nennt Datum, App-Version und Regelwerk.
 2. Das Repo-Team legt die Datei unter `src/config/aufbauten/` ab, trägt sie in `aufbauten.yaml` ein und
    prüft mit `npm run check`. Der Build erzeugt dabei die Bilder.
 3. Die ID bleibt gleich. So funktionieren Links und QR-Codes von vorher weiter.
@@ -321,6 +451,10 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
   `scripts/generate-parcours.ts` nach `src/`, das Skript nutzt sie von dort weiter. `CourseImage.vue` lädt
   dann die Quelle (`alcatraz_Parcours/Klasse*.svg`, rund 35 KB), blendet ab und zeigt das Ergebnis als
   Blob-URL. Am Bildschirm und im Browser-Druck sollte das gehen; das Raster-PDF (html2canvas) ist zu testen.
+- **Kursvariante:** Generator und Browser wählen das Quellbild je Klasse aus der Variante. Fahrweg,
+  Felder, `ueberwachungsLuecken` und Ergebnisliste bleiben unverändert.
+- **Zeit:** Die Zeitspalte kennt ihr Gerät. `mittlereZeit` in `src/lib/ergebnis.ts` nimmt danach die
+  elektronische Zeit und nur ohne sie den Mittelwert der Stoppuhren.
 - **PDF-Insel:** Sie braucht PNGs. Für eigene Aufbauten kommt zuerst kein Bild, später eine Rasterung per
   Canvas. Laut README ist sie ohnehin nur ein Vergleichsweg.
 - **Unbekannte Positionen:** Steht in einem Link eine Bogen-Auswahl mit unbekannter Position, wirft
@@ -341,13 +475,19 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
 Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 
 1. **Baden-Württemberg klären** (§6). Erledigt: Die Seiten sind angeglichen.
-2. **Kurzform:** `kurzform.ts` mit Fahrweg und Regeln für die Darstellung. Ein Test verlangt, dass die
+2. **Ergebnisliste in der Reihenfolge der Fahrt** (§4.3). Erledigt: MüB vor der Speedrunde, Beschriftung
+   „MüB“ statt „SCH“. Ebenso erledigt: Berlin Rechts in dieser Reihenfolge, Wasser 1 und 2 um 180°
+   gedreht (§5.1).
+3. **Zeitnahme** (§4.5): Geräte an den Zeitspalten, Titel nach Gerät, elektronische Zeit vor Stoppuhr.
+   Das geht auch ohne Kurzform und betrifft schon Alcatraz-DM26.
+4. **Kurzform:** `kurzform.ts` mit Fahrweg und Regeln für die Darstellung. Ein Test verlangt, dass die
    Ableitung die heutigen Listen 1:1 nachbildet; er ersetzt `scripts/konzept-positionen.ts`. Danach ziehen
    die Positionen nach und nach um. Schon das macht neue Aufbauten im Repo zu wenigen Zeilen.
-3. **Bilder im Browser** (§9), zuerst nur für eigene Aufbauten.
-4. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.
-5. **Assistent** (§7) mit Tabelle und laufender Prüfung.
-6. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg
+5. **Kursvariante** (§4.4) mit Möwe als erstem Aufbau im Repo (§5.2).
+6. **Bilder im Browser** (§9), zuerst nur für eigene Aufbauten.
+7. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.
+8. **Assistent** (§7) mit Tabelle und laufender Prüfung.
+9. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg
    ableiten.
 
 **Zum Schluss:** Lastenheft (§4, §8a, §12a) und README nachziehen.
@@ -359,16 +499,23 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 - **Wer den Assistenten bedient:** jede Person, denn der Prototyp ist frei zugänglich. Wichtige oder
   häufige Aufbauten kommen als YAML ins Repo (§7, §8).
 - **Baden-Württemberg, Seiten:** angeglichen (§6).
+- **Blick:** bleibt bei vier Werten, keine Gradzahl (§4.2).
+- **Trennlinien:** Regel statt Handarbeit (§4.2).
+- **Reihenfolge Tor 1, MüB, Speedrunde:** so wie gefahren, auch in der Ergebnisliste (§4.3). Bei
+  Klasse 7 liegt MüB zwischen der zweiten und der dritten Durchfahrt von Tor 1, auch bei Berlin Rechts.
+- **Bilder:** immer aus der Sicht der Position. Wer links vom Parcours sitzt, bekommt das Bild um 180°
+  gedreht, auch bei Baden-Württemberg Wasser 1 und 2 (§5.1) und bei Möwe (§5.2).
+- **Zeitnahme:** flexibel, mit dem Gerät auf der Liste (§4.5).
+- **Möwe:** Zuordnung und Tonne 8 (§5.2).
+- **„Alles zurücksetzen“:** Eigene Aufbauten bleiben erhalten. Löschen geht einzeln mit eigenem Knopf (§8).
+- **Beschriftungen:** werden angeglichen, „Sp. 1“, „Tor 5 tief“ und „MüB Fehler“ eingeschlossen (§5.1).
+- **Übernahme ins Repo:** per GitHub-Issue oder E-Mail (§8).
+- **Möwe, Start und Ziel:** Die Felder bleiben auf der Zeitliste, auch ohne Bojen. Was nichts zu
+  beobachten hat, bleibt leer (§5.2).
+- **Zeit in der Ergebnisliste:** Die elektronische Zeit geht vor, die Stoppuhren gelten nur ohne sie
+  (§4.5).
 
-**Offen:**
+- **Bojen, die vor Ort fehlen:** Ihre Felder bleiben und werden auf den Listen ignoriert, bei Möwe also
+  auch Speed 2 in Klasse 7 auf „Tor 1 / 3 / 5“ (§4.4, §5.2).
 
-1. **Baden-Württemberg, Bilder:** Sollen die Wasser-Bilder wie bei Berlin um 180° gedreht werden, so wie
-   die Person den Kurs sieht? Heute stehen alle vier bei 0°.
-2. **Berlin Rechts, Klasse 7:** Darf MüB an den Platz im Fahrweg rücken, also vor die zweite Durchfahrt von
-   Tor 1? Vorschlag: ja, das entspricht der Fahrt und vermeidet eine Ausnahme.
-3. **„Alles zurücksetzen“:** Sollen eigene Aufbauten das überleben? Vorschlag: ja, mit eigenem Knopf zum
-   Löschen.
-4. **Beschriftungen:** Sind „Sp. 1“, „Tor 5 tief“ und „MüB Fehler“ gewollt oder können sie vereinheitlicht
-   werden?
-5. **Übernahme ins Repo:** Wer entscheidet, ob ein Aufbau übernommen wird, und auf welchem Weg kommt die
-   Datei an (E-Mail, GitHub-Issue)?
+**Offen:** derzeit nichts.
