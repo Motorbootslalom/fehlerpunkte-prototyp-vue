@@ -58,6 +58,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
             :klasse="bogen.klasse"
             :datei="bildDatei(state.aufbau, bogen.klasse)"
             :drehung="drehung"
+            :erzeugen="def.bildErzeugen"
           />
         </div>
       </div>

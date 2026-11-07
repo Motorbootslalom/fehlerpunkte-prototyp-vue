@@ -13,6 +13,7 @@ import {
   ZIFFERN_IDS,
 } from './generate-parcours.ts'
 import { aufloesen } from '../src/config/kurzform.ts'
+import { bildSvg, bildVorgabe } from '../src/lib/parcoursbild.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
 /** Alle Quelldateien unter src/config, zusammengeführt und ausgeschrieben. */
@@ -148,7 +149,7 @@ describe('IDs in den Quell-SVGs', () => {
   })
 
   it('kleine Bilder sind ohne Ziffern erzeugt, große behalten sie', () => {
-    const mitBild = positionen.filter((p) => p.bild)
+    const mitBild = positionen.filter((p) => p.bild && !p.bildImBrowser)
     expect(mitBild.filter(kleinesBild).length).toBeGreaterThan(0)
     expect(mitBild.filter((p) => !kleinesBild(p)).length).toBeGreaterThan(0)
     for (const pos of mitBild) {
@@ -163,12 +164,24 @@ describe('IDs in den Quell-SVGs', () => {
 
   it('jedes Bild der App ist erzeugt und hat den Rahmen der Quelle nicht mehr', () => {
     for (const file of svgs) expect(readFileSync(`${ORDNER}/${file}`, 'utf8'), file).toContain(`id="${RAHMEN_ID}"`)
-    const mitBild = positionen.filter((p) => p.bild)
+    const mitBild = positionen.filter((p) => p.bild && !p.bildImBrowser)
     expect(mitBild.length).toBeGreaterThan(0)
     for (const pos of mitBild) {
       expect(pos.bildGenerator, `${pos.id} muss erzeugt werden`).toBe(true)
       for (const file of svgs) {
         expect(readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8'), `${pos.bild}/${file}`).not.toContain(`id="${RAHMEN_ID}"`)
+      }
+    }
+  })
+
+  it('der Browser erzeugt dieselben Bilder wie der Build (lib/parcoursbild)', () => {
+    const erzeugt = positionen.filter((p) => p.bildGenerator && p.bild && !p.bildImBrowser)
+    expect(erzeugt.length).toBeGreaterThan(10)
+    for (const pos of erzeugt) {
+      const vorgabe = bildVorgabe(pos)
+      for (const file of ['Klasse5.svg', 'Klasse7.svg', 'Klasse7_Moewe.svg']) {
+        const quelle = readFileSync(`public/parcours/${vorgabe.quelle}/${file}`, 'utf8')
+        expect(bildSvg(quelle, vorgabe).svg === readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8'), `${pos.id}/${file}`).toBe(true)
       }
     }
   })
@@ -179,7 +192,7 @@ describe('IDs in den Quell-SVGs', () => {
     for (const kurs of kurse)
       for (const datei of Object.values(kurs.bilder ?? {})) {
         expect(svgs, `${kurs.id}: ${datei} fehlt in der Quelle`).toContain(`${datei}.svg`)
-        for (const pos of positionen.filter((p) => p.bild))
+        for (const pos of positionen.filter((p) => p.bild && !p.bildImBrowser))
           for (const endung of ['svg', 'png']) {
             const pfad = `public/parcours/${pos.bild}/${datei}.${endung}`
             expect(existsSync(pfad), pfad).toBe(true)

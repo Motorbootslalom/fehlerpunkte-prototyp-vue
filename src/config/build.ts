@@ -5,6 +5,7 @@ import { feldKennungen } from './feld'
 import { findeKombi, kombiReihenfolge } from './kombi'
 import { bogenTexte, uebersetzt, uebersetztBlock, type BogenTexte } from './sprache'
 import { abwandlung, aufbauIds, mitZeiten, nummerierung } from './zeitnahme'
+import { bildVorgabe } from '../lib/parcoursbild'
 
 /** Übersetzt einen Text in die Sprache der Konfiguration. */
 type Uebersetzer = (de: string, en?: string) => string
@@ -331,12 +332,14 @@ export function buildConfig(
       errorGroups,
       disqTable,
       disqTableTitle: `${t('Disqualifikation', 'Disqualification')}${raw.id ? ` (${regelwerk.label})` : ''}:`,
-      disqZweispaltig: !!pos.bild && Math.abs(pos.bildDrehung ?? 0) !== 90,
+      disqZweispaltig: (!!pos.bild || !!pos.bildImBrowser) && Math.abs(pos.bildDrehung ?? 0) !== 90,
       showDisqTable: !!disqTable && disqTable.length > 0,
       legendNote: legendNote || undefined,
       legendNoteSpalten: noteLinks && noteRechts ? [noteLinks, noteRechts] : undefined,
       ohneCodes,
-      courseImageDir: pos.bild,
+      ...(pos.bildImBrowser && pos.bildGenerator
+        ? (({ quelle, dim, aus }) => ({ courseImageDir: quelle, bildErzeugen: { dim, aus } }))(bildVorgabe(pos))
+        : { courseImageDir: pos.bild }),
       bildDrehung: pos.bildDrehung,
       bildBreite: pos.bildBreite,
       bildNeben: pos.bildNeben,

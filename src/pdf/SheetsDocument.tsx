@@ -146,11 +146,15 @@ interface RowData {
   shaded: boolean
 }
 
-/** key = "<dir>/<datei>/<drehung>" → data-URI; die Datei kommt aus der Kursvariante (bildDatei). */
+/**
+ * key = "<dir>/<datei>/<drehung>" → data-URI; die Datei kommt aus der Kursvariante (bildDatei).
+ * Im Browser erzeugte Bilder teilen sich den Quellordner, ihre Abblendung gehört deshalb dazu.
+ */
 export type CourseImages = Record<string, string>
 
-export function courseKey(dir: string, datei: string, drehung: number): string {
-  return `${dir}/${datei}/${drehung}`
+export function courseKey(dir: string, datei: string, drehung: number, erzeugen?: { dim: string[]; aus: string[] }): string {
+  const vorgabe = erzeugen ? `/${erzeugen.dim.join(',')}|${erzeugen.aus.join(',')}` : ''
+  return `${dir}/${datei}/${drehung}${vorgabe}`
 }
 
 /** Breite der Beschreibungsspalte je Listentyp (in pt), im Browser gemessen. */
@@ -413,7 +417,7 @@ function CourseFooter({
   const drehung = def.bildDrehung ?? 0
   const rotated = Math.abs(drehung) === 90
   const uri = def.courseImageDir
-    ? images[courseKey(def.courseImageDir, bildDatei(aufbau, bogen.klasse), drehung)]
+    ? images[courseKey(def.courseImageDir, bildDatei(aufbau, bogen.klasse), drehung, def.bildErzeugen)]
     : undefined
 
   if (rotated && uri) {

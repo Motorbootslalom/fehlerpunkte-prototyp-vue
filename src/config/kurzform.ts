@@ -263,7 +263,8 @@ export function kurzformPosition(k: RawKurzform): RawPosition {
   if (ohneHinweis) delete felder.hinweis
 
   return {
-    ...(hatBild ? { bild: k.id, bildGenerator: true } : {}),
+    // Ohne vorgebautes Bild (`bildImBrowser`) braucht es keinen Ordner.
+    ...(hatBild ? { ...(k.bildImBrowser ? {} : { bild: k.id }), bildGenerator: true } : {}),
     ...(hatBild && !parcours ? { abblenden: abblendung(gesehen, aufgaben) } : {}),
     ...(drehung ? { bildDrehung: drehung } : {}),
     ...(blick === 'hinten' && mitBojen ? { pfeileSpiegeln: true } : {}),

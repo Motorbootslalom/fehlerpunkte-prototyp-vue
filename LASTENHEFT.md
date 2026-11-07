@@ -582,6 +582,9 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   ausführliche Form nach `public/config/positionen.yaml`. Alle Tor-, Tor-5-, MüB- und
   Parcours-Listen stehen so in den Quelldateien; ein Test hält fest, dass sie dieselben Felder
   und Bilder ergeben wie vorher die handgeschriebenen.
+- **Bilder im Browser:** Eine Position mit `bildImBrowser: true` hat keinen vorgebauten
+  Bildordner. Die App lädt das Quellbild und blendet mit demselben Code ab wie der Build
+  (`src/lib/parcoursbild.ts`); die PDF-Insel rastert es per Canvas.
 - **Kursvariante:** `kurse` beschreibt, was ein Austragungsort am Kurs anders macht, der
   Aufbau wählt sie mit `kurs`. Heute sind das eigene Parcoursbilder je Klasse
   (`bilder: { 5: Klasse5_Moewe }`). Jeder erzeugte Bildordner enthält alle Quellbilder; die

@@ -18,6 +18,7 @@
 //   • Positions-Feld  bild: <ordner>        → Zielordner (das die App lädt)
 //   • Spalten-Feld    hebt: <id>            → dieses Element bleibt hervorgehoben
 //   • Positions-Feld  abblenden: [<id>, …]  → Fallback/Ergänzung: explizit dimmen
+//   • Positions-Feld  bildImBrowser: true   → kein vorgebautes Bild, der Browser erzeugt es
 //
 // Die Ziffern in den Bojen bleiben nur bei großen Bildern (quer unter der Legende).
 // Hochkant oder neben der Legende wären sie nicht lesbar, siehe kleinesBild().
@@ -28,105 +29,25 @@ import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
+import { bildSvg, bildVorgabe, type BildPosition } from '../src/lib/parcoursbild.ts'
 
-/** Tore, die je nach Position hervorgehoben ODER abgeblendet werden. Alles
- *  andere (Fahrweg, Zeitnahme, Start/Ziel, Schikane, Speedbojen) bleibt sichtbar,
- *  außer es steht ausdrücklich in `abblenden`. */
-export const DIM_UNIVERSE = ['Tor1', 'Tor2', 'Tor3', 'Tor4', 'Tor5'] as const
-
-/** IDs, die nicht in jedem Klassenbild vorkommen: Die untere Speedboje zeigt der
- *  Master-Export nur dort, wo die Route um sie herumführt. */
-export const OPTIONALE_IDS = new Set(['Speedboje_unten', 'Nummer_Speedboje_unten'])
-
-/** Rest-Deckkraft der abgeblendeten Elemente (0 = unsichtbar, 1 = voll). */
-export const DIM_OPACITY = 0.2
-
-/** Die Ziffern im Parcoursbild (Tore, Schikane, Speedbojen). */
-export const ZIFFERN_IDS = [
-  'Nummer_Tor1',
-  'Nummer_Tor2',
-  'Nummer_Tor3',
-  'Nummer_Tor4',
-  'Nummer_Tor5',
-  'Nummer_Schikane',
-  'Nummer_Speedboje_oben',
-  'Nummer_Speedboje_unten',
-] as const
-
-/** Deckkraft ausgeblendeter Ziffern. Über die Deckkraft statt `display="none"`, weil sie
- *  `display:inline` im style tragen und der das Attribut überstimmt. */
-export const AUSBLENDEN_OPACITY = 0
-
-/** Der gestrichelte Rahmen der Quelle. Im Master legt er die Exportfläche fest (split.py:
- *  `--export-id Export_Area`), darum steht er in jeder Kopie. */
-export const RAHMEN_ID = 'rect4816'
+// Der Kern (Abblenden, Ziffern, Rahmen) liegt in src/lib/parcoursbild.ts, damit der Browser
+// dieselben Bilder erzeugen kann. Hier bleibt das Schreiben von SVG und PNG.
+export {
+  AUSBLENDEN_OPACITY,
+  DIM_OPACITY,
+  DIM_UNIVERSE,
+  OPTIONALE_IDS,
+  RAHMEN_ID,
+  ZIFFERN_IDS,
+  applyDimming,
+  deriveDimSet,
+  kleinesBild,
+  ohneRahmen,
+} from '../src/lib/parcoursbild.ts'
 
 /** Rasterungs-Faktor der PNGs (2 = doppelte Auflösung für scharfen Druck). */
 export const PNG_ZOOM = 2
-
-interface Spalte {
-  hebt?: string
-}
-interface Position {
-  id?: string
-  bild?: string
-  bildGenerator?: boolean
-  bildQuelle?: string
-  abblenden?: string[]
-  bildNeben?: boolean
-  bildDrehung?: number
-  spalten?: Spalte[]
-}
-
-/**
- * Leitet aus einer Position die Menge der abzublendenden Element-IDs ab:
- *   • Setzen Spalten `hebt`, bleiben genau diese Tore hell → der Rest des
- *     DIM_UNIVERSE wird abgeblendet.
- *   • Zusätzlich (oder als Fallback ohne `hebt`) greift `abblenden`.
- */
-export function deriveDimSet(pos: Position): string[] {
-  const hervorgehoben = new Set(
-    (pos.spalten ?? []).map((s) => s?.hebt).filter((x): x is string => !!x),
-  )
-  const dim = new Set<string>(pos.abblenden ?? [])
-  if (hervorgehoben.size > 0) {
-    for (const gate of DIM_UNIVERSE) if (!hervorgehoben.has(gate)) dim.add(gate)
-  }
-  return [...dim]
-}
-
-/** Hochkant oder neben der Legende ist ein Bild zu klein für lesbare Ziffern. */
-export function kleinesBild(pos: Pick<Position, 'bildNeben' | 'bildDrehung'>): boolean {
-  return !!pos.bildNeben || Math.abs(pos.bildDrehung ?? 0) === 90
-}
-
-/**
- * Fügt jedem Element mit einer der `dimIds` das Attribut `opacity` hinzu.
- * Rein additiv/nicht-destruktiv - die Quelldatei bleibt unangetastet. Gibt die
- * Liste der IDs zurück, die in der SVG NICHT gefunden wurden (für Warnungen).
- */
-export function applyDimming(svg: string, dimIds: string[], opacity = DIM_OPACITY): { svg: string; missing: string[] } {
-  let out = svg
-  const missing: string[] = []
-  for (const id of dimIds) {
-    const needle = `id="${id}"`
-    if (!out.includes(needle)) {
-      missing.push(id)
-      continue
-    }
-    out = out.replace(needle, `${needle} opacity="${opacity}"`)
-  }
-  return { svg: out, missing }
-}
-
-/**
- * Entfernt den Rahmen der Quelle: Die App zieht selbst einen um das Bild (`.course`).
- * Das Bild behält seine Maße. Abblenden ginge nicht, weil die Deckkraft des Rahmens im
- * `style` steht und das Attribut überstimmt.
- */
-export function ohneRahmen(svg: string): string {
-  return svg.replace(new RegExp(`<path\\b[^>]*\\bid="${RAHMEN_ID}"[^>]*/>`), '')
-}
 
 // ---- CLI --------------------------------------------------------------------
 // (Der obige Kern ist rein und wird von generate-parcours.test.ts geprüft.)
@@ -138,24 +59,19 @@ function run(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const parcoursRoot = resolve(root, 'public/parcours')
   const yamlText = readFileSync(resolve(root, 'public/config/positionen.yaml'), 'utf8')
-  const config = yamlLoad(yamlText) as { positionen?: Position[] }
+  const config = yamlLoad(yamlText) as { positionen?: BildPosition[] }
   const positionen = config.positionen ?? []
 
   // Nach Ziel-Ordner bündeln: mehrere Positionen (z. B. Alcatraz + Frontal)
   // teilen sich dasselbe Bild. Ihre abgeleiteten Dimm-Mengen müssen übereinstimmen.
   const jobs = new Map<string, { source: string; dim: string[]; aus: string[]; from: string }>()
   for (const pos of positionen) {
-    if (!pos?.bildGenerator) continue
+    if (!pos?.bildGenerator || pos.bildImBrowser) continue
     if (!pos.bild) {
       console.warn(`  ⚠ Position "${pos.id}" hat bildGenerator, aber kein "bild" - übersprungen.`)
       continue
     }
-    const source = pos.bildQuelle ?? 'alcatraz_Parcours'
-    const aus: string[] = kleinesBild(pos) ? [...ZIFFERN_IDS] : []
-    // Ausgeblendetes nicht zusätzlich abblenden: Zwei opacity-Attribute wären ungültiges SVG.
-    const dim = deriveDimSet(pos)
-      .filter((id) => !aus.includes(id))
-      .sort()
+    const { quelle: source, dim, aus } = bildVorgabe(pos)
     const prev = jobs.get(pos.bild)
     if (prev && (prev.source !== source || prev.dim.join(',') !== dim.join(',') || prev.aus.join(',') !== aus.join(','))) {
       console.warn(
@@ -187,10 +103,7 @@ function run(): void {
     const svgs = readdirSync(srcDir).filter((f) => f.endsWith('.svg'))
     console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'}${aus.length ? '; ohne Ziffern' : ''})`)
     for (const file of svgs) {
-      const srcSvg = ohneRahmen(readFileSync(resolve(srcDir, file), 'utf8'))
-      const gedimmt = applyDimming(srcSvg, dim)
-      const { svg, missing } = applyDimming(gedimmt.svg, aus, AUSBLENDEN_OPACITY)
-      const fehlend = [...gedimmt.missing, ...missing].filter((id) => !OPTIONALE_IDS.has(id))
+      const { svg, fehlend } = bildSvg(readFileSync(resolve(srcDir, file), 'utf8'), { dim, aus })
       if (fehlend.length > 0) console.warn(`      ⚠ ${file}: IDs nicht gefunden: ${fehlend.join(', ')}`)
       const outSvg = resolve(outDir, file)
       const outPng = resolve(outDir, file.replace(/\.svg$/, '.png'))

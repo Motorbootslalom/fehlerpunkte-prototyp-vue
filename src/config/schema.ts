@@ -168,6 +168,12 @@ export interface RawPosition {
   /** Quell-Bildordner für den Generator (Default: alcatraz_Parcours). */
   bildQuelle?: string
   /**
+   * Kein vorgebautes Bild: Der Browser erzeugt es beim Anzeigen aus `bildQuelle`, mit
+   * derselben Abblendung wie der Generator. Für Positionen, die nicht im Repo stehen,
+   * z. B. eigene Aufbauten. `bild` ist dann nicht nötig.
+   */
+  bildImBrowser?: boolean
+  /**
    * Element-IDs im Parcoursbild, die abgeblendet (opacity reduziert) werden.
    * Fallback/Ergänzung zur spaltenbasierten `hebt`-Hervorhebung: Ohne `hebt` in
    * den Spalten steuert allein diese Liste, was gedimmt wird; mit `hebt` kann

@@ -349,6 +349,7 @@ function fitAusEreignis(e: Event) {
                     :klasse="bogen.klasse"
                     :datei="bildDatei(state.aufbau, bogen.klasse)"
                     :drehung="drehung"
+                    :erzeugen="def.bildErzeugen"
                   />
                 </div>
               </template>

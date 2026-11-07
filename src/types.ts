@@ -152,6 +152,11 @@ export interface SheetDef {
   legendNoteSpalten?: [string, string]
   /** Bildordner unter public/parcours (z. B. alcatraz_Parcours). */
   courseImageDir?: string
+  /**
+   * Ohne vorgebautes Bild (`bildImBrowser`): Der Browser erzeugt es aus dem Quellbild in
+   * `courseImageDir` (siehe lib/parcoursbild.ts).
+   */
+  bildErzeugen?: { dim: string[]; aus: string[] }
   /** Bild-Drehung in Grad: 0 | 90 | -90 | 180. */
   bildDrehung?: number
   /** Breite des gedrehten Bildes neben der Legende in mm (Standard siehe CSS). */

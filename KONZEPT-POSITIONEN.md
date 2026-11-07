@@ -483,12 +483,17 @@ und Bojen und Aufgaben müssen zum festen Wortschatz gehören. Ein Fehler wird a
   `scripts/generate-parcours.ts` nach `src/`, das Skript nutzt sie von dort weiter. `CourseImage.vue` lädt
   dann die Quelle (`alcatraz_Parcours/Klasse*.svg`, rund 35 KB), blendet ab und zeigt das Ergebnis als
   Blob-URL. Am Bildschirm und im Browser-Druck sollte das gehen; das Raster-PDF (html2canvas) ist zu testen.
+  **Umgesetzt (07.11.2026):** `src/lib/parcoursbild.ts` enthält den Kern, `bildVorgabe` und `bildSvg`
+  bündeln Quelle, Abblendung und Ziffern. Eine Position mit `bildImBrowser: true` braucht keinen
+  Bildordner; `CourseImage.vue` erzeugt ihr Bild als Blob-URL, gleiche Bilder nur einmal
+  (`parcoursbildBrowser.ts`). Ein Test prüft für jede Position des Repos, dass der Browser dieselben
+  SVGs erzeugt wie der Build. Noch nicht geprüft ist das Raster-PDF (html2canvas).
 - **Kursvariante:** Generator und Browser wählen das Quellbild je Klasse aus der Variante. Fahrweg,
   Felder, `ueberwachungsLuecken` und Ergebnisliste bleiben unverändert.
 - **Zeit:** Die Zeitspalte kennt ihr Gerät. `mittlereZeit` in `src/lib/ergebnis.ts` nimmt danach die
   elektronische Zeit und nur ohne sie den Mittelwert der Stoppuhren.
-- **PDF-Insel:** Sie braucht PNGs. Für eigene Aufbauten kommt zuerst kein Bild, später eine Rasterung per
-  Canvas. Laut README ist sie ohnehin nur ein Vergleichsweg.
+- **PDF-Insel:** Sie braucht PNGs. **Umgesetzt:** Im Browser erzeugte Bilder rastert sie per Canvas in
+  doppelter Auflösung, wie die PNGs des Builds.
 - **Unbekannte Positionen:** Steht in einem Link eine Bogen-Auswahl mit unbekannter Position, wirft
   `getSheetDef` laut Code „Unbekannte Position“. `buildInitialState` soll solche Bögen künftig aussortieren.
   Das ist auch ohne Assistent sinnvoll.
@@ -518,7 +523,8 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
    Bojen und Aufgaben. Der Test aus §5.1 ersetzt das Prüfskript.
 5. **Kursvariante** (§4.4). Erledigt: `kurse` mit Bildern je Klasse, Möwe als erster Aufbau im Repo
    (`src/config/aufbauten/moewe.yaml`, §5.2).
-6. **Bilder im Browser** (§9), zuerst nur für eigene Aufbauten.
+6. **Bilder im Browser** (§9). Erledigt: `bildImBrowser: true` an einer Position; noch nutzt sie keine
+   Position im Repo, die eigenen Aufbauten werden es tun.
 7. **Speicher, Link und YAML** (§8), bedienbar erst einmal über Import einer Datei.
 8. **Assistent** (§7) mit Tabelle und laufender Prüfung.
 9. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg

@@ -322,7 +322,7 @@ export function validateRawConfig(raw: ConfigInput): ConfigIssue[] {
 
     // Bildgenerator: braucht ein Ziel (`bild`). Abblenden muss er nichts, den Rahmen der
     // Quelle entfernt er immer.
-    if (pos.bildGenerator && !pos.bild)
+    if (pos.bildGenerator && !pos.bild && !pos.bildImBrowser)
       err('MISSING_BILD', `Position "${pos.id}" hat bildGenerator: true, aber kein "bild" (Zielordner).`, where)
     if (pos.abblenden !== undefined && !Array.isArray(pos.abblenden))
       err('BAD_ABBLENDEN', `abblenden in "${pos.id}" muss eine Liste von Element-IDs sein.`, where)
