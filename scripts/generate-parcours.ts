@@ -21,6 +21,8 @@
 //
 // Die Ziffern in den Bojen bleiben nur bei großen Bildern (quer unter der Legende).
 // Hochkant oder neben der Legende wären sie nicht lesbar, siehe kleinesBild().
+//
+// Den gestrichelten Rahmen der Quelle nimmt der Generator aus jedem Bild, siehe ohneRahmen().
 import { load as yamlLoad } from 'js-yaml'
 import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
@@ -54,6 +56,10 @@ export const ZIFFERN_IDS = [
 /** Deckkraft ausgeblendeter Ziffern. Über die Deckkraft statt `display="none"`, weil sie
  *  `display:inline` im style tragen und der das Attribut überstimmt. */
 export const AUSBLENDEN_OPACITY = 0
+
+/** Der gestrichelte Rahmen der Quelle. Im Master legt er die Exportfläche fest (split.py:
+ *  `--export-id Export_Area`), darum steht er in jeder Kopie. */
+export const RAHMEN_ID = 'rect4816'
 
 /** Rasterungs-Faktor der PNGs (2 = doppelte Auflösung für scharfen Druck). */
 export const PNG_ZOOM = 2
@@ -111,6 +117,15 @@ export function applyDimming(svg: string, dimIds: string[], opacity = DIM_OPACIT
     out = out.replace(needle, `${needle} opacity="${opacity}"`)
   }
   return { svg: out, missing }
+}
+
+/**
+ * Entfernt den Rahmen der Quelle: Die App zieht selbst einen um das Bild (`.course`).
+ * Das Bild behält seine Maße. Abblenden ginge nicht, weil die Deckkraft des Rahmens im
+ * `style` steht und das Attribut überstimmt.
+ */
+export function ohneRahmen(svg: string): string {
+  return svg.replace(new RegExp(`<path\\b[^>]*\\bid="${RAHMEN_ID}"[^>]*/>`), '')
 }
 
 // ---- CLI --------------------------------------------------------------------
@@ -172,7 +187,7 @@ function run(): void {
     const svgs = readdirSync(srcDir).filter((f) => f.endsWith('.svg'))
     console.log(`  parcours/${source} → parcours/${target}  (abblenden: ${dim.join(', ') || '—'}${aus.length ? '; ohne Ziffern' : ''})`)
     for (const file of svgs) {
-      const srcSvg = readFileSync(resolve(srcDir, file), 'utf8')
+      const srcSvg = ohneRahmen(readFileSync(resolve(srcDir, file), 'utf8'))
       const gedimmt = applyDimming(srcSvg, dim)
       const { svg, missing } = applyDimming(gedimmt.svg, aus, AUSBLENDEN_OPACITY)
       const fehlend = [...gedimmt.missing, ...missing].filter((id) => !OPTIONALE_IDS.has(id))

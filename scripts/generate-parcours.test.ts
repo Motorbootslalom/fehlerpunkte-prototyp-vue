@@ -1,7 +1,17 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { load as yamlLoad } from 'js-yaml'
 import { describe, it, expect } from 'vitest'
-import { deriveDimSet, applyDimming, kleinesBild, DIM_UNIVERSE, DIM_OPACITY, OPTIONALE_IDS, ZIFFERN_IDS } from './generate-parcours.ts'
+import {
+  deriveDimSet,
+  applyDimming,
+  kleinesBild,
+  ohneRahmen,
+  DIM_UNIVERSE,
+  DIM_OPACITY,
+  OPTIONALE_IDS,
+  RAHMEN_ID,
+  ZIFFERN_IDS,
+} from './generate-parcours.ts'
 import { mergePositionen, quellDateien } from '../src/config/merge-positionen.ts'
 
 /** Die Positionen aus allen Quelldateien unter src/config. */
@@ -72,6 +82,19 @@ describe('applyDimming', () => {
   })
 })
 
+describe('ohneRahmen', () => {
+  it('entfernt genau den Rahmen und lässt den Rest unverändert', () => {
+    const rest = '<g id="Export_Area"><path id="davor" d="m 0,0" />XX<path id="danach" /></g>'
+    const rahmen = `<path\n style="stroke:#000080"\n d="m 1,2 z"\n id="${RAHMEN_ID}" />`
+    expect(ohneRahmen(rest.replace('XX', rahmen))).toBe(rest.replace('XX', ''))
+  })
+
+  it('ändert nichts, wenn es keinen Rahmen gibt', () => {
+    const svg = '<svg><path id="anderer" /></svg>'
+    expect(ohneRahmen(svg)).toBe(svg)
+  })
+})
+
 describe('Berlin-Bilder', () => {
   const positionen = allePositionen()
   const dim = (id: string) => deriveDimSet(positionen.find((p) => p.id === id)!)
@@ -128,6 +151,18 @@ describe('IDs in den Quell-SVGs', () => {
         const nummern = [...readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8').matchAll(/id="Nummer_[^"]*"( opacity="0")?/g)]
         expect(nummern.length, `${pos.id}/${file}`).toBeGreaterThan(0)
         expect(nummern.every((m) => !!m[1] === kleinesBild(pos)), `${pos.id}/${file}`).toBe(true)
+      }
+    }
+  })
+
+  it('jedes Bild der App ist erzeugt und hat den Rahmen der Quelle nicht mehr', () => {
+    for (const file of svgs) expect(readFileSync(`${ORDNER}/${file}`, 'utf8'), file).toContain(`id="${RAHMEN_ID}"`)
+    const mitBild = positionen.filter((p) => p.bild)
+    expect(mitBild.length).toBeGreaterThan(0)
+    for (const pos of mitBild) {
+      expect(pos.bildGenerator, `${pos.id} muss erzeugt werden`).toBe(true)
+      for (const file of svgs) {
+        expect(readFileSync(`public/parcours/${pos.bild}/${file}`, 'utf8'), `${pos.bild}/${file}`).not.toContain(`id="${RAHMEN_ID}"`)
       }
     }
   })

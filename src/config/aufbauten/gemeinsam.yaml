@@ -161,7 +161,8 @@ positionen:
     titel: "Parcours"
     menue: "Parcours einfach (nur Fahrweg)"
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: alcatraz_Parcours_gross
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt: das ganze Bild, nur ohne den Rahmen der Quelle
     disq: parcours
     hinweis: parcours
     spalten:
@@ -173,7 +174,8 @@ positionen:
     menue: "Parcours einfach mit Start und Ziel"
     schnellauswahl: true   # in keinem Aufbau - nur über die Schnellauswahl
     ausrichtung: hoch
-    bild: alcatraz_Parcours
+    bild: alcatraz_Parcours_gross
+    bildGenerator: true    # aus alcatraz_Parcours erzeugt: das ganze Bild, nur ohne den Rahmen der Quelle
     disq: parcours
     hinweis: parcours
     spalten:

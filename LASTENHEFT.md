@@ -96,8 +96,8 @@ Mitgelieferte Positionen (Auszug, Aufbau Alcatraz):
 | Vorsteg (an Land, vor dem Steg) | Vorsteg | Disq. · Bemerkung | - | - |
 | Zeit | Zeit | Zeit 1 · Zeit 2 · Zeit 3 | - | - |
 | Knoten (quer, **ohne Lauf**) | Knoten | Webleinstek · Schotstek · Palstek · Kreuzknoten · Klampe · Σ · Bemerkung | ✓ | - |
-| Parcours einfach | Parcours | Bemerkung · Disq. | - | alcatraz_Parcours |
-| Parcours mit Start und Ziel | Parcours | Start · Ziel · Bemerkung · Disq. | - | alcatraz_Parcours |
+| Parcours einfach | Parcours | Bemerkung · Disq. | - | alcatraz_Parcours_gross (generiert) |
+| Parcours mit Start und Ziel | Parcours | Start · Ziel · Bemerkung · Disq. | - | alcatraz_Parcours_gross (generiert) |
 
 **Bojen-Beschriftung** an den Tor-Spalten: zwei Zeichen = **Fahrtrichtung**
 (`H` = Hinfahrt, `R` = Rückfahrt) + **Seite**. Die Seiten-Kürzel sind global und
@@ -139,6 +139,10 @@ Quelle (`alcatraz_Parcours`) je Position das passende Bild **beim Build erzeugt*
   `make` (`split.py`) exportiert nach `dist/alcatraz_Parcours`; SVG und PNG von dort
   werden nach `public/parcours/alcatraz_Parcours` kopiert. Änderungen, auch an IDs,
   gehören in den Master, nicht in die Kopie.
+- **Rahmen:** Die App zieht selbst einen gestrichelten Rahmen um das Bild. Den Rahmen der
+  Quelle (`rect4816`) entfernt deshalb der Generator aus jedem Bild, auch aus den ganzen
+  Parcoursbildern (`alcatraz_Parcours_gross`). Im Master bleibt er: Dort legt er die
+  Exportfläche fest, und die Bilder dort werden auch ohne die App genutzt.
 - Jedes Bild-Element hat eine stabile, sprechende `id` (`Tor1`…`Tor5`, `StartZiel`,
   `Speedboje_oben`, `Speedboje_unten`, `Schikane`, `Zeitnahme`, `Zeit_oben`, `Zeit_unten`,
   `Zeit_oben_Flagge`, `Zeit_unten_Flagge`, `Nummer_Tor1`…`Nummer_Tor5`,

@@ -370,9 +370,6 @@
        style="display:inline;fill:none;stroke:#000000;stroke-width:1.067;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:4.268, 4.268;stroke-dashoffset:0;stroke-opacity:1;marker-start:none;marker-mid:url(#Arrow1Lstart);marker-end:url(#Arrow1Lstart)" /></g><g
      id="Export_Area"
      style="display:inline;opacity:1"
-     transform="translate(-180.81244,-194.48774)"><path
-       style="display:inline;opacity:0.5;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000080;stroke-width:2.13333;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.26667, 8.53333;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 181.87911,199.201 c 0,117.13405 0,234.2681 0,351.40216 4.37991,6.41891 13.1037,2.14473 19.59162,3.37445 276.05854,0 552.11708,0 828.17557,0 6.2953,-4.46595 2.1035,-13.36114 3.3095,-19.97654 0,-111.60002 0,-223.20005 0,-334.80007 -4.3799,-6.41892 -13.1037,-2.14473 -19.5916,-3.37446 -276.05857,0 -552.11711,0 -828.17565,0 -1.10314,1.12482 -2.20628,2.24965 -3.30944,3.37446 z"
-       id="rect4816" /><g
+     transform="translate(-180.81244,-194.48774)"><g
        id="g2" /><g
        id="g3" /></g></svg>

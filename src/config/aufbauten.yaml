@@ -54,7 +54,8 @@ sprachen: [en]
 #                abgeblendet (scripts/generate-parcours.ts → SVG + PNG). Ohne den
 #                Schalter zeigt `bild` auf ein festes fertiges Bild.
 #                Kleine Bilder (`bildNeben` oder um ±90° gedreht) verlieren dabei die
-#                Ziffern in den Bojen und brauchen deshalb diesen Schalter.
+#                Ziffern in den Bojen und brauchen deshalb diesen Schalter. Den Rahmen
+#                der Quelle entfernt der Generator immer, die App zieht einen eigenen.
 #   bildQuelle   Quell-Ordner für den Generator (Default: alcatraz_Parcours).
 #   abblenden    [Tor2, Tor4, …] Element-IDs, die abgeblendet werden. Fallback zu
 #                `hebt` bzw. Ergänzung (z. B. zusätzlich Speedboje_unten).

@@ -239,8 +239,9 @@ Der Vite-`base` ist `./`, daher läuft der Build unter Projekt-Unterpfad **und**
 ## Assets
 
 `public/parcours/alcatraz_Parcours` stammt aus `../Parcours/dist/alcatraz_Parcours` (SVG
-und PNG je Klasse). Die übrigen Ordner unter `public/parcours/` erzeugt `npm run
-parcours:build` daraus.
+und PNG je Klasse) und wird nicht direkt angezeigt. Die übrigen Ordner unter
+`public/parcours/` erzeugt `npm run parcours:build` daraus. Der Generator entfernt dabei den
+gestrichelten Rahmen der Quelle, denn die App zieht selbst einen um das Bild.
 
 ## Tech-Stack
 
