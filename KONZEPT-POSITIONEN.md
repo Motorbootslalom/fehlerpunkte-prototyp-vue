@@ -221,11 +221,11 @@ Ein neues Modul `src/config/kurzform.ts` wandelt eine Kurzform in die heutige Ro
 Build, in den Prüfungen und im Browser. Der Aufruf gehört vor `buildConfig`. Alles danach bleibt
 unverändert: Bögen, Eingaben, Ergebnislisten, Laufzettel, QR-Code und Prüfungen.
 
-**Umgesetzt (07.11.2026):** Eine Position ohne `spalten` ist eine Kurzform. Sie steht wie jede Position
-unter `positionen:` und braucht `id` und `titel`; die Aufbauten nennen sie per ID. `aufloesen()` schreibt
-sie aus: in `config:sync` (die App und der Bildgenerator lesen die ausführliche Form), in
-`mergeAndBuild` und in der Prüfung, die vorher Blick, Bojen und Aufgaben gegen den festen Wortschatz
-prüft. Die Abblendung entsteht in der Form, die der Generator schon kannte: ein Tor als Ganzes, wenn
+**Umgesetzt (07.11.2026):** Eine Position ohne `spalten` ist eine Kurzform. Sie steht unter `positionen:`
+oder direkt im Aufbau und braucht `id` und `titel`. `aufloesen()` schreibt sie aus: beim Laden in der
+App (`mergeAndBuild`), im Bildgenerator und in der Prüfung, die vorher Blick, Bojen und Aufgaben gegen
+den festen Wortschatz prüft. `config:sync` lässt die Kurzform in `public/config/positionen.yaml` stehen,
+weil der Assistent sie als Vorlage braucht. Die Abblendung entsteht in der Form, die der Generator schon kannte: ein Tor als Ganzes, wenn
 keine seiner Bojen beobachtet wird, sonst die einzelne Boje. Kurzformen direkt im Aufbau, wie in §4.1,
 kommen mit den eigenen Aufbauten (§8).
 
@@ -418,6 +418,12 @@ echten Bögen und ist damit schon die Kontrolle.
      am Feld hängen. Diese Prüfung ist neu.
 6. **Speichern:** Der Aufbau steht danach im Aufbau-Menü, gekennzeichnet als eigener.
 
+**Umgesetzt (08.11.2026)** als breiter Bereich oberhalb der Bögen, die darunter live den Entwurf zeigen
+(Vorschau-Klasse wählbar). Abweichend von den Schritten oben stehen Zeitnahme und Positionen zusammen in
+der Tabelle: Jede Spalte hat Name, Blick, Zeitnahme und „Bild klein“. Positionen aus einer Vorlage im
+Repo werden mit neuer ID kopiert; beim Bearbeiten bleiben die IDs. Rot zeigt die Prüfung auf Lücken je
+Klasse, gelb doppelte Felder und Spalten ohne Inhalt. Beim Speichern läuft die volle Prüfung.
+
 Das macht die Option „Tor 5 übernimmt die Parcoursüberwachung“ für eigene Aufbauten überflüssig: Beide
 Aufgaben stehen einfach auf derselben Position. Für die Aufbauten aus dem Repo bleibt sie.
 
@@ -534,7 +540,9 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 7. **Speicher, Link und YAML** (§8). Erledigt: eigene Aufbauten im Browser, im Einstellungs-Link und als
    YAML-Datei, bedienbar über „Eigenen Aufbau laden“, „Aufbau als YAML speichern“ und „Löschen“
    (Lastenheft §8h). Positionen dürfen dafür in Kurzform direkt im Aufbau stehen.
-8. **Assistent** (§7) mit Tabelle und laufender Prüfung.
+8. **Assistent** (§7). Erledigt: `src/components/AufbauAssistent.vue` oberhalb der Bögen, Datenmodell in
+   `src/lib/assistent.ts`. Die Bögen zeigen den Entwurf live; Zeitlisten sind Spalten mit Zeitnahme,
+   damit Start und Ziel auch auf die Zeitliste können (Möwe).
 9. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg
    ableiten.
 

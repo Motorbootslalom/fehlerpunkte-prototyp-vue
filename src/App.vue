@@ -8,6 +8,8 @@ import { hoereAufScanner } from './lib/scanner'
 import { pageCounts, showErgebnisse, showLaufzettel, showLegende } from './state/laufzettel'
 import { scanFehler, scanStand, verarbeiteScan } from './state/scan'
 import { useStore } from './state/store'
+import { assistent, konfigStand } from './state/konfig'
+import AufbauAssistent from './components/AufbauAssistent.vue'
 import ControlPanel from './components/ControlPanel.vue'
 import ErgebnisListen from './components/ErgebnisListen.vue'
 import LaufzettelPage from './components/LaufzettelPage.vue'
@@ -32,7 +34,10 @@ const lzConfig = getLaufzettelConfig()
 
 // Die aktive Konfiguration ist nicht reaktiv: Der Zustand zeigt an, wann sie sich
 // geändert hat. Legende und Bögen werden dann neu aufgebaut.
-const configKey = computed(() => `${state.regelwerk}:${state.sprache}:${state.beschriftung}`)
+function schliesseAssistent() {
+  assistent.value = null
+}
+const configKey = computed(() => `${state.regelwerk}:${state.sprache}:${state.beschriftung}:${konfigStand.value}`)
 const legende = computed(() => (configKey.value, getLegende()))
 
 // Nach einem Scan nur dessen Listen zeigen - und keine, wenn Regelwerk oder
@@ -84,6 +89,8 @@ onBeforeUnmount(() => abmelden())
     <ControlPanel />
     <main class="sheets">
       <ScanHinweis v-if="scanStand || scanFehler" :passt="scanPasst" :auswahl="scanAuswahl" />
+      <!-- Assistent für eigene Aufbauten; die Bögen darunter zeigen den Entwurf live. -->
+      <AufbauAssistent v-if="assistent" :key="assistent" :modus="assistent" @schliessen="schliesseAssistent" />
       <!-- A4-Legende; gedruckt nur über „Nur Legende drucken“. -->
       <section v-if="showLegende" class="legende-stack">
         <LegendePage :legende="legende" :event-name="state.eventName" />

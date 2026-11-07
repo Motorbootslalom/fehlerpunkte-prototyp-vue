@@ -16,6 +16,7 @@ import {
   positionAllowsClass,
 } from '../config/active'
 import { SPRACHEN } from '../config/sprache'
+import { assistent, konfigStand } from '../state/konfig'
 import { beispielwerteErsetzen, type Zeitnahme } from '../lib/beispielwerte'
 import { extendNumbers, formatNumbers, parseNumbers, shrinkNumbers } from '../lib/demo'
 import { exportSheetsToPdf } from '../lib/exportPdf'
@@ -82,10 +83,9 @@ const buttonLabels = computed(() =>
   positionButtonLabels(menuOrder.value.map(getSheetDef).map((d) => ({ ...d, title: d.titelDe }))),
 )
 const beschriftungen = computed(() => getBeschriftungen())
-// Die Konfiguration ist nicht reaktiv: `eigeneStand` zeigt an, dass sich die eigenen
+// Die Konfiguration ist nicht reaktiv: `konfigStand` zeigt an, dass sich die eigenen
 // Aufbauten geändert haben.
-const eigeneStand = ref(0)
-const aufbauten = computed(() => (state.aufbau, eigeneStand.value, getAufbauten()))
+const aufbauten = computed(() => (state.aufbau, konfigStand.value, getAufbauten()))
 const regelwerke = getRegelwerke()
 // Klassen des gewählten Regelwerks (die aktive Konfiguration ist nicht reaktiv,
 // state.regelwerk zeigt den Wechsel an).
@@ -234,8 +234,8 @@ async function downloadJsPdf() {
 }
 
 // ---- Eigene Aufbauten (KONZEPT-POSITIONEN.md §8) -------------------------
-const istEigen = computed(() => (eigeneStand.value, !!getAufbau(state.aufbau).eigen))
-const verdeckt = computed(() => (eigeneStand.value, getVerdeckteEigene()))
+const istEigen = computed(() => (state.aufbau, konfigStand.value, !!getAufbau(state.aufbau).eigen))
+const verdeckt = computed(() => (konfigStand.value, getVerdeckteEigene()))
 const pruefung = ref<{ fehler: string[]; hinweise: string[]; geladen: string } | null>(null)
 
 /** Lädt eigene Aufbauten aus einer YAML-Datei; übernommen wird nur, was die Prüfung besteht. */
@@ -253,7 +253,12 @@ async function eigenenAufbauLaden(e: Event) {
     aufbauten: [...getEigeneAufbauten().filter((a) => !neu.has(a.id)), ...ergebnis.aufbauten],
     aufbau: ergebnis.aufbauten[0].id,
   })
-  eigeneStand.value++
+}
+
+/** Öffnet den Assistenten oberhalb der Bögen (KONZEPT-POSITIONEN.md §7). */
+function oeffneAssistent(modus: 'neu' | 'bearbeiten') {
+  assistent.value = modus
+  window.scrollTo({ top: 0 })
 }
 
 /** Der gewählte Aufbau als YAML-Datei: zum Weitergeben oder für die Übernahme ins Repo. */
@@ -278,7 +283,6 @@ function eigenenAufbauLoeschen(id: string) {
     ...(id === state.aufbau ? { aufbau: defaultAufbauId() } : {}),
   })
   pruefung.value = null
-  eigeneStand.value++
 }
 
 function resetAll() {
@@ -355,6 +359,7 @@ const commitDate = __GIT_COMMIT_DATE__
         <span>Aufbau (Setup)</span>
         <select
           :value="state.aufbau"
+          :disabled="!!assistent"
           title="Bei einem Wettkampf genutzter Aufbau; wechseln erzeugt dessen Bögen neu. Die Eingaben bleiben in den entsprechenden Feldern, Parallelslalom hat eigene."
           @change="dispatch({ type: 'SET_AUFBAU', aufbau: ($event.target as HTMLSelectElement).value })"
         >
@@ -362,17 +367,33 @@ const commitDate = __GIT_COMMIT_DATE__
         </select>
       </label>
       <div class="btn-row eigene-aufbauten">
-        <label class="btn-datei" title="Einen eigenen Aufbau aus einer YAML-Datei laden. Er wird vorher geprüft.">
+        <button
+          title="Einen eigenen Aufbau zusammenstellen: Positionen, Blick und welche Bojen sie beobachten. Die Bögen zeigen den Entwurf sofort."
+          :disabled="!!assistent"
+          @click="oeffneAssistent('neu')"
+        >
+          ✏ Eigenen Aufbau anlegen
+        </button>
+        <button
+          v-if="istEigen"
+          :disabled="!!assistent"
+          title="Den gewählten eigenen Aufbau im Assistenten ändern"
+          @click="oeffneAssistent('bearbeiten')"
+        >
+          ✏ Eigenen Aufbau bearbeiten
+        </button>
+        <label v-if="!assistent" class="btn-datei" title="Einen eigenen Aufbau aus einer YAML-Datei laden. Er wird vorher geprüft.">
           📂 Eigenen Aufbau laden (YAML)
           <input type="file" accept=".yaml,.yml,text/yaml,application/x-yaml" hidden @change="eigenenAufbauLaden" />
         </label>
         <button
+          :disabled="!!assistent"
           title="Den gewählten Aufbau als YAML-Datei speichern: zum Weitergeben oder für die Übernahme ins Repo"
           @click="aufbauSpeichern"
         >
           💾 Aufbau als YAML speichern
         </button>
-        <button v-if="istEigen" class="danger" @click="eigenenAufbauLoeschen(state.aufbau)">
+        <button v-if="istEigen" class="danger" :disabled="!!assistent" @click="eigenenAufbauLoeschen(state.aufbau)">
           Eigenen Aufbau löschen
         </button>
       </div>

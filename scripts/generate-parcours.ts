@@ -29,6 +29,8 @@ import { Resvg } from '@resvg/resvg-js'
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
+import { aufloesen } from '../src/config/kurzform.ts'
+import type { RawQuelle } from '../src/config/schema.ts'
 import { bildSvg, bildVorgabe, type BildPosition } from '../src/lib/parcoursbild.ts'
 
 // Der Kern (Abblenden, Ziffern, Rahmen) liegt in src/lib/parcoursbild.ts, damit der Browser
@@ -59,8 +61,8 @@ function run(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const parcoursRoot = resolve(root, 'public/parcours')
   const yamlText = readFileSync(resolve(root, 'public/config/positionen.yaml'), 'utf8')
-  const config = yamlLoad(yamlText) as { positionen?: BildPosition[] }
-  const positionen = config.positionen ?? []
+  // Die Datei enthält Positionen in Kurzform; erst ausgeschrieben haben sie Abblendung und Bild.
+  const positionen: BildPosition[] = aufloesen((yamlLoad(yamlText) as RawQuelle) ?? { positionen: [] }).positionen
 
   // Nach Ziel-Ordner bündeln: mehrere Positionen (z. B. Alcatraz + Frontal)
   // teilen sich dasselbe Bild. Ihre abgeleiteten Dimm-Mengen müssen übereinstimmen.

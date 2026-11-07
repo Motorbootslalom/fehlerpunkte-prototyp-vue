@@ -12,6 +12,7 @@ import {
 import type { RawAufbau, RawConfig, RawDisziplin, RawPositionen, RawQuelle, RawRegelwerk, RawRegelwerkListe } from './schema'
 import { aufloesen } from './kurzform'
 import { aufbauYaml, mitEigenen, pruefeEigene, verdeckteEigene, type Pruefung } from './eigene'
+import { ueberwachungsLuecken, type UeberwachungsLuecke } from './validate'
 import type { BogenTexte } from './sprache'
 // Gebündelte Standard-Konfiguration - immer verfügbar, auch ohne Netz. Die
 // Dateien public/config/ (zur Laufzeit geladen) überschreiben sie.
@@ -144,11 +145,38 @@ export function getVerdeckteEigene(): RawAufbau[] {
   return verdeckteEigene(rawQuelle, eigene)
 }
 
-/** Prüft eigene Aufbauten aus einer Datei oder einem Link gegen das aktive Regelwerk. */
-export function pruefeEigeneAufbauten(eingabe: unknown): Pruefung {
+/** Die Positionsdateien, wie sie geladen wurden: Vorlagen für den Assistenten. */
+export function getRohQuelle(): RawQuelle {
+  cfg()
+  return rawQuelle
+}
+
+/** Alle vergebenen IDs von Aufbauten und Positionen, auch die eigenen. */
+export function vergebeneIds(): Set<string> {
+  return new Set([...cfg().aufbauten.map((a) => a.id), ...cfg().positions.map((p) => p.typeId)])
+}
+
+/** Die Kursvarianten zur Auswahl. */
+export function getKurse(): Array<{ id: string; name: string }> {
+  cfg()
+  return (rawQuelle.kurse ?? []).map((k) => ({ id: k.id, name: k.name }))
+}
+
+/** Was in einem Entwurf noch keine Liste beobachtet (Prüfung auf Lücken, je Klasse). */
+export function entwurfsLuecken(aufbau: RawAufbau): UeberwachungsLuecke[] {
+  cfg()
+  const mitEntwurf = mitEigenen(rawQuelle, [...eigene.filter((a) => a.id !== aufbau.id), aufbau])
+  return ueberwachungsLuecken(aufloesen(mitEntwurf)).filter((l) => l.aufbau === aufbau.id)
+}
+
+/**
+ * Prüft eigene Aufbauten aus einer Datei oder einem Link gegen das aktive Regelwerk.
+ * `vorhanden` sind die übrigen eigenen Aufbauten (Standard: die gespeicherten).
+ */
+export function pruefeEigeneAufbauten(eingabe: unknown, vorhanden: RawAufbau[] = eigene): Pruefung {
   cfg()
   const regelwerk = rawRegelwerke.find((r) => r.id === auswahl.regelwerk) ?? rawRegelwerke[0] ?? {}
-  return pruefeEigene(eingabe, rawQuelle, regelwerk, eigene)
+  return pruefeEigene(eingabe, rawQuelle, regelwerk, vorhanden)
 }
 
 /** Ein Aufbau als YAML-Datei: eigene mit ihren Positionen, die aus dem Repo mit Verweisen. */

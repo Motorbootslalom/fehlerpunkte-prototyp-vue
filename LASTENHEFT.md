@@ -343,6 +343,14 @@ wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
 
 Ein Aufbau muss nicht im Repo stehen (KONZEPT-POSITIONEN.md §8):
 
+- **Anlegen und Bearbeiten:** „✏ Eigenen Aufbau anlegen“ öffnet den Assistenten oberhalb der
+  Bögen (Konzept §7). Name, Vorlage (ein vorhandener Aufbau oder leer), Kursvariante, Vorsteg,
+  Steg und Knoten; je Position eine Spalte mit Name, Blick, Zeitnahme und „Bild klein“. Ein Klick
+  in die Tabelle legt fest, welche Boje oder Aufgabe die Position beobachtet, ▸ klappt ein Tor in
+  seine beiden Bojen auf. Rot markiert, was keine Liste beobachtet, gelb, was auf mehreren steht.
+  Die Bögen darunter zeigen den Entwurf live für eine wählbare Klasse; gespeichert wird erst mit
+  „Speichern“, „Abbrechen“ stellt den Stand davor wieder her. Die ID entsteht beim ersten
+  Speichern aus dem Namen und einem kurzen Zufallsteil und bleibt danach gleich.
 - **Laden:** „Eigenen Aufbau laden (YAML)“ unter der Aufbau-Auswahl. Die Datei hat die Form
   aus dem Repo, die Positionen stehen in Kurzform direkt im Aufbau. Vor der Übernahme läuft sie
   durch dieselbe Prüfung wie die Dateien im Repo; bei Fehlern wird nichts übernommen, Lücken in
@@ -601,8 +609,8 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
 - **Kurzform:** Eine Position ohne `spalten` nennt nur `blick`, `bojen` und `aufgaben`
   (KONZEPT-POSITIONEN.md §4). `src/config/kurzform.ts` leitet Spalten, Trennlinien,
   Abblendung, Drehung, Disqualifikationen und Katalog aus dem Fahrweg ab, der dort einmal
-  steht; jedes Feld der ausführlichen Form gewinnt gegen die Regel. `config:sync` schreibt die
-  ausführliche Form nach `public/config/positionen.yaml`. Alle Tor-, Tor-5-, MüB- und
+  steht; jedes Feld der ausführlichen Form gewinnt gegen die Regel. `public/config/positionen.yaml`
+  enthält die Kurzform; App und Bildgenerator schreiben sie beim Laden aus. Alle Tor-, Tor-5-, MüB- und
   Parcours-Listen stehen so in den Quelldateien; ein Test hält fest, dass sie dieselben Felder
   und Bilder ergeben wie vorher die handgeschriebenen.
 - **Bilder im Browser:** Eine Position mit `bildImBrowser: true` hat keinen vorgebauten

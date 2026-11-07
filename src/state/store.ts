@@ -18,6 +18,7 @@ import { normalizeClassOrder } from '../lib/quickpick'
 import { syncUrlToState } from '../lib/sharelink'
 import { clearState, saveState, speichereEigeneAufbauten } from '../lib/storage'
 import { boegenFuerAufbau, buildInitialState, defaultState, ohneUnbekannte, uid } from './initState'
+import { konfigStand } from './konfig'
 
 export type Action =
   | { type: 'SET_EVENT'; eventName: string }
@@ -45,8 +46,12 @@ export type Action =
   | { type: 'SET_BEISPIELWERTE'; zeitnahme: Zeitnahme }
   | { type: 'MARK_INITIALIZED' }
   | { type: 'RESET_ALL' }
-  /** Eigene Aufbauten ersetzen (laden, ändern, löschen); mit `aufbau` dorthin wechseln. */
-  | { type: 'SET_EIGENE_AUFBAUTEN'; aufbauten: RawAufbau[]; aufbau?: string }
+  /**
+   * Eigene Aufbauten ersetzen (laden, ändern, löschen); mit `aufbau` dorthin wechseln. Ein
+   * `entwurf` aus dem Assistenten wird nur angezeigt, nicht gespeichert; `vorschau` zeigt
+   * dann die Bögen einer Klasse im 1. Lauf, `boegen` stellt eine Auswahl wieder her.
+   */
+  | { type: 'SET_EIGENE_AUFBAUTEN'; aufbauten: RawAufbau[]; aufbau?: string; entwurf?: boolean; vorschau?: ClassId; boegen?: Bogen[] }
 
 // Reine Reducer-Funktion (unverändert aus dem React-Prototyp übernommen): nimmt
 // den aktuellen Zustand und eine Aktion, liefert einen NEUEN vollständigen
@@ -185,10 +190,18 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_EIGENE_AUFBAUTEN': {
       // Gespeichert wird unter eigenem Schlüssel, nicht mit dem Stand (KONZEPT-POSITIONEN.md §8).
-      speichereEigeneAufbauten(action.aufbauten)
+      if (!action.entwurf) speichereEigeneAufbauten(action.aufbauten)
       setzeEigeneAufbauten(action.aufbauten)
+      konfigStand.value++
       const sauber = ohneUnbekannte(state)
-      return action.aufbau ? reducer(sauber, { type: 'SET_AUFBAU', aufbau: action.aufbau }) : sauber
+      const gewechselt = action.aufbau ? reducer(sauber, { type: 'SET_AUFBAU', aufbau: action.aufbau }) : sauber
+      if (action.boegen) return { ...gewechselt, boegen: ohneUnbekannte({ ...gewechselt, boegen: action.boegen }).boegen }
+      if (!action.vorschau) return gewechselt
+      const klasse = action.vorschau
+      const boegen = aufbauOrder(gewechselt.aufbau, false)
+        .filter((typeId) => positionAllowsClass(typeId, klasse))
+        .map((typeId) => ({ id: uid('bg'), typeId, klasse, lauf: 1 as Lauf }))
+      return { ...gewechselt, boegen }
     }
 
     case 'RESET_ALL': {

@@ -1576,6 +1576,216 @@ body {
    DRUCK
    ============================================================ */
 
+/* ---------- Assistent für eigene Aufbauten (KONZEPT-POSITIONEN.md §7) ---------- */
+.assistent {
+  align-self: stretch;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.25);
+  font-size: 13px;
+}
+
+.assistent h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.assistent-hilfe,
+.assistent-hinweis {
+  margin: 0 0 12px;
+  color: #555;
+}
+
+.assistent-felder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.assistent-felder label,
+.assistent-bausteine {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.assistent-felder > label > span,
+.assistent-bausteine > span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.assistent-bausteine {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.assistent-bausteine label {
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.assistent input:not([type='checkbox']),
+.assistent select {
+  font: inherit;
+  padding: 4px 6px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+
+.assistent button {
+  font: inherit;
+  padding: 4px 10px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.assistent-tabelle-rahmen {
+  overflow-x: auto;
+}
+
+.assistent-tabelle {
+  border-collapse: collapse;
+}
+
+.assistent-tabelle th,
+.assistent-tabelle td {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+}
+
+.assistent-tabelle thead th {
+  vertical-align: top;
+  min-width: 150px;
+  background: #f7f7f9;
+}
+
+.assistent-tabelle thead th > * {
+  display: block;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.assistent-tabelle thead th.leer {
+  background: #fff7d6;
+}
+
+.assistent-tabelle .spalte-titel {
+  font-weight: 700;
+}
+
+.assistent-tabelle .spalte-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 400;
+}
+
+.assistent-tabelle .zeilenkopf {
+  text-align: left;
+  white-space: nowrap;
+  font-weight: 600;
+  min-width: 190px;
+}
+
+.assistent-tabelle .zeilenkopf small {
+  color: #777;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.assistent-tabelle tbody td {
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.assistent-tabelle tbody td:hover {
+  background: #eef3ff;
+}
+
+.assistent-tabelle tr.haelfte .zeilenkopf {
+  padding-left: 30px;
+  font-weight: 400;
+}
+
+.assistent-tabelle tr.fehlt .zeilenkopf {
+  background: #fde2e2;
+}
+
+.assistent-tabelle td.doppelt {
+  background: #fff1b8;
+}
+
+.assistent-tabelle .aufklappen {
+  padding: 0 4px;
+  margin-right: 4px;
+  border: none;
+  background: none;
+}
+
+.assistent-tabelle .spalte-dazu {
+  vertical-align: top;
+  background: none;
+  border: none;
+}
+
+.assistent-pruefung {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assistent-pruefung ul {
+  margin: 2px 0 0;
+  padding-left: 18px;
+}
+
+.assistent-pruefung .rot {
+  color: #9b1c1c;
+}
+
+.assistent-pruefung .gelb {
+  color: #7a5b00;
+}
+
+.assistent-pruefung .gruen {
+  margin: 0;
+  color: #1d6b2f;
+}
+
+.assistent-fuss {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.assistent .speichern {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
 @media print {
   @page {
     size: A4 portrait;
@@ -1587,6 +1797,7 @@ body {
   }
 
   .control-panel,
+  .assistent,
   .scan-hinweis,
   .sheet-overflow-note,
   .sheet-page-end {
