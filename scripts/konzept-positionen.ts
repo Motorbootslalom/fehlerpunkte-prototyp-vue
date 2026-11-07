@@ -28,7 +28,7 @@ interface Kurzform {
 }
 
 // ---- Die Kurzform aller Positionen, die Bojen oder Aufgaben auf dem Kurs haben ---------
-// Zeit, Steg, Vorsteg und Knoten bleiben feste Bausteine und werden hier nicht abgeleitet.
+// Steg, Vorsteg und Knoten sind feste Bausteine. Listen nur mit Zeit vergleicht das Skript nicht.
 const KURZFORM: Record<string, Kurzform> = {
   gate135: { blick: 'hinten', bojen: ['Tor1', 'Tor3', 'Tor5_unten', 'StartZiel_unten', 'Speedboje_unten'] },
   gate135os: { blick: 'hinten', bojen: ['Tor1', 'Tor3', 'Tor5_unten', 'Speedboje_unten'] },
@@ -86,9 +86,10 @@ const FAHRWEG: Halt[] = [
   { key: 't4b', richtung: 'rueck', tor: 'Tor4' },
   { key: 't3b', richtung: 'rueck', tor: 'Tor3' },
   { key: 't2b', richtung: 'rueck', tor: 'Tor2' },
-  { key: 'speed1', speedboje: 'Speedboje_oben', klassen: AB_5 },
   { key: 't1b', richtung: 'rueck', tor: 'Tor1', klassen: OHNE_4 },
   { katalog: 'mueb', klassen: AB_4 },
+  // Speedrunde: erst nach Mann-über-Bord, bei Klasse 7 danach ein drittes Mal durch Tor 1.
+  { key: 'speed1', speedboje: 'Speedboje_oben', klassen: AB_5 },
   { key: 'speed2', speedboje: 'Speedboje_unten', klassen: NUR_7 },
   { key: 't1c', richtung: 'rueck', tor: 'Tor1', klassen: NUR_7 },
   { key: 'ziel', richtung: 'rueck', tor: 'StartZiel' },

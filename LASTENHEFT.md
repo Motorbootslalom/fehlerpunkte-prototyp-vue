@@ -78,7 +78,8 @@ Start wird ein Aufbau gewählt:
   (um 180° gedreht) rechts, so wie der WKR den Kurs von seiner Seite sieht. „Tempo-Runde“ steht
   bei „Links“ dadurch kopfüber.
 - **Baden-Württemberg** (Blick von den Seiten): Zeit · Steg · Land 1 · Land 2 ·
-  Wasser 1 · Wasser 2 · Knoten.
+  Wasser 1 · Wasser 2 · Knoten. Wie bei Berlin zeigt jedes Bild den Kurs aus Sicht der
+  Position: Bei Wasser 1 und 2 ist es um 180° gedreht.
 - **Parallelslalom** (Beispiel): Zeit · Steg · Parallel-Parcours.
 
 In Aufbauten mit Tor 5 und Parcoursliste kann **eine Person beides übernehmen** (Option

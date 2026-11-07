@@ -94,8 +94,8 @@ describe('Konfigurations-Validierung', () => {
       validateConfigTexts({ ...texte, positionen: positionenText(aendern) }).map((i) => i.code)
 
     it('meldet ein Feld, das in keiner Ergebnisspalte steht', () => {
-      const ohneSch = (t: string) => t.replace('      - { label: "SCH", felder: ["katalog:mueb"] }\n', '')
-      expect(codes(ohneSch)).toContain('ERGEBNIS_LUECKE')
+      const ohneMueb = (t: string) => t.replace('      - { label: "MüB", felder: ["katalog:mueb"] }\n', '')
+      expect(codes(ohneMueb)).toContain('ERGEBNIS_LUECKE')
     })
 
     it('meldet einen Aufbau mit unbekannter Disziplin', () => {

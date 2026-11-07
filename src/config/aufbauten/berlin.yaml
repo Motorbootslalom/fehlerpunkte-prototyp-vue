@@ -55,11 +55,11 @@ positionen:
       - { key: t3b, label: "Tor 3", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, hebt: Tor3 }
       # Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
       - { key: t1b, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, klassen: ["E", 1, 2, 3, 5, 6, 7], hebt: Tor1 }
-      # Klasse 7 fährt nach der Speedboje ein zweites Mal durch Tor 1.
-      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, klassen: [7] }
       # Mann-über-Bord erst ab Klasse 4.
       - { key: mueb, label: "MüB", typ: code, punkteSpalte: mp, breite: 1, klassen: [4, 5, 6, 7] }
       - { key: mp, label: "F-Pkt.", typ: summe, einzeln: true, klassen: [4, 5, 6, 7] }
+      # Klasse 7 fährt nach Mann-über-Bord und der Speedrunde ein drittes Mal durch Tor 1.
+      - { key: t1c, label: "Tor 1", typ: boje, sub: ["rueck seiteA", "rueck seiteB"], innen: seiteB, klassen: [7] }
       - { key: disq, label: "Disq.", typ: disq }
       - { key: sum, label: "Σ", typ: summe }
 

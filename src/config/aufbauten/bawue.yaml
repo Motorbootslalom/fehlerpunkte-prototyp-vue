@@ -78,7 +78,7 @@ positionen:
     # seiteB-Boje. Start/Ziel seiteB = obere Boje. Schikane (MüB) wird hier
     # beobachtet → bleibt hell. Tor 4/5 + Speedbojen abgeblendet.
     abblenden: [Tor1_aussen, Tor2_innen, Tor3_aussen, Tor4, Tor5, StartZiel_unten, Speedboje_oben, Speedboje_unten]
-    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    bildDrehung: 180       # Bilder immer aus Sicht der Position: von der Wasserseite gedreht
     summeSpalte: sum
     disq: mueb
     # hinweis: blickrichtung
@@ -111,7 +111,7 @@ positionen:
     # + nur die obere Speedboje (Speedboje_oben). Tore 1-3, Start/Ziel, Schikane und die
     # untere Speedboje (Speedboje_unten) abgeblendet.
     abblenden: [Tor1, Tor2, Tor3, Tor4_innen, Tor5_unten, StartZiel_oben, StartZiel_unten, Schikane, Speedboje_unten]
-    # bildDrehung: -90   # wie Alcatraz (90°), aber vom Gegenüber → +180° = -90° (Hochformat)
+    bildDrehung: 180       # Bilder immer aus Sicht der Position: von der Wasserseite gedreht
     summeSpalte: sum
     disq: parcours
     # hinweis: blickrichtung

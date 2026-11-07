@@ -50,7 +50,7 @@ describe('Spalten der Ergebnisliste', () => {
   const alcatraz = { aufbau: 'alcatraz', tor5MitParcours: false }
 
   it('folgt für Klasse 4 der Liste der DM', () => {
-    expect(titel(alcatraz, '4')).toEqual(['Steg AB', 'Start', '1 H', '2 H', '3 H', '4 H', '5', '4 R', '3 R', '2 R', 'SCH', 'Ziel', 'Steg AN'])
+    expect(titel(alcatraz, '4')).toEqual(['Steg AB', 'Start', '1 H', '2 H', '3 H', '4 H', '5', '4 R', '3 R', '2 R', 'MüB', 'Ziel', 'Steg AN'])
     const tor5 = ergebnisGruppen(alcatraz, '4').find((g) => g.label === '5')!
     expect(tor5.blaetter.map((b) => b.label)).toEqual(['L', 'R', 'E', 'L', 'R'])
   })
@@ -60,6 +60,11 @@ describe('Spalten der Ergebnisliste', () => {
     expect(titel(alcatraz, '5')).toContain('S1')
     expect(titel(alcatraz, '5')).not.toContain('S2')
     expect(titel(alcatraz, '7').filter((t) => t === '1 R')).toHaveLength(2)
+  })
+
+  it('folgt der Fahrt: Tor 1, Mann-über-Bord, Speedrunde, bei Klasse 7 noch einmal Tor 1', () => {
+    expect(titel(alcatraz, '5').slice(-6)).toEqual(['2 R', '1 R', 'MüB', 'S1', 'Ziel', 'Steg AN'])
+    expect(titel(alcatraz, '7').slice(-8)).toEqual(['2 R', '1 R', 'MüB', 'S1', 'S2', '1 R', 'Ziel', 'Steg AN'])
   })
 
   it('gilt für jeden Aufbau derselben Disziplin gleich', () => {
@@ -167,7 +172,7 @@ describe('Ergebnisliste eines Laufs', () => {
     expect(zelleVon('1 H', 1)).toBe('5') // Rechts
     expect(zelleVon('Start')).toBe('15')
     expect(zelleVon('5', 2)).toBe('5') // Einfahrt: Code 2
-    expect(zelleVon('SCH')).toBe('5, D')
+    expect(zelleVon('MüB')).toBe('5, D')
     expect(nachNummer[0].zellen.join('|')).not.toContain('C')
     expect(nachNummer[0].disq).toBe(true)
     expect(nachNummer[0].schluessel).toBe('2, 17, C, D, J')
