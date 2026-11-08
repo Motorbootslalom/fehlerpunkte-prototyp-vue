@@ -478,8 +478,9 @@ Schalter wieder aus. Das Anhaken zeigt auch die Ergebnislisten.
   in jedem zur Grundausstattung.
 
 **Namen:** Name und Vorname kommen aus „Namen der Starter“ (je Zeile Startnummer, Name,
-Vorname; auch aus Excel einfügbar). Neue Nummern werden zu den Startnummern der Klasse
-ergänzt. Die Namen bleiben im Browser, der Einstellungs-Link enthält sie nicht.
+Vorname; auch aus Excel einfügbar). Eine Nummer, die schon in einer anderen Klasse startet,
+bekommt dort ihren Namen; so lassen sich alle Namen auf einmal einfügen. Neue Nummern werden zu
+den Startnummern der Klasse ergänzt. Die Namen bleiben im Browser, der Einstellungs-Link enthält sie nicht.
 
 ## 8g. Beispielwerte
 

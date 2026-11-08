@@ -903,9 +903,10 @@ const commitDate = __GIT_COMMIT_DATE__
       <details>
         <summary><h2 style="display: inline">Namen der Starter</h2></summary>
         <p class="hint">
-          Für die Ergebnislisten, je Zeile: Startnummer; Name; Vorname. Aus Excel einfügen geht auch.
-          Neue Nummern kommen zu den Startnummern der Klasse dazu. Die Namen bleiben im Browser, der
-          Einstellungs-Link enthält sie nicht.
+          Für die Ergebnislisten, je Zeile: Startnummer; Name; Vorname. Aus Excel einfügen geht auch,
+          alle Klassen auf einmal: Eine Nummer, die schon in einer anderen Klasse startet, bekommt dort
+          ihren Namen. Neue Nummern kommen zu den Startnummern der Klasse dazu. Die Namen bleiben im
+          Browser, der Einstellungs-Link enthält sie nicht.
         </p>
         <label v-for="c in klassen" :key="c" class="field" style="margin-top: 8px">
           <span>Klasse {{ c }}</span>

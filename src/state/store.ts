@@ -123,14 +123,25 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, numbers: { ...state.numbers, [action.klasse]: action.numbers } }
 
     case 'SET_STARTER': {
-      // Neue Namen bringen ihre Startnummer mit, sonst fehlten sie auf den Listen.
-      const bisher = state.numbers[action.klasse] ?? []
-      const neu = Object.keys(action.starter).filter((nr) => !bisher.includes(nr))
-      return {
-        ...state,
-        starter: { ...state.starter, [action.klasse]: action.starter },
-        numbers: { ...state.numbers, [action.klasse]: [...bisher, ...neu] },
+      // Eine Nummer, die schon in einer anderen Klasse startet, bekommt dort ihren Namen: So
+      // lassen sich alle Namen auf einmal in eine Klasse einfügen. Neue Nummern kommen zu den
+      // Startnummern der Klasse, sonst fehlten sie auf den Listen.
+      const ziel = action.klasse
+      const klasseVon = (nr: string): ClassId =>
+        state.numbers[ziel]?.includes(nr)
+          ? ziel
+          : ((Object.keys(state.numbers) as ClassId[]).find((k) => state.numbers[k]?.includes(nr)) ?? ziel)
+      const jeKlasse: Partial<Record<ClassId, Record<string, Starter>>> = { [ziel]: {} }
+      for (const [nr, s] of Object.entries(action.starter)) {
+        const k = klasseVon(nr)
+        jeKlasse[k] = { ...jeKlasse[k], [nr]: s }
       }
+      const starter = { ...state.starter }
+      for (const [k, eintraege] of Object.entries(jeKlasse) as Array<[ClassId, Record<string, Starter>]>)
+        starter[k] = k === ziel ? eintraege : { ...state.starter[k], ...eintraege }
+      const bisher = state.numbers[ziel] ?? []
+      const neu = Object.keys(jeKlasse[ziel] ?? {}).filter((nr) => !bisher.includes(nr))
+      return { ...state, starter, numbers: { ...state.numbers, [ziel]: [...bisher, ...neu] } }
     }
 
     case 'SET_CLASS_ORDER':
