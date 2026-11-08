@@ -1281,6 +1281,10 @@ body {
 
 .ergebnis-sheet {
   font-family: Arial, Helvetica, 'Liberation Sans', sans-serif;
+  /* Kein Flex: Chrome verteilt in einer Flexbox die Mehrhöhe eines zweizeiligen
+     Kopfes (z. B. „Abstand zum Platz davor“) zusätzlich auf die Datenzeilen, ohne
+     die Tabelle höher zu melden; der Zeitstempel rückt dann an die Tabelle. */
+  display: block;
 }
 
 .erg-table {
@@ -1378,13 +1382,10 @@ body {
 }
 
 .erg-stand {
-  align-self: flex-end;
-  box-sizing: border-box;
-  margin-top: 3mm;
+  width: fit-content;
+  margin: 3mm 0 0 auto;
   border: 1.6px solid var(--line);
-  padding: 1.5mm 2mm;
-  text-align: center;
-  white-space: nowrap;
+  padding: 1.5mm 5mm;
   font-size: 8.5pt;
   font-weight: 700;
 }

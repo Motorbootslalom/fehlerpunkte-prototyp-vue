@@ -437,7 +437,6 @@ Gesamtliste übernimmt jede Änderung an einem Lauf ihrer Klasse, auch wenn sie 
 sehen ist (anderer Fehlercode mit gleichen Punkten): Kein Lauf darf neuer aussehen als die
 Gesamtliste. Knoten und die Streich-Einstellung ändern nur die Gesamtliste. Der
 Veranstaltungsname zählt nicht mit, sonst sähe nach einem Tippfehler jede Liste neu aus. Der Stand bleibt im Browser gespeichert; der Einstellungs-Link enthält ihn nicht.
-Der Kasten mit dem Zeitstempel steht bündig unter den beiden letzten Spalten der Liste.
 
 **Abstand (optional):** Unter „Abstand“ lässt sich eine Spalte zuschalten, die zeigt, wie weit
 jemand hinter dem Platz davor oder hinter dem Ersten liegt, in Punkten mit Pluszeichen

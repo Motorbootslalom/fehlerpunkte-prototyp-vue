@@ -3,7 +3,7 @@ import { computed, onMounted, onUpdated, ref } from 'vue'
 import { getBogenTexte } from '../config/active'
 import { abstaende, abstandText, punkteText, type GesamtListe, type LaufZeile } from '../lib/ergebnis'
 import { ergebnisAbstand } from '../state/laufzettel'
-import { fitCells, standUnterLetztenSpalten } from '../lib/fitText'
+import { fitCells } from '../lib/fitText'
 import { formatClock } from '../lib/time'
 import ErgebnisKopf from './ErgebnisKopf.vue'
 
@@ -15,12 +15,8 @@ const zeitText = (l: LaufZeile) => (l.zeit === null ? '' : formatClock(l.zeit))
 const abstand = computed(() => (ergebnisAbstand.value ? abstaende(props.liste.zeilen, ergebnisAbstand.value) : []))
 
 const seite = ref<HTMLElement | null>(null)
-function anpassen() {
-  fitCells(seite.value)
-  standUnterLetztenSpalten(seite.value)
-}
-onMounted(anpassen)
-onUpdated(anpassen)
+onMounted(() => fitCells(seite.value))
+onUpdated(() => fitCells(seite.value))
 </script>
 
 <template>

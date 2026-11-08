@@ -3,7 +3,7 @@ import { computed, onMounted, onUpdated, ref } from 'vue'
 import { getBogenTexte } from '../config/active'
 import { abstaende, abstandText, punkteText, type ErgebnisGruppe, type LaufZeile } from '../lib/ergebnis'
 import { ergebnisAbstand } from '../state/laufzettel'
-import { fitCells, standUnterLetztenSpalten } from '../lib/fitText'
+import { fitCells } from '../lib/fitText'
 import { formatClock, formatSeconds } from '../lib/time'
 import ErgebnisKopf from './ErgebnisKopf.vue'
 
@@ -27,12 +27,8 @@ const spaltenZahl = computed(
 const abstand = computed(() => (ergebnisAbstand.value ? abstaende(props.zeilen, ergebnisAbstand.value) : []))
 
 const seite = ref<HTMLElement | null>(null)
-function anpassen() {
-  fitCells(seite.value)
-  standUnterLetztenSpalten(seite.value)
-}
-onMounted(anpassen)
-onUpdated(anpassen)
+onMounted(() => fitCells(seite.value))
+onUpdated(() => fitCells(seite.value))
 </script>
 
 <template>
