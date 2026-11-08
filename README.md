@@ -88,9 +88,9 @@ Links die Steuerleiste (nur am Bildschirm, im Druck ausgeblendet):
 2. Unter **Bögen** die gewünschten Listen zusammenstellen (Typ/Klasse/Lauf).
 3. In den Bögen rechts die Werte eintragen - Σ und Zeiten aktualisieren sich live.
 4. **Drucken / Als PDF** (die übrigen PDF-Wege stehen zum Vergleich unter „Weitere PDF-Wege“).
-5. Unter **Ergebnislisten** die Listen ansehen und drucken, die Gesamtliste per Häkchen
-   dazunehmen; Namen kommen aus **Namen der Starter**, Knoten aus der Knoten-Liste (unter
-   **Bögen** wählbar).
+5. Unter **Ergebnislisten** die Listen ansehen und drucken; unter **Listen** die Läufe, die
+   Läufe mit Gesamtliste oder nur die Gesamtliste wählen. Namen kommen aus **Namen der
+   Starter**, Knoten aus der Knoten-Liste (unter **Bögen** wählbar).
 
 Eigene Aufbauten gibt man per **Einstellungs-Link** oder **Aufbau als YAML speichern** weiter;
 **Eigenen Aufbau laden (YAML)** prüft eine Datei, bevor sie übernommen wird. Eine gespeicherte

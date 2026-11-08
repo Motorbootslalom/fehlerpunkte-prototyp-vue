@@ -461,8 +461,10 @@ mit Eingaben.
   Codes dagegen als Text („17, 18, 3“).
 
 **Auf Wunsch zum Schluss die Gesamtliste** mit allen Läufen. Sie ist meist erst am Ende
-gefragt und erscheint deshalb nur mit „Gesamtliste dazunehmen“, nach dem Neuladen ist der
-Schalter wieder aus. Das Anhaken zeigt auch die Ergebnislisten.
+gefragt und erscheint deshalb nur auf Wunsch: Unter „Listen“ stehen „Läufe“, „Läufe und
+Gesamtliste“ und „Nur Gesamtliste“; nach dem Neuladen gilt wieder „Läufe“. Die Wahl einer
+Gesamtliste zeigt auch die Ergebnislisten. Mit „Nur Gesamtliste“ nennt der Dateiname keinen
+Lauf („30. Möwepokal 2026 - Klasse 7 - Gesamtliste - …“).
 
 - **Gestrichen** ist genau **ein** Lauf, der schlechteste, bei Gleichstand der frühere. Das
   gilt in der Regel erst ab **drei** Läufen; die Einstellung „Schon ab zwei Läufen einen

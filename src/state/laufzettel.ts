@@ -21,8 +21,12 @@ export const showLegende = ref(false)
 /** Ergebnislisten in der Vorschau zeigen. */
 export const showErgebnisse = ref(false)
 
-/** Gesamtliste dazunehmen: Sie ist meist erst am Ende gefragt und erscheint nur auf Wunsch. */
-export const showGesamtliste = ref(false)
+/**
+ * Welche Ergebnislisten: die Läufe, die Läufe und die Gesamtliste oder nur die Gesamtliste.
+ * Die Gesamtliste ist meist erst am Ende gefragt und erscheint nur auf Wunsch.
+ */
+export type ErgebnisUmfang = 'laeufe' | 'beide' | 'gesamt'
+export const ergebnisUmfang = ref<ErgebnisUmfang>('laeufe')
 
 /** Klasse der Ergebnislisten; leer = alle mit Eingaben. */
 export const ergebnisKlasse = ref<ClassId | ''>('')

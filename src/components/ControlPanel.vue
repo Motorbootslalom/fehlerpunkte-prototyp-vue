@@ -41,7 +41,14 @@ import {
 } from '../lib/quickpick'
 import { buildShareUrl } from '../lib/sharelink'
 import { formatStarter, parseStarter } from '../lib/starter'
-import { ergebnisKlasse, showErgebnisse, showGesamtliste, showLaufzettel, showLegende } from '../state/laufzettel'
+import {
+  ergebnisKlasse,
+  ergebnisUmfang,
+  showErgebnisse,
+  showLaufzettel,
+  showLegende,
+  type ErgebnisUmfang,
+} from '../state/laufzettel'
 import { scanFehler, verarbeiteScan } from '../state/scan'
 import { useStore } from '../state/store'
 import type { ClassId, Lauf, SheetTypeId, Sprache } from '../types'
@@ -188,10 +195,10 @@ const hatErgebnisse = computed(() =>
   klassen.value.some((k) => (!ergebnisKlasse.value || k === ergebnisKlasse.value) && laeufeMitEingaben(state, k).length > 0),
 )
 
-function zeigeGesamtliste(an: boolean) {
-  showGesamtliste.value = an
-  // Ohne die Ergebnislisten bliebe das Häkchen ohne sichtbare Wirkung.
-  if (an) showErgebnisse.value = true
+function umfangSetzen(umfang: ErgebnisUmfang) {
+  ergebnisUmfang.value = umfang
+  // Ohne die Ergebnislisten bliebe die Auswahl ohne sichtbare Wirkung.
+  if (umfang !== 'laeufe') showErgebnisse.value = true
 }
 
 function fuegeBeispielwerteEin(zeitnahme: Zeitnahme) {
@@ -211,8 +218,9 @@ function printErgebnisse() {
     {
       klassen: mitWerten,
       alleKlassen: klassen.value,
-      laeufe: mitWerten.flatMap((k) => laeufeMitEingaben(state, k)),
-      gesamt: showGesamtliste.value,
+      // Nur die Gesamtliste: ohne Lauf im Namen.
+      laeufe: ergebnisUmfang.value === 'gesamt' ? [] : mitWerten.flatMap((k) => laeufeMitEingaben(state, k)),
+      gesamt: ergebnisUmfang.value !== 'laeufe',
     },
     new Date(),
   )
@@ -580,13 +588,17 @@ const commitDate = __GIT_COMMIT_DATE__
         />
         Ergebnislisten in der Vorschau zeigen
       </label>
-      <label class="cp-check" title="Zeigt und druckt die Gesamtliste hinter den Läufen jeder Klasse">
-        <input
-          type="checkbox"
-          :checked="showGesamtliste"
-          @change="zeigeGesamtliste(($event.target as HTMLInputElement).checked)"
-        />
-        Gesamtliste dazunehmen
+      <label class="field field-nums" style="margin-top: 8px">
+        <span>Listen</span>
+        <select
+          :value="ergebnisUmfang"
+          title="Welche Ergebnislisten gezeigt und gedruckt werden"
+          @change="umfangSetzen(($event.target as HTMLSelectElement).value as ErgebnisUmfang)"
+        >
+          <option value="laeufe">Läufe</option>
+          <option value="beide">Läufe und Gesamtliste</option>
+          <option value="gesamt">Nur Gesamtliste</option>
+        </select>
       </label>
       <label class="cp-check" title="Sonst wird erst ab drei Läufen gestrichen">
         <input
@@ -618,7 +630,8 @@ const commitDate = __GIT_COMMIT_DATE__
       </div>
       <p class="hint">
         Je Lauf eine Liste nach Startnummer und eine nach Platz. Die Gesamtliste mit Knoten kommt
-        nur dazu, wenn du sie anhakst: Ab drei Läufen ist der schlechteste gestrichen. Wer danach
+        nur dazu oder allein, wenn du sie unter „Listen“ wählst: Ab drei Läufen ist der schlechteste
+        gestrichen. Wer danach
         noch einen disqualifizierten Lauf hat, steht auf dem letzten Platz. Es zählen die Eingaben der
         gewählten Disziplin; die Knoten-Liste wählst du unter „Bögen“. Namen kommen aus „Namen der
         Starter“.

@@ -3,13 +3,14 @@ import { computed } from 'vue'
 import { getAufbau, getDisziplin, getRegelwerk } from '../config/active'
 import { laufSchluessel } from '../lib/eingaben'
 import { gesamtSchluessel, klassenErgebnis } from '../lib/ergebnis'
-import { ergebnisKlasse, showGesamtliste } from '../state/laufzettel'
+import { ergebnisKlasse, ergebnisUmfang } from '../state/laufzettel'
 import { useStore } from '../state/store'
 import type { ClassId } from '../types'
 import ErgebnisGesamtSeite from './ErgebnisGesamtSeite.vue'
 import ErgebnisLaufSeite from './ErgebnisLaufSeite.vue'
 
-// Je Klasse: jeder Lauf nach Startnummer und nach Platz, auf Wunsch zum Schluss die Gesamtliste.
+// Je Klasse: jeder Lauf nach Startnummer und nach Platz, auf Wunsch zum Schluss die Gesamtliste
+// oder nur sie (ergebnisUmfang).
 const { state } = useStore()
 
 const klassen = computed(() =>
@@ -32,7 +33,7 @@ function standVon(schluessel: string): string {
 <template>
   <p v-if="ergebnisse.length === 0" class="empty">Noch keine Eingaben für die Ergebnislisten ({{ disziplinName }}).</p>
   <template v-for="e in ergebnisse" :key="e.klasse">
-    <template v-for="l in e.laeufe" :key="l.lauf">
+    <template v-for="l in ergebnisUmfang === 'gesamt' ? [] : e.laeufe" :key="l.lauf">
       <ErgebnisLaufSeite
         :klasse="l.klasse"
         :lauf="l.lauf"
@@ -51,7 +52,7 @@ function standVon(schluessel: string): string {
       />
     </template>
     <ErgebnisGesamtSeite
-      v-if="showGesamtliste"
+      v-if="ergebnisUmfang !== 'laeufe'"
       :liste="e.gesamt"
       :event-name="state.eventName"
       :stand="standVon(gesamtSchluessel(disziplin, e.klasse))"

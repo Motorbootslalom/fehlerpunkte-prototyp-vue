@@ -60,6 +60,10 @@ describe('Dateiname der Ergebnislisten', () => {
     )
   })
 
+  it('nennt bei nur der Gesamtliste keinen Lauf', () => {
+    expect(ergebnisDateiname('Pokal', { klassen: ['7'], alleKlassen: alle, laeufe: [], gesamt: true })).toBe('Pokal - Klasse 7 - Gesamtliste')
+  })
+
   it('zählt Klassen und Läufe lesbar auf', () => {
     expect(klassenText(['E', '1'], alle)).toBe('Klassen E und 1')
     expect(laeufeText([2])).toBe('2. Lauf')
