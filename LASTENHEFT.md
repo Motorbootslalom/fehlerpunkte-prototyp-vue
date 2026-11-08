@@ -319,7 +319,10 @@ Beschreibung gilt für den Browser-Druck; die anderen Wege sind vereinfacht:
 
 Der Dateiname wird bei Browser-Druck und Vektor-Prototyp automatisch gebildet:
 `Fehlerpunkte - <Event> [- <Position>] [- Klasse X] [- N. Lauf] - <Zeitstempel>`,
-wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig.
+wobei Position/Klasse/Lauf nur erscheinen, wenn über alle Bögen eindeutig. Die Ergebnislisten
+heißen `<Event> - <Klassen> - <Läufe> [- Gesamtliste] - <Zeitstempel>`, z. B. „30. Möwepokal
+2026 - Klasse 7 - 1. Lauf - …“ oder „… - Klassen 5, 6 und 7 - 1. bis 3. Lauf - Gesamtliste - …“;
+ohne Veranstaltung beginnt der Name mit „Ergebnisliste“.
 
 ## 8a. Einstellungs-Link (teilbare Zusammenstellung)
 

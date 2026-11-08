@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { exportBaseName, sanitizeFilename, timestampSuffix } from './print'
+import { ergebnisDateiname, exportBaseName, klassenText, laeufeText, sanitizeFilename, timestampSuffix } from './print'
 
 describe('sanitizeFilename', () => {
   it('entfernt dateisystem-kritische Zeichen', () => {
@@ -38,5 +38,31 @@ describe('exportBaseName', () => {
 
   it('ohne Datum kein Zeitstempel (für die Vorschau)', () => {
     expect(exportBaseName('Cup', 'Klasse 3')).toBe('Fehlerpunkte - Cup - Klasse 3')
+  })
+})
+
+describe('Dateiname der Ergebnislisten', () => {
+  const alle = ['E', '1', '2', '3', '4', '5', '6', '7']
+  const datum = new Date(2026, 10, 8, 1, 51, 40)
+
+  it('nennt Veranstaltung, Klasse und Lauf, ohne „Fehlerpunkte“ und „Ergebnislisten“', () => {
+    expect(ergebnisDateiname('30. Möwepokal 2026', { klassen: ['7'], alleKlassen: alle, laeufe: [1], gesamt: false }, datum)).toBe(
+      '30. Möwepokal 2026 - Klasse 7 - 1. Lauf - 2026-11-08_01.51.40Uhr',
+    )
+  })
+
+  it('fasst mehrere Klassen und Läufe zusammen, mit Gesamtliste', () => {
+    expect(ergebnisDateiname('Pokal', { klassen: ['5', '6', '7'], alleKlassen: alle, laeufe: [1, 2, 3, 1, 2], gesamt: true })).toBe(
+      'Pokal - Klassen 5, 6 und 7 - 1. bis 3. Lauf - Gesamtliste',
+    )
+    expect(ergebnisDateiname('', { klassen: alle, alleKlassen: alle, laeufe: [1, 3], gesamt: false })).toBe(
+      'Ergebnisliste - alle Klassen - 1. und 3. Lauf',
+    )
+  })
+
+  it('zählt Klassen und Läufe lesbar auf', () => {
+    expect(klassenText(['E', '1'], alle)).toBe('Klassen E und 1')
+    expect(laeufeText([2])).toBe('2. Lauf')
+    expect(laeufeText([2, 1])).toBe('1. und 2. Lauf')
   })
 })

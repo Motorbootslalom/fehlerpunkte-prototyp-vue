@@ -65,3 +65,41 @@ export function exportBaseName(eventName: string, descriptor: string, date?: Dat
   if (date) parts.push(timestampSuffix(date))
   return sanitizeFilename(parts.join(' - '))
 }
+
+/** „A“, „A und B“, „A, B und C“. */
+function aufzaehlen(teile: string[]): string {
+  return teile.length < 2 ? (teile[0] ?? '') : `${teile.slice(0, -1).join(', ')} und ${teile[teile.length - 1]}`
+}
+
+/** „Klasse 7“, „Klassen 5, 6 und 7“ oder „alle Klassen“. */
+export function klassenText(klassen: string[], alle: string[]): string {
+  if (klassen.length > 1 && klassen.length === alle.length) return 'alle Klassen'
+  return klassen.length === 1 ? `Klasse ${klassen[0]}` : `Klassen ${aufzaehlen(klassen)}`
+}
+
+/** „1. Lauf“, „1. und 3. Lauf“ oder „1. bis 3. Lauf“. */
+export function laeufeText(laeufe: number[]): string {
+  const l = [...new Set(laeufe)].sort((a, b) => a - b)
+  if (l.length === 0) return ''
+  const durchgehend = l.length > 2 && l[l.length - 1] - l[0] === l.length - 1
+  return durchgehend ? `${l[0]}. bis ${l[l.length - 1]}. Lauf` : `${aufzaehlen(l.map((n) => `${n}.`))} Lauf`
+}
+
+/**
+ * Dateiname der Ergebnislisten: <Event> - <Klassen> - <Läufe> [- Gesamtliste] - <Zeitstempel>.
+ * Ohne Veranstaltung beginnt er mit „Ergebnisliste“, damit er nicht mit der Klasse anfängt.
+ */
+export function ergebnisDateiname(
+  eventName: string,
+  auswahl: { klassen: string[]; alleKlassen: string[]; laeufe: number[]; gesamt: boolean },
+  date?: Date,
+): string {
+  const parts = [
+    eventName.trim() || 'Ergebnisliste',
+    klassenText(auswahl.klassen, auswahl.alleKlassen),
+    laeufeText(auswahl.laeufe),
+    auswahl.gesamt ? 'Gesamtliste' : '',
+    date ? timestampSuffix(date) : '',
+  ]
+  return sanitizeFilename(parts.filter(Boolean).join(' - '))
+}

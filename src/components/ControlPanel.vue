@@ -23,7 +23,7 @@ import { exportSheetsToPdf } from '../lib/exportPdf'
 import { exportPdfmake } from '../lib/exportPdfmake'
 import { exportJsPdfVector } from '../lib/exportJsPdfVector'
 import { laeufeMitEingaben } from '../lib/ergebnis'
-import { describeBoegen, exportBaseName, printWithFilename } from '../lib/print'
+import { describeBoegen, ergebnisDateiname, exportBaseName, printWithFilename } from '../lib/print'
 import {
   LAEUFE,
   allClassesAllPositionsItems,
@@ -160,7 +160,7 @@ const currentName = () => exportBaseName(state.eventName, describe(), new Date()
 
 // Nur einen Teil drucken: Die Bögen bleiben in der Vorschau, die Druck-CSS blendet
 // sie über die body-Klasse aus.
-async function printNur(bodyKlasse: string, beschreibung: string) {
+async function printNur(bodyKlasse: string, dateiname: string) {
   await nextTick()
   // Laufzettel messen nach dem Einblenden, ob sie zweispaltig werden - das
   // Neu-Rendern abwarten, bevor der Druckdialog das Layout einfriert.
@@ -171,17 +171,17 @@ async function printNur(bodyKlasse: string, beschreibung: string) {
     window.removeEventListener('afterprint', done)
   }
   window.addEventListener('afterprint', done)
-  printWithFilename(exportBaseName(state.eventName, beschreibung, new Date()))
+  printWithFilename(dateiname)
 }
 
 function printLaufzettel() {
   showLaufzettel.value = true
-  return printNur('print-laufzettel', 'Laufzettel')
+  return printNur('print-laufzettel', exportBaseName(state.eventName, 'Laufzettel', new Date()))
 }
 
 function printLegende() {
   showLegende.value = true
-  return printNur('print-legende', `Legende ${getRegelwerk().label}`)
+  return printNur('print-legende', exportBaseName(state.eventName, `Legende ${getRegelwerk().label}`, new Date()))
 }
 
 const hatErgebnisse = computed(() =>
@@ -200,10 +200,23 @@ function fuegeBeispielwerteEin(zeitnahme: Zeitnahme) {
   }
 }
 
+/** Druckt die Ergebnislisten; der Dateiname nennt Veranstaltung, Klassen und Läufe. */
 function printErgebnisse() {
   showErgebnisse.value = true
-  const klasse = ergebnisKlasse.value ? ` Klasse ${ergebnisKlasse.value}` : ''
-  return printNur('print-ergebnisse', `Ergebnislisten${klasse}`)
+  const mitWerten = klassen.value.filter(
+    (k) => (!ergebnisKlasse.value || k === ergebnisKlasse.value) && laeufeMitEingaben(state, k).length > 0,
+  )
+  const dateiname = ergebnisDateiname(
+    state.eventName,
+    {
+      klassen: mitWerten,
+      alleKlassen: klassen.value,
+      laeufe: mitWerten.flatMap((k) => laeufeMitEingaben(state, k)),
+      gesamt: showGesamtliste.value,
+    },
+    new Date(),
+  )
+  return printNur('print-ergebnisse', dateiname)
 }
 
 async function downloadPdf() {
