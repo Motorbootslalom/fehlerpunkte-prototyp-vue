@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUpdated, ref } from 'vue'
+import { computed, onMounted, onUpdated, ref } from 'vue'
 import { getBogenTexte } from '../config/active'
-import { punkteText, type GesamtListe, type LaufZeile } from '../lib/ergebnis'
-import { fitCells } from '../lib/fitText'
+import { abstaende, abstandText, punkteText, type GesamtListe, type LaufZeile } from '../lib/ergebnis'
+import { ergebnisAbstand } from '../state/laufzettel'
+import { fitCells, standUnterLetztenSpalten } from '../lib/fitText'
 import { formatClock } from '../lib/time'
 import ErgebnisKopf from './ErgebnisKopf.vue'
 
@@ -11,10 +12,15 @@ const props = defineProps<{ liste: GesamtListe; eventName: string; stand: string
 
 const texte = getBogenTexte()
 const zeitText = (l: LaufZeile) => (l.zeit === null ? '' : formatClock(l.zeit))
+const abstand = computed(() => (ergebnisAbstand.value ? abstaende(props.liste.zeilen, ergebnisAbstand.value) : []))
 
 const seite = ref<HTMLElement | null>(null)
-onMounted(() => fitCells(seite.value))
-onUpdated(() => fitCells(seite.value))
+function anpassen() {
+  fitCells(seite.value)
+  standUnterLetztenSpalten(seite.value)
+}
+onMounted(anpassen)
+onUpdated(anpassen)
 </script>
 
 <template>
@@ -34,10 +40,11 @@ onUpdated(() => fitCells(seite.value))
         <col class="erg-w-ergebnis" />
         <col class="erg-w-knoten" />
         <col class="erg-w-ergebnis" />
+        <col v-if="ergebnisAbstand" class="erg-w-abstand" />
       </colgroup>
       <thead>
         <tr>
-          <th class="erg-kopf-zelle" :colspan="7 + liste.laeufe.length * 4">
+          <th class="erg-kopf-zelle" :colspan="7 + (ergebnisAbstand ? 1 : 0) + liste.laeufe.length * 4">
             <ErgebnisKopf :klasse="texte.klasse(liste.klasse)" titel="Gesamt" :event-name="eventName" />
           </th>
         </tr>
@@ -50,6 +57,9 @@ onUpdated(() => fitCells(seite.value))
           <th rowspan="2" class="erg-gruppe">Ergebnis</th>
           <th rowspan="2">Knoten</th>
           <th rowspan="2">Gesamt</th>
+          <th v-if="ergebnisAbstand" rowspan="2">
+            Abstand<br /><small>{{ ergebnisAbstand === 'erster' ? 'zum 1. Platz' : 'zum Platz davor' }}</small>
+          </th>
         </tr>
         <tr class="erg-unterkopf erg-unterkopf--gesamt">
           <template v-for="l in liste.laeufe" :key="l">
@@ -77,6 +87,7 @@ onUpdated(() => fitCells(seite.value))
           </td>
           <td>{{ z.knoten || '' }}</td>
           <td :class="{ 'erg-disq': z.disq }">{{ punkteText(z.disq, z.gesamt) }}</td>
+          <td v-if="ergebnisAbstand">{{ abstandText(abstand[i]) }}</td>
         </tr>
       </tbody>
     </table>

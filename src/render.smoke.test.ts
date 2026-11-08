@@ -3,7 +3,7 @@ import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import App from './App.vue'
 import { bundledConfig, initConfig } from './config/active'
-import { ergebnisKlasse, ergebnisUmfang, showErgebnisse, showLegende } from './state/laufzettel'
+import { ergebnisAbstand, ergebnisKlasse, ergebnisUmfang, showErgebnisse, showLegende } from './state/laufzettel'
 import { createStore } from './state/store'
 
 // Render-Smoke-Test (ersetzt den React-Render-Test): stellt sicher, dass die
@@ -61,6 +61,9 @@ describe('App-Render', () => {
     const html = await rendern()
     ergebnisUmfang.value = 'gesamt'
     const nurGesamt = await rendern()
+    ergebnisAbstand.value = 'erster'
+    const mitAbstand = await rendern()
+    ergebnisAbstand.value = ''
     ergebnisUmfang.value = 'laeufe'
     showErgebnisse.value = false
     ergebnisKlasse.value = ''
@@ -70,6 +73,8 @@ describe('App-Render', () => {
     expect(html.match(/ergebnis-sheet/g)).toHaveLength(7)
     expect(nurGesamt.match(/ergebnis-sheet/g)).toHaveLength(1)
     expect(nurGesamt).toContain('erg-gestrichen')
+    expect(ohneGesamt).not.toContain('<small>zum 1. Platz</small>')
+    expect(mitAbstand).toContain('<small>zum 1. Platz</small>')
     expect(html).toContain('erg-gestrichen')
     expect(html).toContain('Schon ab zwei Läufen einen streichen')
     expect(html).toContain('Fehler-Schlüssel')

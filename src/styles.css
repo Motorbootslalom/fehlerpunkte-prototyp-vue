@@ -1379,9 +1379,12 @@ body {
 
 .erg-stand {
   align-self: flex-end;
+  box-sizing: border-box;
   margin-top: 3mm;
   border: 1.6px solid var(--line);
-  padding: 1.5mm 5mm;
+  padding: 1.5mm 2mm;
+  text-align: center;
+  white-space: nowrap;
   font-size: 8.5pt;
   font-weight: 700;
 }
@@ -1412,6 +1415,9 @@ body {
 }
 .erg-w-ges {
   width: 12mm;
+}
+.erg-w-abstand {
+  width: 13mm;
 }
 .erg-w-schluessel {
   width: 17mm;

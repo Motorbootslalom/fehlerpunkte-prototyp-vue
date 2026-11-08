@@ -42,6 +42,7 @@ import {
 import { buildShareUrl } from '../lib/sharelink'
 import { formatStarter, parseStarter } from '../lib/starter'
 import {
+  ergebnisAbstand,
   ergebnisKlasse,
   ergebnisUmfang,
   showErgebnisse,
@@ -598,6 +599,18 @@ const commitDate = __GIT_COMMIT_DATE__
           <option value="laeufe">Läufe</option>
           <option value="beide">Läufe und Gesamtliste</option>
           <option value="gesamt">Nur Gesamtliste</option>
+        </select>
+      </label>
+      <label class="field field-nums" style="margin-top: 8px">
+        <span>Abstand</span>
+        <select
+          :value="ergebnisAbstand"
+          title="Zusätzliche Spalte nach den Punkten: wie weit jemand hinter dem Platz davor oder hinter dem Ersten liegt"
+          @change="ergebnisAbstand = ($event.target as HTMLSelectElement).value as '' | 'davor' | 'erster'"
+        >
+          <option value="">keiner</option>
+          <option value="davor">zum Platz davor</option>
+          <option value="erster">zum 1. Platz</option>
         </select>
       </label>
       <label class="cp-check" title="Sonst wird erst ab drei Läufen gestrichen">

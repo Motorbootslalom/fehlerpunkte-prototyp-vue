@@ -3,7 +3,7 @@ import { bundledConfig, getBeschriftungen, getSheetDef, initConfig } from '../co
 import { defaultState } from '../state/initState'
 import { reducer, type Action } from '../state/store'
 import type { AppState, Bogen, ClassId, Lauf } from '../types'
-import { aktuellerListenStand, ergebnisGruppen, gesamtSchluessel, klassenErgebnis, punkteText, type GesamtZeile, type LaufZeile } from './ergebnis'
+import { aktuellerListenStand, ergebnisGruppen, gesamtSchluessel, klassenErgebnis, punkteText, type GesamtZeile, type LaufZeile, abstaende, abstandText } from './ergebnis'
 import { formatStarter, parseStarter, vergleicheNr } from './starter'
 
 beforeEach(() => initConfig(bundledConfig()))
@@ -522,3 +522,22 @@ describe('Zeitstempel der Listen', () => {
   })
 })
 
+
+describe('Abstand zum Platz davor und zum Ersten', () => {
+  const z = (gesamt: number | null, disq = false) => ({ gesamt, disq })
+  // In beliebiger Reihenfolge, wie die Liste nach Startnummer.
+  const zeilen = [z(8500), z(8000), z(8500), z(9000), z(null), z(null, true), z(8200)]
+
+  it('misst zum nächstbesseren Ergebnis, bei Gleichstand zum wirklich besseren', () => {
+    expect(abstaende(zeilen, 'davor')).toEqual([300, null, 300, 500, null, null, 200])
+  })
+
+  it('misst zum Ersten', () => {
+    expect(abstaende(zeilen, 'erster')).toEqual([500, null, 500, 1000, null, null, 200])
+  })
+
+  it('zeigt den Abstand als Punkte mit Pluszeichen', () => {
+    expect(abstandText(1234)).toBe('+12,34')
+    expect(abstandText(null)).toBe('')
+  })
+})

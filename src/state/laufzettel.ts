@@ -28,5 +28,8 @@ export const showErgebnisse = ref(false)
 export type ErgebnisUmfang = 'laeufe' | 'beide' | 'gesamt'
 export const ergebnisUmfang = ref<ErgebnisUmfang>('laeufe')
 
+/** Spalte mit dem Abstand zum Platz davor oder zum Ersten; leer = keine. */
+export const ergebnisAbstand = ref<'' | 'davor' | 'erster'>('')
+
 /** Klasse der Ergebnislisten; leer = alle mit Eingaben. */
 export const ergebnisKlasse = ref<ClassId | ''>('')

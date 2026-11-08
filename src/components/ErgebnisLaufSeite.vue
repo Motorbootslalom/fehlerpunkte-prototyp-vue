@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUpdated, ref } from 'vue'
 import { getBogenTexte } from '../config/active'
-import { punkteText, type ErgebnisGruppe, type LaufZeile } from '../lib/ergebnis'
-import { fitCells } from '../lib/fitText'
+import { abstaende, abstandText, punkteText, type ErgebnisGruppe, type LaufZeile } from '../lib/ergebnis'
+import { ergebnisAbstand } from '../state/laufzettel'
+import { fitCells, standUnterLetztenSpalten } from '../lib/fitText'
 import { formatClock, formatSeconds } from '../lib/time'
 import ErgebnisKopf from './ErgebnisKopf.vue'
 
@@ -18,12 +19,20 @@ const props = defineProps<{
 
 const texte = getBogenTexte()
 const zweizeilig = computed(() => props.gruppen.some((g) => g.mitUnter))
-// Platz, S-Nr., Name, Vorname, Zeit, Punkte + Fahrweg + disq., ges. Punkte, Fehler-Schlüssel
-const spaltenZahl = computed(() => 9 + props.gruppen.reduce((n, g) => n + g.blaetter.length, 0))
+// Platz, S-Nr., Name, Vorname, Zeit, Punkte + Fahrweg + disq., ges. Punkte, [Abstand,] Fehler-Schlüssel
+const spaltenZahl = computed(
+  () => 9 + (ergebnisAbstand.value ? 1 : 0) + props.gruppen.reduce((n, g) => n + g.blaetter.length, 0),
+)
+// Der Abstand hängt nur von den Punkten ab, nicht von der Reihenfolge der Liste.
+const abstand = computed(() => (ergebnisAbstand.value ? abstaende(props.zeilen, ergebnisAbstand.value) : []))
 
 const seite = ref<HTMLElement | null>(null)
-onMounted(() => fitCells(seite.value))
-onUpdated(() => fitCells(seite.value))
+function anpassen() {
+  fitCells(seite.value)
+  standUnterLetztenSpalten(seite.value)
+}
+onMounted(anpassen)
+onUpdated(anpassen)
 </script>
 
 <template>
@@ -41,6 +50,7 @@ onUpdated(() => fitCells(seite.value))
         </template>
         <col class="erg-w-disq" />
         <col class="erg-w-ges" />
+        <col v-if="ergebnisAbstand" class="erg-w-abstand" />
         <col class="erg-w-schluessel" />
       </colgroup>
       <thead>
@@ -62,6 +72,9 @@ onUpdated(() => fitCells(seite.value))
           </template>
           <th :rowspan="zweizeilig ? 2 : 1" class="erg-gruppe">disq.</th>
           <th :rowspan="zweizeilig ? 2 : 1">ges. Punkte</th>
+          <th v-if="ergebnisAbstand" :rowspan="zweizeilig ? 2 : 1">
+            Abstand<br /><small>{{ ergebnisAbstand === 'erster' ? 'zum 1. Platz' : 'zum Platz davor' }}</small>
+          </th>
           <th :rowspan="zweizeilig ? 2 : 1">Fehler-Schlüssel</th>
         </tr>
         <tr v-if="zweizeilig" class="erg-unterkopf">
@@ -91,6 +104,7 @@ onUpdated(() => fitCells(seite.value))
           </template>
           <td class="erg-gruppe">{{ z.disq ? 'x' : '' }}</td>
           <td :class="{ 'erg-disq': z.disq }">{{ punkteText(z.disq, z.gesamt) }}</td>
+          <td v-if="ergebnisAbstand">{{ abstandText(abstand[i]) }}</td>
           <td class="erg-fit">{{ z.schluessel }}</td>
         </tr>
       </tbody>

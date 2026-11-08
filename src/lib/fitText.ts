@@ -71,3 +71,17 @@ export function fitCells(root: HTMLElement | null | undefined): void {
 export function fitEventTarget(target: EventTarget | null): void {
   if (target instanceof HTMLElement && target.matches(ZELLEN)) fitCell(target)
 }
+
+/**
+ * Der Zeitstempel unter einer Ergebnisliste steht genau unter ihren beiden letzten Spalten,
+ * auch wenn eine Spalte dazukommt (Abstand). Gemessen am Spaltenkopf; die Breite steht inline
+ * und gilt damit auch im Druck, der dieselben Maße hat.
+ */
+export function standUnterLetztenSpalten(seite: HTMLElement | null): void {
+  const kasten = seite?.querySelector<HTMLElement>('.erg-stand')
+  const tabelle = seite?.querySelector('table')
+  const koepfe = tabelle?.querySelectorAll('tr.erg-spaltenkopf > th')
+  if (!kasten || !tabelle || !koepfe || koepfe.length < 2) return
+  const breite = tabelle.getBoundingClientRect().right - koepfe[koepfe.length - 2].getBoundingClientRect().left
+  if (breite > 0) kasten.style.width = `${breite}px`
+}

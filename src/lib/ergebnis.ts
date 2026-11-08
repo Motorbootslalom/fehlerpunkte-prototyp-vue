@@ -94,6 +94,30 @@ type Stand = Pick<AppState, 'aufbau' | 'tor5MitParcours' | 'streichenAbZwei' | '
 /** Die Bojen heißen hier immer R und L: Andere Bezeichnungen dienen nur den WKR zur Orientierung am Parcours. */
 const BOJEN_SEITE: Record<string, string> = { seiteA: 'R', seiteB: 'L' }
 
+/** Abstand in den Ergebnislisten: zum nächstbesseren Ergebnis oder zum Ersten. */
+export type AbstandArt = 'davor' | 'erster'
+
+/**
+ * Der Abstand jeder Zeile in Hundertstel, in derselben Reihenfolge: zum nächstbesseren
+ * Ergebnis (bei Gleichstand zum nächsten, das wirklich besser ist) oder zum Ersten. Leer
+ * (null) beim Ersten, bei Disqualifizierten und bei Startern ohne Ergebnis.
+ */
+export function abstaende(zeilen: Array<{ gesamt: number | null; disq: boolean }>, art: AbstandArt): Array<number | null> {
+  const werte = zeilen.filter((z) => !z.disq && z.gesamt !== null).map((z) => z.gesamt!)
+  const bester = Math.min(...werte)
+  return zeilen.map((z) => {
+    if (z.disq || z.gesamt === null) return null
+    const besser = werte.filter((w) => w < z.gesamt!)
+    if (besser.length === 0) return null
+    return z.gesamt - (art === 'erster' ? bester : Math.max(...besser))
+  })
+}
+
+/** Ein Abstand als Zelle: „+12,34“, leer ohne Abstand. */
+export function abstandText(abstand: number | null): string {
+  return abstand === null ? '' : `+${formatSeconds(abstand)}`
+}
+
 /** Eine Punkte-Zelle: „disq.“ statt einer Zahl, leer solange die Zeit fehlt. */
 export function punkteText(disq: boolean, punkte: number | null): string {
   if (disq) return 'disq.'
