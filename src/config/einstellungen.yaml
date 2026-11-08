@@ -66,29 +66,13 @@ hinweise:
 
 # ---- Überwachung: Was muss in jedem Aufbau auf einer Liste stehen? -
 # `npm run config:check` prüft je Aufbau und Klasse, ob jede Boje und jede Aufgabe
-# von einer Liste abgedeckt ist, auch mit zusammengelegten Positionen.
-#   key + sub  Bojen-Spalte und ihre Bojen (Fahrtrichtung + Seite)
-#   katalog    eine Fehler-Spalte mit diesem Katalog
-#   klassen    nur für diese Klassen (fehlt = alle)
-ueberwachung:
-  - { name: "Start", key: start, sub: ["hin seiteA", "hin seiteB"] }
-  - { name: "Tor 1", key: t1a, sub: ["hin seiteA", "hin seiteB"] }
-  - { name: "Tor 2", key: t2a, sub: ["hin seiteA", "hin seiteB"] }
-  - { name: "Tor 3", key: t3a, sub: ["hin seiteA", "hin seiteB"] }
-  - { name: "Tor 4", key: t4a, sub: ["hin seiteA", "hin seiteB"] }
-  - { name: "Tor 5", key: t5, sub: ["hin seiteA", "hin seiteB", "rueck seiteA", "rueck seiteB"] }
-  - { name: "Tor 4", key: t4b, sub: ["rueck seiteA", "rueck seiteB"] }
-  - { name: "Tor 3", key: t3b, sub: ["rueck seiteA", "rueck seiteB"] }
-  - { name: "Tor 2", key: t2b, sub: ["rueck seiteA", "rueck seiteB"] }
-  - { name: "Tor 1", key: t1b, sub: ["rueck seiteA", "rueck seiteB"], klassen: ["E", 1, 2, 3, 5, 6, 7] }
-  - { name: "Tor 1 (2. Durchfahrt)", key: t1c, sub: ["rueck seiteA", "rueck seiteB"], klassen: [7] }
-  - { name: "Speed 1", key: speed1, klassen: [5, 6, 7] }
-  - { name: "Speed 2", key: speed2, klassen: [7] }
-  - { name: "Ziel", key: ziel, sub: ["rueck seiteA", "rueck seiteB"] }
-  - { name: "Mann-über-Bord", katalog: mueb, klassen: [4, 5, 6, 7] }
-  - { name: "Einfahrt Tor 5", katalog: tor5 }
-  - { name: "Ablegen", katalog: stegAblegen }
-  - { name: "Anlegen", katalog: stegAnlegen }
+# von einer Liste abgedeckt ist, auch mit zusammengelegten Positionen. `fahrweg` leitet
+# das aus dem Fahrweg ab (src/config/kurzform.ts): jeder Halt mit seinen Klassen, dazu
+# Ablegen und Anlegen. Eine eigene Liste geht weiterhin:
+#   - { name: …, key: …, sub: [hin seiteA, …] }   Bojen-Spalte und ihre Bojen
+#   - { name: …, katalog: … }                      eine Fehler-Spalte mit diesem Katalog
+#   klassen: [ … ]                                 nur für diese Klassen (fehlt = alle)
+ueberwachung: fahrweg
 
 # ---- Laufzettel (je Klasse/Lauf) ----------------------------------
 # Unter den Checkboxen je gedruckter Seite folgen diese Arbeitsschritte der

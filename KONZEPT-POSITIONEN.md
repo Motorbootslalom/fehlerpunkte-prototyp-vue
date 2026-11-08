@@ -36,6 +36,7 @@ Spalten, Bojen-Seiten, `innen`, `hebt`, `abblenden` und die Bilddrehung. Daraus 
 - **Varianten vervielfachen sich.** „Frontal ohne Start/Ziel“ braucht zwei neue Blöcke mit je rund
   25 Zeilen und einen neuen Aufbau, dazu Commit, Build und Deploy, weil die Bilder beim Build entstehen.
 - **Der Kurs steht dreimal im Repo:** in den Positionen, in `ergebnisspalten` und in `ueberwachung`.
+  (Inzwischen nur noch einmal, im Fahrweg; siehe §10, Schritt 9.)
 - **Handarbeit läuft auseinander**, siehe den Befund zu Baden-Württemberg in §6 (inzwischen korrigiert).
 
 ## 3. Begriffe
@@ -543,8 +544,11 @@ Jeder Schritt ist einzeln nutzbar und endet mit Tests.
 8. **Assistent** (§7). Erledigt: `src/components/AufbauAssistent.vue` oberhalb der Bögen, Datenmodell in
    `src/lib/assistent.ts`. Die Bögen zeigen den Entwurf live; Zeitlisten sind Spalten mit Zeitnahme,
    damit Start und Ziel auch auf die Zeitliste können (Möwe).
-9. **Ausbau, falls gewünscht:** Klicken im Bild; `ergebnisspalten` und `ueberwachung` aus dem Fahrweg
-   ableiten.
+9. **Ausbau:** `ergebnisspalten` und `ueberwachung` aus dem Fahrweg ableiten. Erledigt (08.11.2026): Jeder
+   Halt im Fahrweg trägt sein Kürzel für die Ergebnisliste und seinen Namen für die Prüfung; in den
+   Dateien steht nur noch `fahrweg`. Die Ergebnisspalten sind unverändert, in der Prüfung heißen
+   zwei Einträge jetzt „Fehler Tor 5“ und „Tor 1 (Speedrunde)“. Offen, falls gewünscht: Bojen im
+   Assistenten direkt im Parcoursbild anklicken.
 
 **Zum Schluss:** Lastenheft (§4, §8a, §12a) und README nachziehen.
 

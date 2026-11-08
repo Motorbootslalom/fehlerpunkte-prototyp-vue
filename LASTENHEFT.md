@@ -637,7 +637,9 @@ angezeigten Bögen mit glaubhaften Zufallswerten. Sie unterscheiden sich in der 
   eine eigene Liste, weil seine Tor-Listen kein Start/Ziel haben.
 - **Überwachungs-Check:** `config:check` prüft je Aufbau und Klasse, ob jede Boje und
   jede Aufgabe aus `ueberwachung` (`einstellungen.yaml`) auf einer Liste steht, auch
-  zusammengelegt. In der Prüfung sind Lücken Hinweise, ein Test verlangt aber, dass jeder
+  zusammengelegt. `ueberwachung: fahrweg` und bei Manövrieren `ergebnisspalten: fahrweg`
+  leiten beides aus dem Fahrweg ab (`src/config/kurzform.ts`), sodass der Kurs nur einmal
+  beschrieben ist. In der Prüfung sind Lücken Hinweise, ein Test verlangt aber, dass jeder
   Aufbau lückenlos ist. `eigeneStrecke: true` nimmt einen Aufbau aus (Parallelslalom).
 - **Disqualifikationen pro Position** via `disq: alle | keine | <Bereich>`: Die
   Buchstaben nennen im Regelwerk ihre `bereiche` (`vorsteg`, `steg`, `parcours`,

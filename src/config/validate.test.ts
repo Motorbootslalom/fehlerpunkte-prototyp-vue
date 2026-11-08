@@ -95,8 +95,9 @@ describe('Konfigurations-Validierung', () => {
       validateConfigTexts({ ...texte, positionen: positionenText(aendern) }).map((i) => i.code)
 
     it('meldet ein Feld, das in keiner Ergebnisspalte steht', () => {
-      const ohneMueb = (t: string) => t.replace('      - { label: "MüB", felder: ["katalog:mueb"] }\n', '')
-      expect(codes(ohneMueb)).toContain('ERGEBNIS_LUECKE')
+      const nurStart = (t: string) =>
+        t.replace('ergebnisspalten: fahrweg', 'ergebnisspalten: [{ label: "Start", felder: ["start|hin seiteA", "start|hin seiteB"] }]')
+      expect(codes(nurStart)).toContain('ERGEBNIS_LUECKE')
     })
 
     it('meldet eine ungültige oder widersprüchliche Abwandlung im Aufbau', () => {
@@ -114,7 +115,7 @@ describe('Konfigurations-Validierung', () => {
     })
 
     it('weist auf eine Ergebnisspalte ohne bekanntes Feld hin', () => {
-      expect(codes((t) => t.replace('felder: [speed1]', 'felder: [speed1, tippfehler]'))).toContain('UNKNOWN_ERGEBNIS_FELD')
+      expect(codes((t) => t.replace('felder: [b5]', 'felder: [b5, tippfehler]'))).toContain('UNKNOWN_ERGEBNIS_FELD')
     })
   })
 

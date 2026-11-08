@@ -230,8 +230,10 @@ haben, kann eine Person beides übernehmen (Option in der Bedienleiste, gesteuer
 `ersetzt` an der Position). Die extra Parcoursliste entfällt dann.
 
 **Überwachungs-Check:** `npm run config:check` prüft je Aufbau und Klasse, ob jede Boje
-und jede Aufgabe aus `ueberwachung` (`einstellungen.yaml`) auf einer Liste steht, auch
-mit zusammengelegten Listen. Die Prüfung zeigt Lücken als Hinweis, ein Test verlangt,
+und jede Aufgabe des Fahrwegs auf einer Liste steht, auch mit zusammengelegten Listen.
+Was verlangt wird, steht wie die Spalten der Ergebnisliste nicht mehr eigens in den Dateien
+(`ueberwachung: fahrweg`, `ergebnisspalten: fahrweg`), sondern folgt aus dem Fahrweg in
+`src/config/kurzform.ts`: Der Kurs steht genau einmal im Code. Die Prüfung zeigt Lücken als Hinweis, ein Test verlangt,
 dass jeder Aufbau lückenlos ist.
 
 **Legende als A4-Blatt:** „Nur Legende drucken / Als PDF“ in der Bedienleiste gibt

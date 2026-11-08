@@ -1,4 +1,14 @@
-import type { Aufgabe, Blick, RawKurzform, RawPosition, RawPositionen, RawQuelle, RawSpalte } from './schema'
+import type {
+  Aufgabe,
+  Blick,
+  RawErgebnisSpalte,
+  RawKurzform,
+  RawPosition,
+  RawPositionen,
+  RawQuelle,
+  RawSpalte,
+  RawUeberwachung,
+} from './schema'
 import { zeitSpalten } from './zeitnahme.ts'
 
 // Die Kurzform einer Position (KONZEPT-POSITIONEN.md §4): Statt jede Spalte von Hand zu
@@ -29,6 +39,10 @@ const NUR_7 = ['7']
 export interface Halt {
   key?: string
   label?: string
+  /** Spalte der Ergebnisliste, wie in der DM-Liste („1 H“, „S1“ …). */
+  kurz: string
+  /** Name in der Prüfung auf Lücken (`ueberwachung`). */
+  name: string
   richtung?: 'hin' | 'rueck'
   tor?: string
   speedboje?: string
@@ -38,27 +52,76 @@ export interface Halt {
 
 /** Der Kurs in der Reihenfolge der Fahrt (KONZEPT-POSITIONEN.md §4.3). */
 export const FAHRWEG: readonly Halt[] = [
-  { key: 'start', label: 'Start', richtung: 'hin', tor: 'StartZiel' },
-  { key: 't1a', label: 'Tor 1', richtung: 'hin', tor: 'Tor1' },
-  { key: 't2a', label: 'Tor 2', richtung: 'hin', tor: 'Tor2' },
-  { key: 't3a', label: 'Tor 3', richtung: 'hin', tor: 'Tor3' },
-  { key: 't4a', label: 'Tor 4', richtung: 'hin', tor: 'Tor4' },
-  { key: 't5', label: 'Tor 5', richtung: 'hin', tor: 'Tor5' },
-  { katalog: 'tor5' },
-  { key: 't5', label: 'Tor 5', richtung: 'rueck', tor: 'Tor5' },
-  { key: 't4b', label: 'Tor 4', richtung: 'rueck', tor: 'Tor4' },
-  { key: 't3b', label: 'Tor 3', richtung: 'rueck', tor: 'Tor3' },
-  { key: 't2b', label: 'Tor 2', richtung: 'rueck', tor: 'Tor2' },
+  { key: 'start', label: 'Start', richtung: 'hin', tor: 'StartZiel', kurz: 'Start', name: 'Start' },
+  { key: 't1a', label: 'Tor 1', richtung: 'hin', tor: 'Tor1', kurz: '1 H', name: 'Tor 1' },
+  { key: 't2a', label: 'Tor 2', richtung: 'hin', tor: 'Tor2', kurz: '2 H', name: 'Tor 2' },
+  { key: 't3a', label: 'Tor 3', richtung: 'hin', tor: 'Tor3', kurz: '3 H', name: 'Tor 3' },
+  { key: 't4a', label: 'Tor 4', richtung: 'hin', tor: 'Tor4', kurz: '4 H', name: 'Tor 4' },
+  { key: 't5', label: 'Tor 5', richtung: 'hin', tor: 'Tor5', kurz: '5', name: 'Tor 5' },
+  // In der Ergebnisliste „E“ unter Tor 5, wie in der DM-Liste.
+  { katalog: 'tor5', kurz: 'E', name: 'Fehler Tor 5' },
+  { key: 't5', label: 'Tor 5', richtung: 'rueck', tor: 'Tor5', kurz: '5', name: 'Tor 5' },
+  { key: 't4b', label: 'Tor 4', richtung: 'rueck', tor: 'Tor4', kurz: '4 R', name: 'Tor 4' },
+  { key: 't3b', label: 'Tor 3', richtung: 'rueck', tor: 'Tor3', kurz: '3 R', name: 'Tor 3' },
+  { key: 't2b', label: 'Tor 2', richtung: 'rueck', tor: 'Tor2', kurz: '2 R', name: 'Tor 2' },
   // Klasse 4 fährt auf der Rückfahrt nicht durch Tor 1.
-  { key: 't1b', label: 'Tor 1', richtung: 'rueck', tor: 'Tor1', klassen: OHNE_4 },
-  { katalog: 'mueb', klassen: AB_4 },
+  { key: 't1b', label: 'Tor 1', richtung: 'rueck', tor: 'Tor1', klassen: OHNE_4, kurz: '1 R', name: 'Tor 1' },
+  { katalog: 'mueb', klassen: AB_4, kurz: 'MüB', name: 'Mann-über-Bord' },
   // Die Speedrunde, bei Klasse 7 um beide Speedbojen und ein drittes Mal durch Tor 1.
   // „Sp. 1“ wie auf der Papierliste Alcatraz 2, auch weil die Spalten oft schmal sind.
-  { key: 'speed1', label: 'Sp. 1', speedboje: 'Speedboje_oben', klassen: AB_5 },
-  { key: 'speed2', label: 'Sp. 2', speedboje: 'Speedboje_unten', klassen: NUR_7 },
-  { key: 't1c', label: 'Tor 1', richtung: 'rueck', tor: 'Tor1', klassen: NUR_7 },
-  { key: 'ziel', label: 'Ziel', richtung: 'rueck', tor: 'StartZiel' },
+  { key: 'speed1', label: 'Sp. 1', speedboje: 'Speedboje_oben', klassen: AB_5, kurz: 'S1', name: 'Speed 1' },
+  { key: 'speed2', label: 'Sp. 2', speedboje: 'Speedboje_unten', klassen: NUR_7, kurz: 'S2', name: 'Speed 2' },
+  { key: 't1c', label: 'Tor 1', richtung: 'rueck', tor: 'Tor1', klassen: NUR_7, kurz: '1 R', name: 'Tor 1 (Speedrunde)' },
+  { key: 'ziel', label: 'Ziel', richtung: 'rueck', tor: 'StartZiel', kurz: 'Ziel', name: 'Ziel' },
 ]
+
+/** Vor dem Start und nach dem Ziel: Ablegen und Anlegen am Steg. */
+const STEG = {
+  ab: { kurz: 'Steg AB', name: 'Ablegen', katalog: 'stegAblegen' },
+  an: { kurz: 'Steg AN', name: 'Anlegen', katalog: 'stegAnlegen' },
+}
+
+/**
+ * Die Spalten der Ergebnisliste in der Reihenfolge der Fahrt (`ergebnisspalten: fahrweg`).
+ * Tore mit je einer Unter-Spalte für die linke, dann die rechte Boje wie in der DM-Liste,
+ * Start und Ziel mit beiden Bojen in einer Zelle, Tor 5 mit „E“ zwischen Hin und Rück.
+ */
+export function ergebnisspaltenAusFahrweg(): RawErgebnisSpalte[] {
+  const out: RawErgebnisSpalte[] = [{ label: STEG.ab.kurz, felder: [`katalog:${STEG.ab.katalog}`] }]
+  let tor5: RawErgebnisSpalte | undefined
+  for (const h of FAHRWEG) {
+    const bojen = (reihenfolge: string[]) => reihenfolge.map((s) => `${h.key}|${h.richtung} ${s}`)
+    if (h.katalog === 'tor5' && tor5) tor5.unter!.push({ label: h.kurz, feld: `katalog:${h.katalog}` })
+    else if (h.katalog) out.push({ label: h.kurz, felder: [`katalog:${h.katalog}`] })
+    else if (h.speedboje) out.push({ label: h.kurz, felder: [h.key!] })
+    else if (h.tor === 'StartZiel') out.push({ label: h.kurz, felder: bojen(['seiteA', 'seiteB']) })
+    else if (h.tor === 'Tor5' && tor5) tor5.unter!.push(...bojen(['seiteB', 'seiteA']))
+    else if (h.tor === 'Tor5') out.push((tor5 = { label: h.kurz, unter: bojen(['seiteB', 'seiteA']) }))
+    else out.push({ label: h.kurz, unter: bojen(['seiteB', 'seiteA']) })
+  }
+  out.push({ label: STEG.an.kurz, felder: [`katalog:${STEG.an.katalog}`] })
+  return out
+}
+
+/**
+ * Was jeder Aufbau auf einer Liste abdecken muss (`ueberwachung: fahrweg`): jeder Halt des
+ * Fahrwegs mit seinen Klassen, Tor 5 mit Hin und Rück in einem Eintrag, dazu der Steg.
+ */
+export function ueberwachungAusFahrweg(): RawUeberwachung[] {
+  const out: RawUeberwachung[] = [{ name: STEG.ab.name, katalog: STEG.ab.katalog }]
+  let tor5: RawUeberwachung | undefined
+  for (const h of FAHRWEG) {
+    const klassen = h.klassen ? { klassen: [...h.klassen] } : {}
+    const sub = [`${h.richtung} seiteA`, `${h.richtung} seiteB`]
+    if (h.katalog) out.push({ name: h.name, katalog: h.katalog, ...klassen })
+    else if (h.speedboje) out.push({ name: h.name, key: h.key, ...klassen })
+    else if (h.tor === 'Tor5' && tor5) tor5.sub!.push(...sub)
+    else if (h.tor === 'Tor5') out.push((tor5 = { name: h.name, key: h.key, sub }))
+    else out.push({ name: h.name, key: h.key, sub, ...klassen })
+  }
+  out.push({ name: STEG.an.name, katalog: STEG.an.katalog })
+  return out
+}
 
 const TORE_1_4 = ['Tor1', 'Tor2', 'Tor3', 'Tor4']
 const TORE = ['StartZiel', ...TORE_1_4, 'Tor5']
@@ -310,8 +373,22 @@ export function hochziehen(quelle: RawQuelle | RawPositionen): RawQuelle {
   return { ...quelle, positionen, ...(aufbauten ? { aufbauten } : {}) }
 }
 
-/** Die Positionen in ausführlicher Form; was schon ausführlich ist, bleibt, wie es ist. */
+/**
+ * Die Positionen in ausführlicher Form; was schon ausführlich ist, bleibt, wie es ist. Dazu
+ * kommen Ergebnisspalten und Überwachung aus dem Fahrweg, wo die Dateien `fahrweg` nennen.
+ */
 export function aufloesen(quelle: RawQuelle | RawPositionen): RawPositionen {
   const q = hochziehen(quelle)
-  return { ...q, positionen: q.positionen.map((p) => (istKurzform(p) ? kurzformPosition(p) : p)) }
+  return {
+    ...q,
+    positionen: q.positionen.map((p) => (istKurzform(p) ? kurzformPosition(p) : p)),
+    ...(q.ueberwachung === 'fahrweg' ? { ueberwachung: ueberwachungAusFahrweg() } : {}),
+    ...(q.disziplinen
+      ? {
+          disziplinen: q.disziplinen.map((d) =>
+            d.ergebnisspalten === 'fahrweg' ? { ...d, ergebnisspalten: ergebnisspaltenAusFahrweg() } : d,
+          ),
+        }
+      : {}),
+  } as RawPositionen
 }

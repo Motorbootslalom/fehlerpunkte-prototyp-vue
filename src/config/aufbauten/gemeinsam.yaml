@@ -10,32 +10,10 @@
 disziplinen:
   - id: manoevrieren
     name: Manövrieren
-    ergebnisspalten:
-      - { label: "Steg AB", felder: ["katalog:stegAblegen"] }
-      - { label: "Start", felder: ["start|hin seiteA", "start|hin seiteB"] }
-      - { label: "1 H", unter: ["t1a|hin seiteB", "t1a|hin seiteA"] }
-      - { label: "2 H", unter: ["t2a|hin seiteB", "t2a|hin seiteA"] }
-      - { label: "3 H", unter: ["t3a|hin seiteB", "t3a|hin seiteA"] }
-      - { label: "4 H", unter: ["t4a|hin seiteB", "t4a|hin seiteA"] }
-      - label: "5"
-        unter:
-          - "t5|hin seiteB"
-          - "t5|hin seiteA"
-          - { label: "E", feld: "katalog:tor5" }
-          - "t5|rueck seiteB"
-          - "t5|rueck seiteA"
-      - { label: "4 R", unter: ["t4b|rueck seiteB", "t4b|rueck seiteA"] }
-      - { label: "3 R", unter: ["t3b|rueck seiteB", "t3b|rueck seiteA"] }
-      - { label: "2 R", unter: ["t2b|rueck seiteB", "t2b|rueck seiteA"] }
-      - { label: "1 R", unter: ["t1b|rueck seiteB", "t1b|rueck seiteA"] }
-      # Die DM-Liste 2026 nennt Mann-über-Bord noch „SCH“ und setzt S1 vor „1 R“. Gefahren
-      # wird aber: Tor 1, Mann-über-Bord, Speedrunde (S1, bei Kl. 7 S2), bei Kl. 7 noch einmal Tor 1.
-      - { label: "MüB", felder: ["katalog:mueb"] }
-      - { label: "S1", felder: [speed1] }
-      - { label: "S2", felder: [speed2] }
-      - { label: "1 R", unter: ["t1c|rueck seiteB", "t1c|rueck seiteA"] }
-      - { label: "Ziel", felder: ["ziel|rueck seiteA", "ziel|rueck seiteB"] }
-      - { label: "Steg AN", felder: ["katalog:stegAnlegen"] }
+    # Die Spalten der Ergebnisliste entstehen aus dem Fahrweg (src/config/kurzform.ts), in der
+    # Reihenfolge der Fahrt: Steg AB, Start, 1 H … 4 H, 5 (mit E), 4 R … 1 R, MüB, S1, S2,
+    # 1 R (Speedrunde), Ziel, Steg AN.
+    ergebnisspalten: fahrweg
 
 positionen:
   - id: zeit

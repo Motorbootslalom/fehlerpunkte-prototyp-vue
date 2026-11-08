@@ -42,7 +42,8 @@ sprachen: [en]
 #
 # ---- DISZIPLIN-Parameter (je Eintrag unter `disziplinen:`) ------------
 #   id, name     Kennung und Anzeige. Die Reihenfolge der Dateien gilt, die erste ist Standard.
-#   ergebnisspalten  Spalten der Ergebnislisten in der Reihenfolge des Fahrwegs:
+#   ergebnisspalten  fahrweg = aus dem Fahrweg in src/config/kurzform.ts (Manövrieren), oder
+#                eine eigene Liste (Parallelslalom), in der Reihenfolge der Fahrt:
 #     label      Spaltenkopf.
 #     felder     Feld-Kennungen, deren Punkte in einer Zelle stehen (beide Start-Bojen).
 #     unter      Feld-Kennungen mit je einer Unter-Spalte; Kürzel = das der Boje, oder

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { load as yamlLoad } from 'js-yaml'
 import bundledAufbauten from './aufbauten.yaml?raw'
 import { feldKennungen } from './feld'
-import { aufloesen, kurzformPosition } from './kurzform'
+import { aufloesen, ergebnisspaltenAusFahrweg, kurzformPosition, ueberwachungAusFahrweg } from './kurzform'
 import { mergePositionen, quellDateien } from './merge-positionen'
 import type { RawKurzform, RawPosition, RawSpalte } from './schema'
 import { kurzformBefunde } from './validate'
@@ -221,5 +221,32 @@ describe('Regeln der Kurzform', () => {
       ],
     })
     expect(befunde.map((b) => b.code)).toEqual(['KURZFORM_BLICK', 'KURZFORM_BOJE', 'KURZFORM_AUFGABE', 'KURZFORM_LEER', 'KURZFORM_ZEITEN'])
+  })
+})
+
+describe('Ergebnisspalten und Überwachung aus dem Fahrweg', () => {
+  it('stehen in der Reihenfolge der Fahrt, Tor 5 mit E zwischen Hin und Rück', () => {
+    expect(ergebnisspaltenAusFahrweg().map((s) => s.label)).toEqual([
+      'Steg AB', 'Start', '1 H', '2 H', '3 H', '4 H', '5', '4 R', '3 R', '2 R', '1 R', 'MüB', 'S1', 'S2', '1 R', 'Ziel', 'Steg AN',
+    ])
+    expect(ergebnisspaltenAusFahrweg().find((s) => s.label === '5')?.unter).toEqual([
+      't5|hin seiteB', 't5|hin seiteA', { label: 'E', feld: 'katalog:tor5' }, 't5|rueck seiteB', 't5|rueck seiteA',
+    ])
+  })
+
+  it('verlangen jeden Halt mit seinen Klassen, Tor 5 in einem Eintrag', () => {
+    const u = ueberwachungAusFahrweg()
+    expect(u.map((e) => e.name)).toEqual([
+      'Ablegen', 'Start', 'Tor 1', 'Tor 2', 'Tor 3', 'Tor 4', 'Tor 5', 'Fehler Tor 5', 'Tor 4', 'Tor 3', 'Tor 2', 'Tor 1',
+      'Mann-über-Bord', 'Speed 1', 'Speed 2', 'Tor 1 (Speedrunde)', 'Ziel', 'Anlegen',
+    ])
+    expect(u.find((e) => e.key === 't5')?.sub).toEqual(['hin seiteA', 'hin seiteB', 'rueck seiteA', 'rueck seiteB'])
+    expect(u.find((e) => e.katalog === 'mueb')?.klassen).toEqual(['4', '5', '6', '7'])
+  })
+
+  it('ersetzen `fahrweg` in den Dateien beim Auflösen', () => {
+    const a = aufloesen({ positionen: [], ueberwachung: 'fahrweg', disziplinen: [{ id: 'm', name: 'M', ergebnisspalten: 'fahrweg' }] })
+    expect(a.ueberwachung).toEqual(ueberwachungAusFahrweg())
+    expect(a.disziplinen?.[0].ergebnisspalten).toEqual(ergebnisspaltenAusFahrweg())
   })
 })

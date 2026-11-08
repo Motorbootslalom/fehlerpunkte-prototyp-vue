@@ -393,9 +393,14 @@ export interface RawPositionen {
   positionen: RawPosition[]
 }
 
-/** Die Positions-Dateien, wie sie in src/config stehen: Positionen auch in Kurzform. */
-export interface RawQuelle extends Omit<RawPositionen, 'positionen'> {
+/**
+ * Die Positions-Dateien, wie sie in src/config stehen: Positionen auch in Kurzform,
+ * Ergebnisspalten und Überwachung auch als `fahrweg` (aus dem Fahrweg in kurzform.ts).
+ */
+export interface RawQuelle extends Omit<RawPositionen, 'positionen' | 'ueberwachung' | 'disziplinen'> {
   positionen: Array<RawPosition | RawKurzform>
+  ueberwachung?: RawUeberwachung[] | 'fahrweg'
+  disziplinen?: Array<Omit<RawDisziplin, 'ergebnisspalten'> & { ergebnisspalten?: RawErgebnisSpalte[] | 'fahrweg' }>
 }
 
 /** Zusammengeführte Roh-Konfiguration (ein Regelwerk + Positionen). */
