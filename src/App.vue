@@ -18,7 +18,8 @@ import ScanHinweis from './components/ScanHinweis.vue'
 import SheetView from './components/SheetView.vue'
 
 const { state } = useStore()
-const order = computed(() => aufbauOrder(state.aufbau, state.tor5MitParcours))
+// `konfigStand`: Der Entwurf im Assistenten ändert seine Positionen unter derselben ID.
+const order = computed(() => (konfigStand.value, aufbauOrder(state.aufbau, state.tor5MitParcours)))
 
 // Laufzettel je Klasse/Lauf - Seitenzahlen aus den gerenderten Bögen.
 const laufzettel = computed(() =>

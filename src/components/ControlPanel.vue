@@ -80,13 +80,14 @@ const pdfIslandUrl = `${import.meta.env.BASE_URL}pdf.html`
 const addTypeRaw = ref<SheetTypeId>('')
 
 // Positionen des gewählten Aufbaus (Setup) - Basis für „Kompletter Lauf“ und
-// „Eine Klasse · alle Listen“.
-const order = computed(() => aufbauOrder(state.aufbau, state.tor5MitParcours))
+// „Eine Klasse · alle Listen“. `konfigStand`: Der Entwurf im Assistenten behält seine ID,
+// während sich seine Positionen ändern (sonst bliebe eine gelöschte Position hier stehen).
+const order = computed(() => (konfigStand.value, aufbauOrder(state.aufbau, state.tor5MitParcours)))
 // Nur anbieten, wenn der Aufbau Tor 5 und Parcours zusammenlegen kann.
-const kannZusammenlegen = computed(() => !!getAufbau(state.aufbau).kombi)
+const kannZusammenlegen = computed(() => (konfigStand.value, !!getAufbau(state.aufbau).kombi))
 // Wählbar (Menüs, „Eine Position · alle Klassen“): der Aufbau plus alle
 // Positionen mit `schnellauswahl: true` aus der YAML.
-const menuOrder = computed(() => [...order.value, ...getAufbau(state.aufbau).zusatz])
+const menuOrder = computed(() => (konfigStand.value, [...order.value, ...getAufbau(state.aufbau).zusatz]))
 const buttonLabels = computed(() =>
   positionButtonLabels(menuOrder.value.map(getSheetDef).map((d) => ({ ...d, title: d.titelDe }))),
 )
