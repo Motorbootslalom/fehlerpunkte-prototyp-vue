@@ -630,6 +630,13 @@ body {
   padding: 2px 2px;
 }
 
+/* Name aus der WKR-Einteilung: am Bildschirm blau, im Druck wie eingetippt. */
+@media screen {
+  .wkr-input.aus-einteilung {
+    color: #1d4fb8;
+  }
+}
+
 /* ---------- Tabelle ---------------------------------------- */
 
 .sheet-table {
@@ -1803,6 +1810,237 @@ body {
 
 .assistent-blick {
   margin: 0 0 12px;
+}
+
+/* ---------- Zuordnen im Bild (KONZEPT-NAMEN-FREIHAND.md §2) ---------- */
+.zib-umschalter {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 10px;
+}
+
+.zib-umschalter > span {
+  margin-right: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+}
+
+.assistent .zib-umschalter button {
+  border-radius: 0;
+}
+
+.assistent .zib-umschalter button:first-of-type {
+  border-radius: 4px 0 0 4px;
+}
+
+.assistent .zib-umschalter button:last-of-type {
+  border-radius: 0 4px 4px 0;
+  border-left: none;
+}
+
+.assistent .zib-umschalter button.aktiv {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.zib-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.zib-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  margin-right: 4px;
+}
+
+.assistent .zib-spalte {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+}
+
+.assistent .zib-spalte.aktiv {
+  border-color: var(--farbe);
+  box-shadow: inset 0 0 0 2px var(--farbe);
+  font-weight: 700;
+}
+
+.assistent .zib-spalte.leer {
+  background: #fff7d6;
+}
+
+.zib-punkt {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--farbe);
+}
+
+.assistent .zib-zurueck {
+  margin-left: auto;
+}
+
+.zib-bild {
+  position: relative;
+  max-width: 1100px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.zib-quelle svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.zib-ueberlage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.zib-bild.gesperrt .zib-ueberlage {
+  cursor: not-allowed;
+}
+
+.zib-fehlt {
+  fill: none;
+  stroke: #c81e1e;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.zib-doppelt {
+  fill: #ffd84d;
+  fill-opacity: 0.6;
+}
+
+.zib-linie {
+  fill: none;
+  stroke: var(--farbe);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.zib-linie-fertig {
+  fill: var(--farbe);
+  fill-opacity: 0.12;
+  stroke-dasharray: 6 4;
+}
+
+.zib-hilfe {
+  margin: 6px 0 0;
+  color: #555;
+}
+
+.zib-haken {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.zib-einstellungen {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--farbe);
+  background: #f7f7f9;
+  border-radius: 4px;
+}
+
+.zib-einstellungen .assistent-felder {
+  margin-bottom: 0;
+}
+
+/* ---------- WKR-Einteilung (KONZEPT-NAMEN-FREIHAND.md §1) ---------- */
+.einteilung {
+  max-width: 900px;
+}
+
+.assistent-felder > label.einteilung-haken {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.einteilung-klassen {
+  margin-bottom: 12px;
+}
+
+.einteilung-parcours {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.einteilung-parcours > span {
+  min-width: 80px;
+  font-weight: 700;
+}
+
+.einteilung-parcours em {
+  color: #777;
+}
+
+.assistent .einteilung-klasse {
+  min-width: 34px;
+  font-weight: 700;
+}
+
+.einteilung-klassen .assistent-hinweis {
+  margin: 0;
+}
+
+.einteilung-tabelle tbody td {
+  cursor: default;
+  text-align: left;
+  font-size: 13px;
+}
+
+.einteilung-tabelle tbody td:hover {
+  background: none;
+}
+
+.einteilung-tabelle thead th {
+  min-width: 0;
+  text-align: left;
+}
+
+.assistent .einteilung-tabelle input {
+  width: 240px;
+}
+
+.einteilung-gruppe th {
+  text-align: left;
+  font-weight: 400;
+  color: #666;
+  background: #f7f7f9;
+}
+
+.einteilung-entfaellt {
+  color: #999;
+  padding-left: 6px;
 }
 
 .assistent-blick summary {

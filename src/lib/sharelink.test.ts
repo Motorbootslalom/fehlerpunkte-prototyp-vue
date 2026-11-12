@@ -18,6 +18,7 @@ function stateFixture(): AppState {
     numbers: { '2': ['1', '2', '3'] },
     classOrder: ['1', '3', 'E', '2', '5', '7', '4', '6'],
     wkr: { 'manoevrieren/2/1/bawuewasser2': 'Max' },
+    einteilung: { zweiParcours: true, parcours2: ['2'], namen: { 1: { steg: 'Erika' }, 2: { steg: 'Otto' } } },
     boegen: [
       { id: 'bg_1', typeId: 'bawuewasser2', klasse: '2', lauf: 1 },
       { id: 'bg_2', typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
@@ -52,6 +53,14 @@ describe('sharelink', () => {
         { typeId: 'bawuewasser2', klasse: '2', lauf: 2 },
       ],
     })
+  })
+
+  it('nimmt die WKR-Einteilung nicht in den Link (Personennamen)', () => {
+    const text = encodeShareConfig(toShareConfig(stateFixture()))
+    const round = JSON.stringify(decodeShareConfig(text))
+    expect(round).not.toContain('Erika')
+    expect(round).not.toContain('Otto')
+    expect(round).not.toContain('parcours2')
   })
 
   it('Leerzeilen/Seitenaufteilung fehlen in Links ohne diese Angaben (lokale Werte bleiben)', () => {

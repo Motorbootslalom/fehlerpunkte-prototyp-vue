@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import {
+  bildDatei,
   entwurfsLuecken,
   getAufbauten,
   getEigeneAufbauten,
@@ -14,9 +15,12 @@ import type { Blick, RawAufbau } from '../config/schema'
 import {
   ausAufbau,
   befund,
+  BLICKE,
+  feldName,
   leererEntwurf,
   namensteil,
   neueId,
+  spaltenFarbe,
   umschalten,
   zeitnahmeId,
   ZEILEN,
@@ -26,8 +30,10 @@ import {
   type Spalte,
   type Zeile,
 } from '../lib/assistent'
+import { STANDARD_QUELLE } from '../lib/parcoursbild'
 import { konfigStand } from '../state/konfig'
 import BlickErklaerung from './BlickErklaerung.vue'
+import ZuordnungImBild from './ZuordnungImBild.vue'
 import { useStore } from '../state/store'
 import type { ClassId } from '../types'
 
@@ -44,13 +50,23 @@ const neuePositionsId = () => neueId('p', vergeben)
 const bearbeitet = props.modus === 'bearbeiten' ? vorher.eigene.find((a) => a.id === vorher.aufbau) : undefined
 const entwurfsId = bearbeitet?.id ?? neueId('entwurf', vergeben)
 
-const BLICKE: Array<{ id: Blick | ''; name: string }> = [
-  { id: '', name: 'ohne Blick' },
-  { id: 'hinten', name: 'von hinten' },
-  { id: 'vorne', name: 'von vorne' },
-  { id: 'rechts', name: 'von rechts' },
-  { id: 'links', name: 'von links' },
-]
+// Zuordnen in der Tabelle oder im Bild (KONZEPT-NAMEN-FREIHAND.md §2); der Browser merkt sich die Wahl.
+const ANSICHT_KEY = 'fehlerpunkte-prototyp:zuordnen'
+function gemerkteAnsicht(): 'tabelle' | 'bild' {
+  try {
+    return localStorage.getItem(ANSICHT_KEY) === 'bild' ? 'bild' : 'tabelle'
+  } catch {
+    return 'tabelle'
+  }
+}
+const ansicht = ref(gemerkteAnsicht())
+watch(ansicht, (a) => {
+  try {
+    localStorage.setItem(ANSICHT_KEY, a)
+  } catch {
+    // Ohne Speicher gilt die Wahl nur bis zum Schließen.
+  }
+})
 
 // Vorlagen: alle Aufbauten außer dem Entwurf selbst.
 const vorlagen = computed(() => (konfigStand.value, getAufbauten().filter((a) => a.id !== entwurfsId)))
@@ -111,14 +127,10 @@ onBeforeUnmount(() => clearTimeout(timer))
 const markiert = computed(() => befund(entwurf.value))
 const luecken = computed(() => (konfigStand.value, entwurfsLuecken(aufbau.value)))
 
-function feldName(f: string): string {
-  for (const z of ZEILEN) {
-    if (z.id === f) return z.name
-    const h = z.haelften?.find((x) => x.id === f)
-    if (h) return `${z.name} ${h.name}`
-  }
-  return f
-}
+// Das Bild zum Zeichnen: Klasse 7 zeigt alle Bojen; eine Kursvariante bringt ihr eigenes mit.
+const bildUrl = computed(
+  () => (konfigStand.value, `${import.meta.env.BASE_URL}parcours/${STANDARD_QUELLE}/${bildDatei(entwurf.value.id, '7')}.svg`),
+)
 
 function klassenText(k: string[]): string {
   return k.length === 8 ? 'alle Klassen' : `Kl. ${k.join(', ')}`
@@ -212,7 +224,8 @@ function abbrechen() {
       <h2>{{ modus === 'bearbeiten' ? 'Eigenen Aufbau bearbeiten' : 'Eigenen Aufbau anlegen' }}</h2>
       <p class="assistent-hilfe">
         Je Position eine Spalte. Ein Klick in die Tabelle legt fest, welche Boje oder Aufgabe sie
-        beobachtet; ▸ klappt ein Tor in seine beiden Bojen auf. Die Bögen unten zeigen den Entwurf.
+        beobachtet; ▸ klappt ein Tor in seine beiden Bojen auf. „Im Bild“ geht dasselbe mit einer
+        Linie um die Bojen. Die Bögen unten zeigen den Entwurf.
       </p>
       <details class="assistent-blick">
         <summary>Was bedeuten die Blickrichtungen?</summary>
@@ -267,12 +280,33 @@ function abbrechen() {
       Aus der Vorlage nicht übernommen (keine Kurzform): {{ nichtUebernommen.join(', ') }}
     </p>
 
-    <div class="assistent-tabelle-rahmen">
+    <div class="zib-umschalter" role="group" aria-label="Zuordnen">
+      <span>Zuordnen</span>
+      <button :class="{ aktiv: ansicht === 'tabelle' }" @click="ansicht = 'tabelle'">Tabelle</button>
+      <button :class="{ aktiv: ansicht === 'bild' }" @click="ansicht = 'bild'">Im Bild</button>
+    </div>
+
+    <ZuordnungImBild
+      v-if="ansicht === 'bild'"
+      :entwurf="entwurf"
+      :befund="markiert"
+      :bild="bildUrl"
+      @update:entwurf="entwurf = $event"
+      @spalte-dazu="spalteDazu"
+      @spalte-weg="spalteWeg"
+    />
+
+    <div v-else class="assistent-tabelle-rahmen">
       <table class="assistent-tabelle">
         <thead>
           <tr>
             <th class="zeilenkopf">Boje / Aufgabe</th>
-            <th v-for="s in entwurf.spalten" :key="s.id" :class="{ leer: markiert.leer.includes(s.id) }">
+            <th
+              v-for="s in entwurf.spalten"
+              :key="s.id"
+              :class="{ leer: markiert.leer.includes(s.id) }"
+              :style="{ borderTop: `4px solid ${spaltenFarbe(entwurf, s.id)}` }"
+            >
               <input v-model="s.titel" class="spalte-titel" placeholder="Name der Position" />
               <select :value="s.blick ?? ''" title="Von wo die Person überwiegend schaut: von hinten = hinter Tor 5, von vorne = vom Start/Ziel, rechts/links = Seite auf der Hinfahrt" @change="blickSetzen(s, ($event.target as HTMLSelectElement).value)">
                 <option v-for="b in BLICKE" :key="b.id" :value="b.id">{{ b.name }}</option>

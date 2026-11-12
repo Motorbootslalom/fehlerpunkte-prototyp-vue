@@ -38,6 +38,7 @@ export interface BogenTexte {
   rueckseite: string
   klasse(id: string): string
   lauf(n: number): string
+  parcours(n: number): string
   seite(n: number, von: number): string
 }
 
@@ -54,6 +55,7 @@ export function bogenTexte(sprache: Sprache, klassenNamen: Record<string, string
     ),
     klasse: (id) => `${t('Klasse', 'Class')} ${klassenNamen[id] ?? id}`,
     lauf: (n) => t(`${n}. Lauf`, `Attempt ${n}`),
+    parcours: (n) => t(`Parcours ${n}`, `Course ${n}`),
     seite: (n, von) => `${t('Seite', 'Page')} ${n} / ${von}`,
   }
 }

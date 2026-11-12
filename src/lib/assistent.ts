@@ -289,3 +289,98 @@ export function umschalten(entwurf: Entwurf, zeile: Zeile, spalte: string, haelf
   }
   return { ...entwurf, zuordnung }
 }
+
+// ---- Zuordnen im Bild (KONZEPT-NAMEN-FREIHAND.md §2) -------------------------------------
+
+/** Die Einzelbojen, die sich im Parcoursbild wählen lassen; ihre IDs stehen so im Bild. */
+export const BILD_BOJEN: readonly string[] = FELDER.filter((f) => !AUFGABEN_ZEILEN.has(f))
+
+/** Die Aufgaben ohne Boje: Sie stehen im Bild nicht und werden angehakt. */
+export const AUFGABEN_FELDER: ReadonlyArray<{ id: string; name: string }> = ZEILEN.filter((z) => AUFGABEN_ZEILEN.has(z.id)).map(
+  (z) => ({ id: z.id, name: z.name }),
+)
+
+/** Ein Punkt in Bildkoordinaten. */
+export interface Punkt {
+  x: number
+  y: number
+}
+
+/** Abstand eines Punkts zur Strecke a–b. */
+function abstandZurStrecke(p: Punkt, a: Punkt, b: Punkt): number {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const laenge2 = dx * dx + dy * dy
+  const t = laenge2 === 0 ? 0 : Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / laenge2))
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
+}
+
+/** Liegt der Punkt in der geschlossenen Linie (Strahl-Verfahren, gerade-ungerade)? */
+function innen(p: Punkt, linie: readonly Punkt[]): boolean {
+  let drin = false
+  for (let i = 0, j = linie.length - 1; i < linie.length; j = i++) {
+    const a = linie[i]
+    const b = linie[j]
+    if (a.y > p.y !== b.y > p.y && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) drin = !drin
+  }
+  return drin
+}
+
+/**
+ * Trifft die Freihandlinie den Punkt? Ja, wenn er in der (geschlossen gedachten) Linie liegt
+ * oder näher als `toleranz` an ihr: So zählt Umkreisen wie Durchstreichen.
+ */
+export function trifft(p: Punkt, linie: readonly Punkt[], toleranz: number): boolean {
+  if (linie.length === 0) return false
+  if (linie.length >= 3 && innen(p, linie)) return true
+  if (linie.length === 1) return Math.hypot(p.x - linie[0].x, p.y - linie[0].y) <= toleranz
+  for (let i = 1; i < linie.length; i++) if (abstandZurStrecke(p, linie[i - 1], linie[i]) <= toleranz) return true
+  return false
+}
+
+/** Die Bojen, die eine Freihandlinie trifft, in der Reihenfolge von {@link BILD_BOJEN}. */
+export function bojenAufLinie(mitten: Readonly<Record<string, Punkt>>, linie: readonly Punkt[], toleranz: number): string[] {
+  return BILD_BOJEN.filter((f) => mitten[f] && trifft(mitten[f], linie, toleranz))
+}
+
+/** Die Felder gehören danach nur noch der Spalte: Andere Spalten verlieren sie (umhängen). */
+export function zuordnen(entwurf: Entwurf, felder: readonly string[], spalte: string): Entwurf {
+  if (felder.length === 0) return entwurf
+  const zuordnung = { ...entwurf.zuordnung }
+  for (const f of felder) zuordnung[f] = [spalte]
+  return { ...entwurf, zuordnung }
+}
+
+/** Setzt oder löst ein einzelnes Feld (Einzelboje oder Aufgabe) in einer Spalte. */
+export function feldUmschalten(entwurf: Entwurf, feld: string, spalte: string): Entwurf {
+  const zeile = ZEILEN.find((z) => z.id === feld || z.haelften?.some((h) => h.id === feld))
+  if (!zeile) return entwurf
+  return umschalten(entwurf, zeile, spalte, zeile.haelften ? feld : undefined)
+}
+
+/** Der Name eines Feldes für Hinweise, z. B. „Tor 1 rechts · außen“. */
+export function feldName(feld: string): string {
+  for (const z of ZEILEN) {
+    if (z.id === feld) return z.name
+    const h = z.haelften?.find((x) => x.id === feld)
+    if (h) return `${z.name} ${h.name}`
+  }
+  return feld
+}
+
+/** Farben der Positionen, gut zu unterscheiden und auf dem Parcoursbild sichtbar. */
+export const SPALTEN_FARBEN: readonly string[] = ['#1f77b4', '#2ca02c', '#9467bd', '#d62728', '#17becf', '#8c564b', '#e377c2', '#bcbd22']
+
+export function spaltenFarbe(entwurf: Entwurf, spalte: string): string {
+  const i = entwurf.spalten.findIndex((s) => s.id === spalte)
+  return SPALTEN_FARBEN[(i < 0 ? 0 : i) % SPALTEN_FARBEN.length]
+}
+
+/** Die Blickrichtungen zur Auswahl, in Klartext. */
+export const BLICKE: ReadonlyArray<{ id: Blick | ''; name: string }> = [
+  { id: '', name: 'ohne Blick' },
+  { id: 'hinten', name: 'von hinten' },
+  { id: 'vorne', name: 'von vorne' },
+  { id: 'rechts', name: 'von rechts' },
+  { id: 'links', name: 'von links' },
+]

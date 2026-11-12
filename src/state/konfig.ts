@@ -7,3 +7,6 @@ export const konfigStand = ref(0)
 // Der Assistent für eigene Aufbauten (KONZEPT-POSITIONEN.md §7): neu anlegen oder den
 // gewählten eigenen Aufbau bearbeiten; null = geschlossen.
 export const assistent = ref<null | 'neu' | 'bearbeiten'>(null)
+
+// Die WKR-Einteilung (KONZEPT-NAMEN-FREIHAND.md §1) oberhalb der Bögen: offen oder zu.
+export const einteilungOffen = ref(false)

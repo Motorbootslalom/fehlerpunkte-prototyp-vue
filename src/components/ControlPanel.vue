@@ -16,7 +16,7 @@ import {
   positionAllowsClass,
 } from '../config/active'
 import { SPRACHEN } from '../config/sprache'
-import { assistent, konfigStand } from '../state/konfig'
+import { assistent, einteilungOffen, konfigStand } from '../state/konfig'
 import { beispielwerteErsetzen, type Zeitnahme } from '../lib/beispielwerte'
 import { extendNumbers, formatNumbers, parseNumbers, shrinkNumbers } from '../lib/demo'
 import { exportSheetsToPdf } from '../lib/exportPdf'
@@ -280,9 +280,19 @@ async function eigenenAufbauLaden(e: Event) {
 
 /** Öffnet den Assistenten oberhalb der Bögen (KONZEPT-POSITIONEN.md §7). */
 function oeffneAssistent(modus: 'neu' | 'bearbeiten') {
+  einteilungOffen.value = false
   assistent.value = modus
   window.scrollTo({ top: 0 })
 }
+
+/** Öffnet oder schließt die WKR-Einteilung oberhalb der Bögen (KONZEPT-NAMEN-FREIHAND.md §1). */
+function einteilungUmschalten() {
+  einteilungOffen.value = !einteilungOffen.value
+  if (einteilungOffen.value) window.scrollTo({ top: 0 })
+}
+const einteilungNamen = computed(
+  () => Object.keys(state.einteilung.namen[1]).length + (state.einteilung.zweiParcours ? Object.keys(state.einteilung.namen[2]).length : 0),
+)
 
 /** Der gewählte Aufbau als YAML-Datei: zum Weitergeben oder für die Übernahme ins Repo. */
 function aufbauSpeichern() {
@@ -475,6 +485,16 @@ const commitDate = __GIT_COMMIT_DATE__
           @input="dispatch({ type: 'SET_EVENT', eventName: ($event.target as HTMLInputElement).value })"
         />
       </label>
+      <div class="btn-row" style="margin-top: 8px">
+        <button
+          :disabled="!!assistent"
+          title="Namen der WKR je Liste für alle Bögen, mit zwei Parcours je Parcours"
+          @click="einteilungUmschalten"
+        >
+          {{ einteilungOffen ? '👥 WKR-Einteilung schließen' : '👥 WKR-Einteilung' }}
+          <template v-if="einteilungNamen > 0"> ({{ einteilungNamen }} {{ einteilungNamen === 1 ? 'Name' : 'Namen' }})</template>
+        </button>
+      </div>
       <label class="field field-nums" style="margin-top: 8px">
         <span>Leere Zeilen</span>
         <input

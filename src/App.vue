@@ -8,7 +8,7 @@ import { hoereAufScanner } from './lib/scanner'
 import { pageCounts, showErgebnisse, showLaufzettel, showLegende } from './state/laufzettel'
 import { scanFehler, scanStand, verarbeiteScan } from './state/scan'
 import { useStore } from './state/store'
-import { assistent, konfigStand } from './state/konfig'
+import { assistent, einteilungOffen, konfigStand } from './state/konfig'
 import AufbauAssistent from './components/AufbauAssistent.vue'
 import ControlPanel from './components/ControlPanel.vue'
 import ErgebnisListen from './components/ErgebnisListen.vue'
@@ -16,6 +16,7 @@ import LaufzettelPage from './components/LaufzettelPage.vue'
 import LegendePage from './components/LegendePage.vue'
 import ScanHinweis from './components/ScanHinweis.vue'
 import SheetView from './components/SheetView.vue'
+import WkrEinteilung from './components/WkrEinteilung.vue'
 
 const { state } = useStore()
 // `konfigStand`: Der Entwurf im Assistenten ändert seine Positionen unter derselben ID.
@@ -92,6 +93,8 @@ onBeforeUnmount(() => abmelden())
       <ScanHinweis v-if="scanStand || scanFehler" :passt="scanPasst" :auswahl="scanAuswahl" />
       <!-- Assistent für eigene Aufbauten; die Bögen darunter zeigen den Entwurf live. -->
       <AufbauAssistent v-if="assistent" :key="assistent" :modus="assistent" @schliessen="schliesseAssistent" />
+      <!-- WKR-Einteilung: Namen je Liste, wirkt sofort auf die Bögen darunter. -->
+      <WkrEinteilung v-else-if="einteilungOffen" @schliessen="einteilungOffen = false" />
       <!-- A4-Legende; gedruckt nur über „Nur Legende drucken“. -->
       <section v-if="showLegende" class="legende-stack">
         <LegendePage :legende="legende" :event-name="state.eventName" />

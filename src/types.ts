@@ -200,6 +200,21 @@ export interface ListenStand {
   zeit: number
 }
 
+/** Parcours einer Veranstaltung: 1, oder 2 bei zwei Parcours. */
+export type ParcoursNr = 1 | 2
+
+/**
+ * WKR-Einteilung der Veranstaltung (KONZEPT-NAMEN-FREIHAND.md §1): Namen je Liste, mit zwei
+ * Parcours je Parcours. Der Name auf einem Bogen (`wkr`) geht vor.
+ */
+export interface Einteilung {
+  zweiParcours: boolean
+  /** Klassen auf Parcours 2; die übrigen fahren auf Parcours 1. */
+  parcours2: ClassId[]
+  /** Namen je Parcours und Liste, z. B. namen[1]["steg"]. */
+  namen: Record<ParcoursNr, Record<string, string>>
+}
+
 export interface AppState {
   eventName: string
   /** Gewähltes Regelwerk mit Version, z. B. "dm-2026" oder "uim-2026". */
@@ -243,8 +258,10 @@ export interface AppState {
    * enthaltene Klassen lässt die Schnellauswahl aus. Standard: E, 1 … 7.
    */
   classOrder: ClassId[]
-  /** WKR-Name je Lauf und Liste, z. B. wkr["manoevrieren/4/1/steg"]. */
+  /** WKR-Name je Lauf und Liste, z. B. wkr["manoevrieren/4/1/steg"]. Geht der Einteilung vor. */
   wkr: Record<string, string>
+  /** WKR-Einteilung: Namen je Liste für alle Bögen, mit zwei Parcours je Parcours. */
+  einteilung: Einteilung
   /** Aktuell im Setup zusammengestellte Bögen. */
   boegen: Bogen[]
   /** Eingetragene Zellwerte. */

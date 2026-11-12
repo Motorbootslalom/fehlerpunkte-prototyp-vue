@@ -19,6 +19,7 @@ import { ausLinkUebernehmen } from '../config/eigene'
 import { isSprache } from '../config/sprache'
 import { allDemoNumbers } from '../lib/demo'
 import { ausBogenWerten } from '../lib/eingaben'
+import { leereEinteilung, normalisiereEinteilung } from '../lib/einteilung'
 import { normalizeClassOrder, withoutLaufRepeats } from '../lib/quickpick'
 import { normalizeNumbersMap, readShareConfig, type ShareConfig } from '../lib/sharelink'
 import { ladeEigeneAufbauten, loadState, speichereEigeneAufbauten } from '../lib/storage'
@@ -62,6 +63,7 @@ export function defaultState(): AppState {
     numbers: allDemoNumbers(),
     classOrder: [...CLASS_IDS],
     wkr: {},
+    einteilung: leereEinteilung(),
     boegen: defaultBoegen(aufbau),
     eingaben: {},
     starter: {},
@@ -137,7 +139,7 @@ export function buildInitialState(): AppState {
   // Ältere Stände speichern Startnummern als Zahlen → auf Strings normalisieren.
   if (loaded?.numbers) state = { ...state, numbers: normalizeNumbersMap(loaded.numbers) }
   // Fehlt in älteren Ständen bzw. defensiv bereinigen.
-  state = { ...state, classOrder: normalizeClassOrder(state.classOrder) }
+  state = { ...state, classOrder: normalizeClassOrder(state.classOrder), einteilung: normalisiereEinteilung(state.einteilung) }
 
   // Geteilte Konfiguration aus der URL hat Vorrang vor dem lokalen Stand:
   // Regelwerk, Aufbau, Bezeichnung, Veranstaltung, Leerzeilen, Zeilen/Seite und die Bogen-Auswahl.

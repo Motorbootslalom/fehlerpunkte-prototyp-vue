@@ -1,5 +1,5 @@
 import { computed, inject, reactive, watch, type App, type InjectionKey } from 'vue'
-import type { AppState, Bogen, ClassId, Lauf, SheetTypeId, Sprache, Starter } from '../types'
+import type { AppState, Bogen, ClassId, Einteilung, Lauf, SheetTypeId, Sprache, Starter } from '../types'
 import {
   applyBeschriftung,
   applyRegelwerk,
@@ -36,6 +36,7 @@ export type Action =
   | { type: 'SET_STARTER'; klasse: ClassId; starter: Record<string, Starter> }
   | { type: 'SET_CLASS_ORDER'; classOrder: ClassId[] }
   | { type: 'SET_WKR'; bogen: Bogen; name: string }
+  | { type: 'SET_EINTEILUNG'; einteilung: Einteilung }
   | { type: 'ADD_BOGEN'; typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }
   | { type: 'ADD_BOEGEN_BULK'; items: { typeId: SheetTypeId; klasse: ClassId; lauf: Lauf }[] }
   | { type: 'CLEAR_BOEGEN' }
@@ -149,6 +150,9 @@ export function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_WKR':
       return { ...state, wkr: setzeWkr(state, action.bogen, action.name) }
+
+    case 'SET_EINTEILUNG':
+      return { ...state, einteilung: action.einteilung }
 
     case 'ADD_BOGEN':
       return {

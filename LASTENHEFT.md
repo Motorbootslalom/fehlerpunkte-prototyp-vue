@@ -44,8 +44,10 @@ beschriebenen Punkte beispielhaft um.
 Jeder Bogen ist eine A4-Seite (Knoten: Querformat) und besteht aus:
 
 - **Kopf:** Veranstaltungstitel, QR-Code, links gestapelt Listentyp / Klasse /
-  Lauf, rechts das WKR-Feld. Am Bildschirm zeigt es einen Platzhalter, im Druck steht
-  die Bezeichnung klein unter der Linie, damit sie nicht wie ein Eintrag wirkt.
+  Lauf, bei zwei Parcours darunter der Parcours der Klasse, rechts das WKR-Feld. Am
+  Bildschirm zeigt es einen Platzhalter, im Druck steht die Bezeichnung klein unter der
+  Linie, damit sie nicht wie ein Eintrag wirkt. Ohne eigenen Namen steht dort der Name aus
+  der WKR-Einteilung (am Bildschirm blau).
 - **Tabelle:** eine Zeile je Startnummer (Startreihenfolge), plus einige leere
   Zeilen. Spalten je nach Listentyp (siehe §4). Passt ein Eintrag nicht in seine Zelle,
   etwa `01:14,53 (74,53)` in einer schmalen Zeit-Spalte, wird seine Schrift dynamisch
@@ -411,6 +413,11 @@ Platz für Starter. Passt sie nicht in diese Hälfte, warnt die Vorschau.
 - **Disq., Bemerkung und WKR-Name** gehören zu ihrer Liste und ziehen auf die entsprechende
   Liste des neuen Aufbaus um. Gibt es keine, bleiben sie gespeichert und sind beim
   Zurückwechseln wieder da; eine solche Disqualifikation zählt weiter.
+- **WKR-Einteilung:** Namen je Liste für alle Klassen und Läufe, mit zwei Parcours je
+  Parcours; jede Klasse fährt auf einem davon. Ein Name auf einem Bogen geht vor, geleert
+  gilt wieder die Einteilung. Die Einteilung bleibt im Browser, steht nicht im
+  Einstellungs-Link und wird mit „Alles zurücksetzen“ geleert
+  ([KONZEPT-NAMEN-FREIHAND.md](./KONZEPT-NAMEN-FREIHAND.md)).
 - **Leerzeilen** sind je Lauf dieselben: Eine von Hand eingetragene Startnummer steht auf
   allen Listen des Laufs in derselben Zeile.
 - **Bögen beim Aufbau-Wechsel:** Die unveränderte Grundausstattung wird zur

@@ -1,6 +1,7 @@
 import { aufbauOrder, getAufbau, getAufbauten, getPositions, getSheetDef, positionAllowsClass } from '../config/active'
-import type { AppState, Bogen, CellKind, Eingaben, ErrorDef, Geraet, SheetDef } from '../types'
+import type { AppState, Bogen, CellKind, Eingaben, ErrorDef, Geraet, ParcoursNr, SheetDef } from '../types'
 import { normalizeCodeCell } from './codes'
+import { nameAusEinteilung, parcoursVon } from './einteilung'
 import { allowedSet, sanitizeBuoy, sanitizeDisq } from './disq'
 import { NR_SPALTE, columnCellKeys, defFuerKlasse } from './scoring'
 
@@ -50,12 +51,27 @@ function wkrSchluessel(aufbau: string, bogen: Bogen): string {
   return `${bogenLauf(aufbau, bogen)}/${bogen.typeId}`
 }
 
-export function wkrVon(state: Pick<AppState, 'aufbau' | 'wkr'>, bogen: Bogen): string {
-  return state.wkr[wkrSchluessel(state.aufbau, bogen)] ?? ''
+/** Der WKR-Name eines Bogens: sein eigener, sonst der aus der Einteilung. */
+export function wkrVon(state: Pick<AppState, 'aufbau' | 'wkr'> & Partial<Pick<AppState, 'einteilung'>>, bogen: Bogen): string {
+  return state.wkr[wkrSchluessel(state.aufbau, bogen)] || nameAusEinteilung(state.einteilung, bogen.typeId, bogen.klasse)
 }
 
+/** Kommt der WKR-Name des Bogens aus der Einteilung (kein eigener eingetragen)? */
+export function wkrAusEinteilung(state: Pick<AppState, 'aufbau' | 'wkr' | 'einteilung'>, bogen: Bogen): boolean {
+  return !state.wkr[wkrSchluessel(state.aufbau, bogen)] && !!nameAusEinteilung(state.einteilung, bogen.typeId, bogen.klasse)
+}
+
+/** Der Parcours im Kopf der Liste: nur bei zwei Parcours. */
+export function parcoursImKopf(state: Pick<AppState, 'einteilung'>, bogen: Bogen): ParcoursNr | undefined {
+  return state.einteilung?.zweiParcours ? parcoursVon(state.einteilung, bogen.klasse) : undefined
+}
+
+/** Setzt den Namen eines Bogens; leer gilt wieder die Einteilung. */
 export function setzeWkr(state: Pick<AppState, 'aufbau' | 'wkr'>, bogen: Bogen, name: string): AppState['wkr'] {
-  return { ...state.wkr, [wkrSchluessel(state.aufbau, bogen)]: name }
+  const schluessel = wkrSchluessel(state.aufbau, bogen)
+  if (name) return { ...state.wkr, [schluessel]: name }
+  const { [schluessel]: _weg, ...rest } = state.wkr
+  return rest
 }
 
 /** Zerlegt „12:t1a#0“. Der Spalten-Key enthält nie einen Doppelpunkt, die Startnummer vielleicht. */

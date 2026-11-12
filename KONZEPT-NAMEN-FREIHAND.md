@@ -1,7 +1,8 @@
 # Konzept: Namen je Position und Auswahl mit Freihandlinie
 
-Stand 12.11.2026, nach der Vorstellung des Prototyps. Noch nicht umgesetzt. Behoben ist dagegen schon,
-dass die Bedienleiste bei der Vorlage „leer“ verschwand (§3).
+Stand 12.11.2026, nach der Vorstellung des Prototyps. **Umgesetzt am 12.11.2026** mit den
+Vorschlägen aus §4, weil die Fragen dort noch offen waren. Abweichungen stehen bei den Abschnitten.
+Behoben ist außerdem, dass die Bedienleiste bei der Vorlage „leer“ verschwand (§3).
 
 ## 1. Namen je Position
 
@@ -37,7 +38,9 @@ Mann-über-Bord           –                     [Kraus         ]
 Knoten                   [              ]      [              ]
 ```
 
-- Die Zeilen sind die Listen des gewählten Aufbaus in seiner Reihenfolge.
+- Die Zeilen sind die Listen des gewählten Aufbaus in seiner Reihenfolge. Darunter stehen die
+  weiteren Listen aus der Schnellauswahl (Knoten, Varianten ohne Start/Ziel), denn auch sie
+  lassen sich drucken.
 - Ohne Haken gibt es eine Spalte „Name“ und keine Klassenzeile.
 - Mit Haken kommen die zweite Spalte und die Zuordnung der Klassen dazu. Am Anfang stehen alle Klassen
   auf Parcours 1.
@@ -46,11 +49,11 @@ Knoten                   [              ]      [              ]
 ### 1.3 Wirkung auf die Bögen
 
 - Das WKR-Feld zeigt den Namen aus der Einteilung: Klasse, dann Parcours, dann Name der Liste. Im
-  Druck steht er wie ein eingetippter Name.
+  Druck steht er wie ein eingetippter Name, am Bildschirm ist er blau.
 - Wer auf einem Bogen etwas anderes einträgt, etwa eine Vertretung im 2. Lauf, ändert nur diesen
   Bogen. Wird das Feld dort wieder geleert, gilt wieder die Einteilung.
-- Mit zwei Parcours steht der Parcours im Kopf der Liste neben Klasse und Lauf, damit die Stapel nicht
-  durcheinandergeraten (siehe Frage 2).
+- Mit zwei Parcours steht der Parcours im Kopf der Liste unter Klasse und Lauf, damit die Stapel
+  nicht durcheinandergeraten (siehe Frage 2), auch in der react-pdf-Insel.
 
 ### 1.4 Speichern
 
@@ -126,6 +129,8 @@ Tor 1/3/5:  Blick [von hinten ▾]   Zeit [keine ▾]   [ ] Bild klein
   testbar.
 - `touch-action: none` auf dem Bild, damit Zeichnen auf dem Tablet die Seite nicht verschiebt.
 - Neue Komponente `ZuordnungImBild.vue`. Der Assistent bekommt nur den Umschalter.
+- Fehlt eine Boje im Bild (z. B. Tonne 8 in einer Kursvariante), steht sie unter dem Bild zum
+  Anhaken.
 
 ## 3. Behoben: Bedienleiste verschwand bei der Vorlage „leer“
 
@@ -136,6 +141,10 @@ einer Spalte. Jetzt rechnen Bedienleiste und App die Positionen nach jeder Ände
 neu (`konfigStand`).
 
 ## 4. Offene Fragen
+
+Umgesetzt ist jeweils der Vorschlag: Klasse fest auf einem Parcours, Parcours im Kopf, Einteilung nur
+im Browser, Boje wechselt zur gewählten Position, erst die Einteilung. Andere Antworten lassen sich
+nachziehen.
 
 1. **Zwei Parcours:** Bleibt eine Klasse die ganze Veranstaltung auf demselben Parcours, oder kann das
    je Lauf wechseln?

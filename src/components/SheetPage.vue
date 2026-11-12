@@ -9,7 +9,7 @@ import { NR_SPALTE, cellKey, columnsForClass, formatDisqs, scoreRow, summenText 
 import { useCell, useStore } from '../state/store'
 import type { Bogen, CellKind, Column, SheetDef, TrennerDesign } from '../types'
 import { hasDescription } from '../lib/backside'
-import { wkrVon } from '../lib/eingaben'
+import { parcoursImKopf, wkrAusEinteilung, wkrVon } from '../lib/eingaben'
 import { fitCells, fitEventTarget } from '../lib/fitText'
 import { bogenCode } from '../lib/qr'
 import CourseImage from './CourseImage.vue'
@@ -309,6 +309,8 @@ function fitAusEreignis(e: Event) {
               :bogen="bogen"
               :event-name="state.eventName"
               :wkr="wkrVon(state, bogen)"
+              :wkr-aus-einteilung="wkrAusEinteilung(state, bogen)"
+              :parcours="parcoursImKopf(state, bogen)"
               :qr="bogenCode(state, bogen, pageIndex + 1)"
               @wkr="onWkr"
             />

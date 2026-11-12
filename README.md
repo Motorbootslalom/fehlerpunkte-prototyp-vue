@@ -25,10 +25,13 @@ ein Reload.
   **Kurzform** (per YAML, siehe unten): welche Bojen und Aufgaben sie beobachten und von wo
   aus. Spalten, Reihenfolge, Trennlinien, Abblendung im Bild und Drehung folgen aus dem
   Fahrweg.
-- **Eigene Aufbauten mit Assistent:** Positionen anlegen, per Klick zuordnen, welche Bojen
-  sie beobachten, die Bögen darunter zeigen den Entwurf live. Eigene Aufbauten bleiben im
-  Browser, reisen im Einstellungs-Link mit und lassen sich als YAML speichern und laden
-  ([Lastenheft §8h](./LASTENHEFT.md)).
+- **Eigene Aufbauten mit Assistent:** Positionen anlegen, per Klick in der Tabelle oder mit
+  einer Freihandlinie im Parcoursbild zuordnen, welche Bojen sie beobachten, die Bögen darunter
+  zeigen den Entwurf live. Eigene Aufbauten bleiben im Browser, reisen im Einstellungs-Link mit
+  und lassen sich als YAML speichern und laden ([Lastenheft §8h](./LASTENHEFT.md)).
+- **WKR-Einteilung:** Namen je Liste einmal für alle Klassen und Läufe eintragen, bei zwei
+  Parcours je Parcours mit Aufteilung der Klassen. Ein Name direkt auf einem Bogen geht vor
+  ([KONZEPT-NAMEN-FREIHAND.md](./KONZEPT-NAMEN-FREIHAND.md)).
 - **Kursvarianten:** eigene Parcoursbilder je Klasse für einen Austragungsort, z. B. der
   Möwe-Parcours mit anders herum laufender Speedrunde.
 - **Zeitnahme mit Gerät:** elektronische Zeiterfassung und Stoppuhren je Liste; in der

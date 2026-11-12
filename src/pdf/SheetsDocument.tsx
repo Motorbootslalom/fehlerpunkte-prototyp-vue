@@ -1,7 +1,7 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import type { Style } from '@react-pdf/types'
 import { bildDatei, getBogenTexte, getSheetDef } from '../config/active'
-import { bogenLeser, wkrVon } from '../lib/eingaben'
+import { bogenLeser, parcoursImKopf, wkrVon } from '../lib/eingaben'
 import { cellKey, columnsForClass, defFuerKlasse, scoreRow, summenText } from '../lib/scoring'
 import { pageChunks } from '../lib/paging'
 import { formatTimeDisplay, parseTime } from '../lib/time'
@@ -294,6 +294,14 @@ function Header({
   /** Seite dieses <Page>; bricht react-pdf selbst um, zählt subPageNumber weiter. */
   ersteSeite: number
 }) {
+  // Klasse, Lauf und bei zwei Parcours der Parcours; die letzte Zeile ohne Linie darunter.
+  const texte = getBogenTexte()
+  const parcours = parcoursImKopf(state, bogen)
+  const zeilen = [
+    texte.klasse(bogen.klasse),
+    ...(def.showLauf !== false ? [texte.lauf(bogen.lauf)] : []),
+    ...(parcours ? [texte.parcours(parcours)] : []),
+  ]
   return (
     <View style={s.headerBox}>
       <View style={s.eventBar}>
@@ -308,12 +316,11 @@ function Header({
       <View style={s.headerBody}>
         <View style={s.headerLeft}>
           <Text style={[s.hlCell, s.hlTitle]}>{def.title}</Text>
-          <Text style={[s.hlCell, def.showLauf === false ? { borderBottomWidth: 0 } : {}]}>
-            {getBogenTexte().klasse(bogen.klasse)}
-          </Text>
-          {def.showLauf !== false && (
-            <Text style={[s.hlCell, { borderBottomWidth: 0 }]}>{getBogenTexte().lauf(bogen.lauf)}</Text>
-          )}
+          {zeilen.map((text, i) => (
+            <Text key={i} style={[s.hlCell, i === zeilen.length - 1 ? { borderBottomWidth: 0 } : {}]}>
+              {text}
+            </Text>
+          ))}
         </View>
         <View style={s.wkrBox}>
           <Text style={s.wkrLabel}>{getBogenTexte().wkr} {wkrVon(state, bogen)}</Text>
